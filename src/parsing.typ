@@ -23,8 +23,11 @@
 	"~": (decorate: "wave"),
 	"wave": (decorate: "wave"),
 	"zigzag": (decorate: "zigzag"),
-	"coil": (decorate: "coil"),
-	// "square": (decorate: "square"), // conflicts with the mark named "square"
+	"coil": (decorate: (
+		kind: "coil",
+		wavelength: 8,
+		amplitude: 8,
+	)),
 	" ": (extrude: ()),
 )
 

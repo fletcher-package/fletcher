@@ -17,7 +17,7 @@
   snap-method: "trim",
   decorate: (
     kind: none,
-    amplitude: 8,
+    amplitude: 5,
     wavelength: 10,
     smooth: auto,
     shorten: 0,
