@@ -225,7 +225,6 @@
 
   style.outset = cetz.util.resolve-number(ctx, style.outset)
 
-
   node.style = style
   node.draw = style.draw
   return node
@@ -262,9 +261,8 @@
     body-center: body-center
   ))
   let (low, high) = cetz.process.many(ctx, drawn).bounds
-  let (w, h, ..) = cetz.vector.sub(high, low)
-  body-center = cetz.vector.scale(cetz.vector.add(high, low), -0.5)
-  bounding-size = (w, h)
+  body-center = cetz.vector.scale(cetz.vector.add(high, low), -0.5).slice(0, 2)
+  bounding-size = cetz.vector.sub(high, low).slice(0, 2)
 
   return (body: body-size, bounding: bounding-size, body-center: body-center)
 }
@@ -284,11 +282,58 @@
     body = rect(body, inset: 0pt, outset: 0pt, ..DEBUG_STYLES.node.inset)
   }
 
-  // inset = 0
   return cetz.draw.content((0,0), [#body], padding: inset, name: "body")
 }
 
+/// Resolve an enclose node given the final layout information
+/// about all preceding nodes.
+#let resolve-enclose-node(ctx, data, preceding-nodes) = {
+  let node-corners(node) = {
+    let (w, h) = node.bounding-size
+    let (x, y) = node.pos
+    return ((x - w/2, y - h/2), (x + w/2, y + h/2))
+  }
+  
+  let key-to-points(key) = {
+    if type(key) == label {
+      let node = preceding-nodes.find(n => n.name == str(key))
+      if node == none {
+        utils.error("Cannot find node with name #0. Hint: Enclose nodes must be after the nodes they enclose.", key)
+      }
+      return node-corners(node)
 
+    } else {
+      // find node with exact same position as key
+      let node = preceding-nodes.find(n => n.uv-pos == key)
+      if node != none {
+        return node-corners(node)
+      }
+
+      let coord = utils.interpret-as-uv(key)
+      let (_, (x, y, ..)) = cetz.coordinate.resolve(ctx, coord)
+
+      return ((x, y),)
+    }
+  }
+
+  let v = data.enclose.map(key-to-points).join()
+
+  v = cetz.util.bezier.aabb.aabb(v)
+
+  let padding = cetz.util.as-padding-dict(data.style.inset)
+    .pairs()
+    .map(((k, v)) => (k, cetz.util.resolve-number(ctx, v)))
+    .to-dict()
+
+  v.low.at(0) -= padding.left
+  v.low.at(1) -= padding.bottom
+  v.high.at(0) += padding.right
+  v.high.at(1) += padding.top
+
+  data.pos = cetz.vector.lerp(v.low, v.high, 0.5)
+  data.bounding-size = cetz.vector.sub(v.high, v.low)
+  data
+}
 
 #let _node(
   ..options,
@@ -354,6 +399,10 @@
       // In the layout pass, we only care about resolving
       // the uv coordinates of nodes and recording this in ctx.shared-state.
 
+      if data.enclose != none {
+        data.pos = utils.nans
+      }
+
       // resolve uv coordinates
       let pos = utils.interpret-as-uv(data.pos)
       let uv
@@ -375,6 +424,11 @@
       if self.uv-pos != none {
         // this is a uv node
         data = (fletcher-ctx.place-node-in-flexigrid)(self)
+
+      } else if self.enclose != none {
+        // this is an enclose node
+        let preceding-nodes = fletcher-ctx.nodes.slice(0, fletcher-ctx.current-node)
+        data = resolve-enclose-node(ctx, data, preceding-nodes)
 
       } else {
         // this is an xy node
@@ -403,6 +457,7 @@
       data.pos = self.pos
       data.bounding-size = self.bounding-size
       data.cell = self.cell
+      data.draw = self.draw
       ctx.prev.pt = data.pos
 
     } else {
@@ -640,9 +695,7 @@
 
   if options.name != none { options.name = str(options.name) }
 
-
   if options.enclose != none { options.enclose = utils.one-or-array(options.enclose) }
-
 
   if in-math {
     options.body = math.equation(options.body)
