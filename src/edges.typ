@@ -288,16 +288,14 @@
     element.drawables = new-obj(ctx).drawables
   }
 
-  // if crossing-stroke != none {
-  //   (ctx => {
-  //     let drawables = cetz.process.many(ctx, path).drawables
-  //       .map(drawable => {
-  //         drawable.stroke = crossing-stroke
-  //         drawable
-  //       })
-  //     (ctx: ctx, drawables: drawables)
-  //   },)
-  // }
+
+  if crossing-stroke != none {
+    let crossing = element.drawables.map(path => {
+      path.stroke = utils.stroke-to-dict(crossing-stroke)
+      path
+    })
+    (ctx => (ctx: ctx, drawables: crossing),)
+  }
 
   // obj
   (ctx => (ctx: ctx, name: element.name, anchors: element.anchors, drawables: element.drawables),)

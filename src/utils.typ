@@ -17,7 +17,7 @@
 
 #let is-node(o) = type(o) == dictionary and "class" in o and o.class == "node"
 #let is-edge(o) = type(o) == dictionary and "class" in o and o.class == "edge"
-#let is-cetz(o) = type(o) == array and o.all(el => type(el) == function)
+#let is-cetz(o) = type(o) == array and o.len() > 0 and o.all(el => type(el) == function)
 #let is-cetz-element(o) = type(o) == dictionary and "name" in o and "drawables" in o
 
 #let nans = (float.nan,)*3
@@ -156,7 +156,7 @@
 
 
 /// Convert coordinates in $u v$ system into $x y$ system.
-/// 
+///
 /// The `grid` dictionary defines the coordinate mapping and must contain
 /// - `col-centers`, defining $x$ values for each $u$ value
 /// - `row-center`, defining $y$ values for each $v$ value
@@ -280,7 +280,7 @@
 	if type(it) == angle { return it }
 
 	let angles = range(8).map(i => 45deg*i)
-	
+
 	if type(it) == alignment {
 		let i = (
 			"right",
