@@ -504,9 +504,15 @@
   extrude: auto,
   /// Canvas layer to draw node on.
   ///
+  /// The default layer for normal nodes is `1`, and for enclose
+  /// nodes the default layer is `-1`.
   /// Nodes with equal layer are drawn in the order they are inserted.
+  ///
+  /// Edges are drawn on layer `0` by default.
+  /// 
+  /// See also @edge.layer.
   /// -> number
-  layer: 0,
+  layer: auto,
   /// Name of the node for use with coordinate anchors.
   ///
   /// This can also be passed as a positional argument (but then
@@ -624,6 +630,17 @@
   options += parsing.interpret-node-positional-args(pos, options)
 
   if options.name != none { options.name = str(options.name) }
+
+  if options.layer == auto {
+    if options.enclose != none {
+      options.layer = -1
+    } else {
+      options.layer = 1
+    }
+  }
+
+  if options.enclose != none { options.enclose = utils.one-or-array(options.enclose) }
+
 
   if in-math {
     options.body = math.equation(options.body)

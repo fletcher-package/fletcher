@@ -296,7 +296,7 @@
   let (x-min, x-max) = flexiline-bounds(grid.x)
   let (y-min, y-max) = flexiline-bounds(grid.y)
 
-  debug-group({
+  debug-group(layer: 10, {
     if draw-cells {
       let t = DEBUG_STYLES.grid.cells.stroke.thickness
       for i in range(grid.x.centers.len()) {
@@ -321,7 +321,6 @@
     }
 
     cetz.draw.group({
-      // cetz.draw.fill(DEBUG_COLOR)
       cetz.draw.stroke(none)
       cetz.draw.set-style(
         content: (padding: 0.25em),
