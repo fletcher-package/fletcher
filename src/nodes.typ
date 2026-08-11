@@ -139,8 +139,7 @@
 
   if shape == auto {
     // just guess shape from node body
-    if node.body == none { shape = "none"}
-    else if node.enclose != none { shape = "rect" }
+    if node.enclose != none { shape = "rect" }
     else if node.cellspan != (none, none) { shape = "rect" }
     else {
       // choose based on body size and aspect ratio
