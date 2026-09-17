@@ -4,6 +4,9 @@ on:
   push:
     branches: [main, dev]
 
+env:
+  DOCS_REPO: fletcher-package/fletcher-package.github.io
+
 permissions:
   contents: read
   pages: write
@@ -23,16 +26,18 @@ jobs:
         run: pixi run manual compile
 
       - name: Build site
-        run: pixi run site compile -- --input url-root=/typst-fletcher
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
+        run: pixi run site compile
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
+          name: site
           path: docs/site/
 
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v5
+      - name: Trigger site deployment
+        env:
+          GH_TOKEN: ${{ secrets.PAGES_DEPLOY_TOKEN }}
+        run: |
+          gh workflow run deploy.yaml \
+            --repo ${{ env.DOCS_REPO }} \
+            -f run_id="${{ github.run_id }}"
