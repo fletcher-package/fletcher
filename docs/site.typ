@@ -184,17 +184,17 @@
 // Gallery
 
 #let gals = (
-  "gallery/01-commutative.typ",
-  "gallery/02-algebra-cube.typ",
-  "gallery/03-ml-architecture.typ",
-  // "gallery/04-io-flowchart.typ",
-  "gallery/05-digraph.typ",
-  // "gallery/06-node-groups.typ",
-  "gallery/07-uml-diagram.typ",
-  "gallery/08-tree.typ",
-  "gallery/09-feynman-diagram.typ",
-  "gallery/10-category-theory.typ",
-  "gallery/11-block-diagram.typ",
+  "gallery/commutative.typ",
+  "gallery/block-diagram.typ",
+  "gallery/ml-architecture.typ",
+  // "gallery/io-flowchart.typ",
+  "gallery/digraph.typ",
+  "gallery/uml-diagram.typ",
+  "gallery/feynman-diagram.typ",
+  "gallery/category-theory.typ",
+  "gallery/node-groups.typ",
+  "gallery/tree.typ",
+  "gallery/algebra-cube.typ",
 )
 #for gal in gals [
   #asset(gal, read(gal).replace("\t", "  ")) #label(gal)
