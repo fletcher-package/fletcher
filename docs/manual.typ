@@ -14,7 +14,7 @@
 
   #package-summary
 
-  #link("https://github.com/Jollywatt/typst-fletcher")[`github.com/Jollywatt/typst-fletcher`]
+  #link("https://fletcher-package.github.io")[`fletcher-package.github.io`]
 
   *Version #common.VERSION*
 ]

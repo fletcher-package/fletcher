@@ -21,7 +21,7 @@
 
 #pagebreak()
 
-https://github.com/Jollywatt/typst-fletcher/issues/144
+https://github.com/fletcher-package/fletcher/issues/144
 
 #diagram({
   cetz.draw.set-style(edge: (stroke: black.transparentize(50%)))

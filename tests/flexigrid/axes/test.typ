@@ -32,7 +32,7 @@
 
 Cardinal directions `n,e,s,w` etc. are axes-invariant
 
-https://github.com/Jollywatt/typst-fletcher/issues/104
+https://github.com/fletcher-package/fletcher/issues/104
 
 #for axes in all-axes {
   diagram(

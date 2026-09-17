@@ -33,35 +33,10 @@ def examples [] {
 	} | str join
 }
 
-def gallery [] {
-	let cells = ls docs/gallery/*.typ | each {|it|
-		let img = $it.name | path parse | update extension svg | path join
-		{tag: td, attributes: {style: 'background: white;'} content: [{
-			tag: a
-			attributes: {href: $it.name}
-			content: [{tag: center, content: [{
-				tag: img
-				attributes: {src: $img width: '100%'}
-			}]}]
-		}]}
-	}
-	let N = $cells | length
-	let cols = 2
-	let rows = 0..($N / $cols - 1 | math ceil) | each {|n|
-		let row = $n * $cols
-		{
-			tag: tr
-			content: ($cells | slice $row..($row + $cols - 1))
-		}
-	}
-	{tag: table, content: $rows} | to xml --indent 2 --self-closed
-}
-
 def main [] {
-	open README.src.md |
+	open README.src.md --raw |
 		str replace -a '{VERSION}' (get_version) |
 		str replace '{README_EXAMPLES}' (examples) |
-		str replace '{GALLERY}' (gallery) |
 		save README.md --force
 	print "Wrote to README.md"
 }

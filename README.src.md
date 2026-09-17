@@ -1,7 +1,6 @@
-![Version](https://img.shields.io/badge/version-{VERSION}-green)
 [![Typst Universe](https://img.shields.io/badge/Typst-Universe-239dad)](https://typst.app/universe/package/fletcher/)
-[![Release version](https://img.shields.io/badge/dynamic/toml?url=https%3A%2F%2Fgithub.com%2FJollywatt%2Ftypst-fletcher%2Fraw%2Frelease%2Ftypst.toml&query=package.version&label=release&color=448)](https://github.com/Jollywatt/typst-fletcher/tree/release)
-[![Development version](https://img.shields.io/badge/dynamic/toml?url=https%3A%2F%2Fgithub.com%2FJollywatt%2Ftypst-fletcher%2Fraw%2Fmain%2Ftypst.toml&query=package.version&label=dev&color=844)](https://github.com/Jollywatt/typst-fletcher/tree/main)
+[![Documentation site](https://img.shields.io/badge/Documentation-orange)](https://fletcher-package.github.io)
+![Version](https://img.shields.io/badge/version-{VERSION}-green)
 
 # fletcher
 
@@ -10,9 +9,8 @@ _**fletcher** (noun) a maker of arrows_
 A [Typst](https://typst.app/) package for drawing diagrams with arrows,
 built on top of [CeTZ](https://github.com/johannes-wolf/cetz).
 
-See the [manual](docs/manual.pdf?raw=true) for documentation or ask the community for help.
+See the [documentation](https://fletcher-package.github.io) or ask the community for help.
 
-[![Manual](https://img.shields.io/badge/docs-manual.pdf-orange)](docs/manual.pdf?raw=true)
 [![Ask on Discord](https://img.shields.io/badge/ask-on%20Typst%20forum-239dad
 )](https://forum.typst.app)
 [![Ask on Discord](https://img.shields.io/badge/ask-on%20Discord-2a4d7e
@@ -24,14 +22,6 @@ See the [manual](docs/manual.pdf?raw=true) for documentation or ask the communit
 ```
 
 {README_EXAMPLES}
-
-
-
-# More examples
-Pull requests are most welcome!
-
-{GALLERY}
-
 
 
 ## Change log

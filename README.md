@@ -1,7 +1,6 @@
-![Version](https://img.shields.io/badge/version-0.6.0-green)
+[![Home page](https://img.shields.io/badge/Documentation-orange)](https://fletcher-package.github.io)
 [![Typst Universe](https://img.shields.io/badge/Typst-Universe-239dad)](https://typst.app/universe/package/fletcher/)
-[![Release version](https://img.shields.io/badge/dynamic/toml?url=https%3A%2F%2Fgithub.com%2FJollywatt%2Ftypst-fletcher%2Fraw%2Frelease%2Ftypst.toml&query=package.version&label=release&color=448)](https://github.com/Jollywatt/typst-fletcher/tree/release)
-[![Development version](https://img.shields.io/badge/dynamic/toml?url=https%3A%2F%2Fgithub.com%2FJollywatt%2Ftypst-fletcher%2Fraw%2Fmain%2Ftypst.toml&query=package.version&label=dev&color=844)](https://github.com/Jollywatt/typst-fletcher/tree/main)
+![Version](https://img.shields.io/badge/version-0.6.0-green)
 
 # fletcher
 
@@ -10,9 +9,8 @@ _**fletcher** (noun) a maker of arrows_
 A [Typst](https://typst.app/) package for drawing diagrams with arrows,
 built on top of [CeTZ](https://github.com/johannes-wolf/cetz).
 
-See the [manual](docs/manual.pdf?raw=true) for documentation or ask the community for help.
+See the [documentation](https://fletcher-package.github.io) or ask the community for help.
 
-[![Manual](https://img.shields.io/badge/docs-manual.pdf-orange)](docs/manual.pdf?raw=true)
 [![Ask on Discord](https://img.shields.io/badge/ask-on%20Typst%20forum-239dad
 )](https://forum.typst.app)
 [![Ask on Discord](https://img.shields.io/badge/ask-on%20Discord-2a4d7e
@@ -91,95 +89,6 @@ $)
 	e^+ edge("ru", "-|>-") & & & edge("lu", "-<|-") e^- \
 $)
 ```
-
-
-
-
-# More examples
-Pull requests are most welcome!
-
-<table>
-  <tr>
-    <td style="background: white;">
-      <a href="docs/gallery/01-commutative.typ">
-        <center>
-          <img src="docs/gallery/01-commutative.svg" width="100%"/>
-        </center>
-      </a>
-    </td>
-    <td style="background: white;">
-      <a href="docs/gallery/02-algebra-cube.typ">
-        <center>
-          <img src="docs/gallery/02-algebra-cube.svg" width="100%"/>
-        </center>
-      </a>
-    </td>
-  </tr>
-  <tr>
-    <td style="background: white;">
-      <a href="docs/gallery/03-ml-architecture.typ">
-        <center>
-          <img src="docs/gallery/03-ml-architecture.svg" width="100%"/>
-        </center>
-      </a>
-    </td>
-    <td style="background: white;">
-      <a href="docs/gallery/04-io-flowchart.typ">
-        <center>
-          <img src="docs/gallery/04-io-flowchart.svg" width="100%"/>
-        </center>
-      </a>
-    </td>
-  </tr>
-  <tr>
-    <td style="background: white;">
-      <a href="docs/gallery/05-digraph.typ">
-        <center>
-          <img src="docs/gallery/05-digraph.svg" width="100%"/>
-        </center>
-      </a>
-    </td>
-    <td style="background: white;">
-      <a href="docs/gallery/06-node-groups.typ">
-        <center>
-          <img src="docs/gallery/06-node-groups.svg" width="100%"/>
-        </center>
-      </a>
-    </td>
-  </tr>
-  <tr>
-    <td style="background: white;">
-      <a href="docs/gallery/07-uml-diagram.typ">
-        <center>
-          <img src="docs/gallery/07-uml-diagram.svg" width="100%"/>
-        </center>
-      </a>
-    </td>
-    <td style="background: white;">
-      <a href="docs/gallery/08-tree.typ">
-        <center>
-          <img src="docs/gallery/08-tree.svg" width="100%"/>
-        </center>
-      </a>
-    </td>
-  </tr>
-  <tr>
-    <td style="background: white;">
-      <a href="docs/gallery/09-feynman-diagram.typ">
-        <center>
-          <img src="docs/gallery/09-feynman-diagram.svg" width="100%"/>
-        </center>
-      </a>
-    </td>
-    <td style="background: white;">
-      <a href="docs/gallery/10-category-theory.typ">
-        <center>
-          <img src="docs/gallery/10-category-theory.svg" width="100%"/>
-        </center>
-      </a>
-    </td>
-  </tr>
-</table>
 
 
 

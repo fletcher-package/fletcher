@@ -6,7 +6,7 @@ entrypoint = "src/exports.typ"
 authors = ["Joseph Wilson (Jollywatt)"]
 license = "MIT"
 description = "Draw diagrams with nodes and arrows."
-repository = "https://github.com/Jollywatt/typst-fletcher"
+repository = "https://github.com/fletcher-package/fletcher"
 categories = ["visualization", "components"]
 keywords = [
 	"commutative",

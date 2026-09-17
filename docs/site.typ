@@ -171,7 +171,7 @@
 
   #link(<manual-pdf>, html.img(src: "https://img.shields.io/badge/Manual-PDF-orange"))
   #link("https://typst.app/universe/package/fletcher/", html.img(src: "https://img.shields.io/badge/Typst-Universe-239dad"))
-  #link("https://github.com/Jollywatt/typst-fletcher/", html.img(src: "https://img.shields.io/badge/GitHub-Repo-blue?logo=github"))
+  #link("https://github.com/fletcher-package/fletcher", html.img(src: "https://img.shields.io/badge/GitHub-Repo-blue?logo=github"))
   #link("https://forum.typst.app", html.img(src: "https://img.shields.io/badge/ask-on%20Typst%20forum-239dad"))
   #link("https://discord.com/channels/1054443721975922748/1260973351900414102", html.img(src: "https://img.shields.io/badge/ask-on%20Discord-2a4d7e"))
 
