@@ -194,6 +194,7 @@
   "gallery/08-tree.typ",
   "gallery/09-feynman-diagram.typ",
   "gallery/10-category-theory.typ",
+  "gallery/11-block-diagram.typ",
 )
 #for gal in gals [
   #asset(gal, read(gal).replace("\t", "  ")) #label(gal)
