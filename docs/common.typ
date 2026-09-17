@@ -42,6 +42,8 @@
     state machines,
     block diagrams...
   ]
+
+  Last updated #datetime.today().display().
 ]
 
 
