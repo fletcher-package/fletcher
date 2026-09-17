@@ -457,8 +457,12 @@
   ///   node((1,0), [B], extrude: (3, 0)),
   /// )
   /// ```)
+  /// 
+  /// _This option is a @node-styles[node style]._
   fill: auto,
   /// Stroke style for the node outline.
+  /// 
+  /// _This option is a @node-styles[node style]._
   stroke: auto,
   /// Padding applied to the content in a node's body.
   ///
@@ -468,6 +472,9 @@
   /// The inset can be a length like `5pt`, or a CeTZ-style array
   /// or dictionary: for example, `(0, 5pt)` for only horizontal
   /// padding; `(left: 5pt, rest: 10pt)` for per-edge padding.
+  /// 
+  /// _This option is a @node-styles[node style]._
+  /// 
   /// -> length | array | dictionary
   inset: auto,
   /// Separation between the node's visible outline and the
@@ -487,9 +494,10 @@
   ///   node((1,0), [World], outset: 5pt, shape: "ellipse"),
   /// )
   /// ```)
+  /// 
+  /// _This option is a @node-styles[node style]._
   ///
   /// See also @edge.outset, which controls how closely individual edges connect to nodes.
-  ///
   /// -> length
   outset: auto,
   /// Draw strokes around the node at the given offsets to
@@ -498,17 +506,20 @@
   ///
   /// The node's fill is drawn within the boundary defined by the first offset in
   /// the array.
+  /// 
+  /// _This option is a @node-styles[node style]._
   /// -> array
   extrude: auto,
   /// Canvas layer to draw node on.
   ///
-  /// The default layer for normal nodes is `1`, and for enclose
+  /// The default layer for normal nodes is `0`, and for enclose
   /// nodes the default layer is `-1`.
   /// Nodes with equal layer are drawn in the order they are inserted.
-  ///
-  /// Edges are drawn on layer `0` by default.
   /// 
-  /// See also @edge.layer.
+  /// _This option is a @node-styles[node style]._
+  /// 
+  /// See also @edge.layer; edges are drawn on layer `-1` by default.
+  /// 
   /// -> number
   layer: auto,
   /// Name of the node for use with coordinate anchors.

@@ -32,8 +32,19 @@ Edges automatically snap to nodes (with an @node.outset) and the positions and s
 
 == Node styles <node-styles>
 
-Node styles can be set with named arguments to @node.
-Default node styles can be set by passing options to the enclosing @diagram with the `node-` prefix, or by using `cetz.draw.set-style(node: ..)`.
+Node styles can be set with named arguments, like
+```
+node(stroke: 2pt, ..)
+```
+while default styles can be set by passing options to the enclosing diagram by adding a prefix, like ```
+diagram(node-stroke: 2pt, ..)
+```
+or by using
+```
+cetz.draw.set-style(node: (stroke: 2pt))
+```
+which works in a @diagram and a CeTZ canvas.
+Like CeTZ styles, `cetz.draw.set-style()` is scoped to the current `cetz.draw.group()`.
 
 #example(```typ
 #diagram(
@@ -49,8 +60,6 @@ Default node styles can be set by passing options to the enclosing @diagram with
 )
 ```)
 
-Like CeTZ styles, `cetz.draw.set-style()` is scoped to the current `cetz.draw.group()`.
-
 Available node styles:
 
 - @node.fill
@@ -59,11 +68,12 @@ Available node styles:
 - @node.inset
 - @node.outset
 - @node.shape
+- @node.layer
 - Any other styles specific to the @node-shapes[node shape]:
 	- `width`, `height`, `corner-radius` for @rect nodes
 	- `radius` for @circle nodes
+	- @node-fit[`fit` and `cell-fit`]
 	- and so on
-
 
 
 == Node shapes <node-shapes>
