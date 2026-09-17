@@ -1,7 +1,7 @@
 // This file contains things used by both the documentation PDF and website
 
 #import "@preview/tidy:0.4.3"
-#import "../src/exports.typ" as fletcher
+#import "../src/exports.typ" as fletcher: diagram, node, edge
 #import "../src/debug.typ": DEBUG_LEVELS
 
 #let VERSION = toml("/typst.toml").package.version
@@ -303,6 +303,8 @@
   if it.element == none {
     highlight(raw(repr(it.target)))
     metadata((invalid-ref: str(it.target)))
+    panic("Unresolved reference:", it.target)
+
   } else if it.element.func() == metadata and "entity" in it.element.value {
     show: link.with(it.element.location())
 
@@ -329,6 +331,8 @@
       if it.supplement == auto { it.element.body } else { it.supplement }
     )
     link(it.target, body)
+  } else if it.supplement != auto {
+    link(it.target, it.supplement)
   } else {
     panic(it)
   }

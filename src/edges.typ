@@ -1088,7 +1088,7 @@
   ///
   /// This can be a `ratio`, relative to the total path length,
   /// or a `float` whose integer part refers to the segment number and
-  /// whose fractional part interpolates along the segment (see @point-on-path).
+  /// whose fractional part interpolates along the segment (see @path-anchors).
   ///
   /// ```example
   /// #diagram({
@@ -1228,7 +1228,7 @@
   shorten: 0,
   /// Name of the edge for use with coordinate anchors.
   ///
-  /// Giving a name to an edge allows the use of @path-anchor[path anchors] to connect other edges or CeTZ objects.
+  /// Giving a name to an edge allows the use of @path-anchors[path anchors] to connect other edges or CeTZ objects.
   /// -> label | str
   name: none,
   /// Apply CeTZ _path decorations_ do the edge, such as wave or zigzag effects.
@@ -1279,7 +1279,7 @@
 
   /// Draw a backdrop under the edge to give the illusion of it crossing over other lines.
   ///
-  /// If `true`, draws a backdrop of color @edge.crossing-fill with a thickness @edge.crossing-stroke,
+  /// If `true`, draws a backdrop of color @edge.crossing-fill with a thickness @edge.crossing-thickness,
   /// which are both styles that can be set at the diagram level.
   ///
   /// ```example

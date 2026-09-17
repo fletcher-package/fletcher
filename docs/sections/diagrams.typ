@@ -76,3 +76,21 @@ When this happens, the node's size is automatically set to the full size of the 
   node((0,2), colspan: 2)[Two Columns],
 )
 ```)
+
+Note that @node.rowspan and @node.colspan affect the node's enclosing _cell_, while the size of the node can be controlled independently.
+However, this use case is rare, since you can also place nodes in between cells by using fractional coordinates.
+
+#example(```typ
+#diagram(
+  debug: "grid.coords",
+  node-fill: green.lighten(50%),
+  node-stroke: 0.5pt,
+  node((0,0), $A B$),
+  node((1,0), $C D$),
+  node((0,1), [Columns],
+    colspan: 2, width: 16mm,
+    debug: "node.cell"),
+)
+```)
+
+This is similar but different to @enclose-nodes; row and column spans only work inside a flexigrid.

@@ -522,6 +522,42 @@
   /// }))
   /// -> number | length | pair
   spacing: 1.0,
+  /// The physical orientation of the $(u, v)$ axes.
+  ///
+  /// This affects the elastic coordinate system used by @node[nodes] and @edge[edges].
+  /// By default, the $u$ coordinate increases $arrow.r$ and $v$ increases $arrow.b$.
+  /// To use $(arrow.r, arrow.t)$, which is what CeTZ uses by default, set `axes: (ltr, btt)`.
+  ///
+  /// #frame-row(
+  ///   diagram(
+  ///     axes: (ltr, ttb),
+  ///     debug: 1,
+  ///     node((0,0), $(0,0)$),
+  ///     edge((0,0), (1,0), "->"),
+  ///     node((1,0), $(1,0)$),
+  ///     node((1,1), $(1,1)$),
+  ///     node((0.5,0.5), `axes: (ltr, ttb)`),
+  ///   ),
+  ///   diagram(
+  ///     axes: (ltr, btt),
+  ///     debug: 1,
+  ///     node((0,0), $(0,0)$),
+  ///     edge((0,0), (1,0), "->"),
+  ///     node((1,0), $(1,0)$),
+  ///     node((1,1), $(1,1)$),
+  ///     node((0.5,0.5), `axes: (ltr, btt)`),
+  ///   ),
+  ///   diagram(
+  ///     axes: (ttb, ltr),
+  ///     debug: 1,
+  ///     node((0,0), $(0,0)$),
+  ///     edge((0,0), (1,0), "->", bend: -20deg),
+  ///     node((1,0), $(1,0)$),
+  ///     node((1,1), $(1,1)$),
+  ///     node((0.5,0.5), `axes: (ttb, ltr)`),
+  ///   ),
+  /// )
+  /// -> array
   axes: (ltr, ttb),
   /// Maximum number of layout iterations used to find row and
   /// column sizes before converging.

@@ -91,7 +91,7 @@ Any markup or math content passed to @edge after vertices is interpreted a label
 ```)
 The following edge options set properties of the edge's label(s):
 - @edge.label[`label`]: the body content
-- @edge.label-pos[`label-pos`]: a @path-anchor[path anchor] specifying the label's position
+- @edge.label-pos[`label-pos`]: a @path-anchors[path anchor] specifying the label's position
 - @edge.label-side[`label-side`]: which side of the edge to place the body
 - @edge.label-angle[`label-angle`]: rotation/orientation of the body
 - @edge.label-sep[`label-sep`]: separation between edge and body
@@ -244,7 +244,7 @@ For example, below we draw a composite CeTZ path using lines and a cubic Bézier
 
 
 
-== Path anchors <path-anchor>
+== Path anchors <path-anchors>
 
 
 Edges support _path anchors_, like most CeTZ elements.

@@ -56,16 +56,16 @@
 
 = Manual <manual>
 
-#{
-  set heading(offset: 1)
-  include "sections/intro.typ"
-  include "sections/diagrams.typ"
-  include "sections/nodes.typ"
-  include "sections/edges.typ"
-  include "sections/marks.typ"
-  include "sections/cetz.typ"
-  include "sections/debug.typ"
-}
+#[
+  #set heading(offset: 1)
+  #include "sections/intro.typ"; <manual-intro>
+  #include "sections/diagrams.typ"; <manual-diagrams>
+  #include "sections/nodes.typ"; <manual-nodes>
+  #include "sections/edges.typ"; <manual-edges>
+  #include "sections/marks.typ"; <manual-marks>
+  #include "sections/cetz.typ"; <manual-cetz>
+  #include "sections/debug.typ"; <manual-debug>
+]
 
 
 = Function Reference <func-ref>

@@ -9,7 +9,7 @@ Nodes are content centered at a coordinate.
 By default, nodes fit to their content (with an @node.inset[inset]), but can also be given a specific size and @node-shapes[shape].
 Nodes can be given various styles including @node.stroke[stroke] and @node.fill[fill].
 
-Edges automatically snap to nodes (with an @node.outset) and the positions and sizes of nodes @flexigrid-layouts[affects diagram layout] (unlike edges or plain CeTZ objects).
+Edges automatically snap to nodes (with an @node.outset) and the positions and sizes of nodes @manual-diagrams[affects diagram layout] (unlike edges or plain CeTZ objects).
 
 #example(```typ
 #diagram(
@@ -148,7 +148,7 @@ This only matters for the layout of a surrounding @flexigrid or @diagram; the `f
 )
 ```)
 
-== Enclose nodes
+== Enclose nodes <enclose-nodes>
 
 Enclose nodes are a special type of node that are positioned around other nodes, which is useful for diagrams with nested layouts.
 Nodes with the @node.enclose option automatically wrap around the specified nodes.
