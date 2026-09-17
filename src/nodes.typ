@@ -295,7 +295,7 @@
 #let resolve-enclose-node(ctx, data, preceding-nodes) = {
   let node-corners(node) = {
     let (w, h) = node.bounding-size
-    let (x, y) = node.pos
+    let (x, y, ..) = node.pos
     return ((x - w/2, y - h/2), (x + w/2, y + h/2))
   }
   
@@ -467,6 +467,11 @@
 
     } else {
       // Node does not appear in a flexigrid.
+
+      if data.enclose != none {
+        data = resolve-enclose-node(ctx, data, fletcher-ctx.nodes)
+      }
+      
       let xy
       (ctx, xy) = cetz.coordinate.resolve(ctx, data.pos)
       data.pos = xy
