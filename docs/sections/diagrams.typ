@@ -59,7 +59,7 @@ By default, nodes are placed in the center of their cell, but they can also be *
 ```)
 
 
-== Node row and column span
+== Node row and column span <sec-node-cellspan>
 
 A node's cell can be made to span multiple columns or rows in a flexigrid.
 When this happens, the node's size is automatically set to the full size of the cell.

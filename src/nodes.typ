@@ -615,6 +615,26 @@
   /// If `1`, rows and columns grow to fully accommodate the node.
   /// -> number
   weight: 1,
+  /// Positions or names of nodes to be enclosed by this node.
+  /// 
+  /// When set, the node's position must be unset (or `auto`).
+  /// The node is automatically positioned and enlarged so that it
+  /// encloses the specified nodes.
+  /// 
+  /// #example(```typ
+  /// #diagram(
+  ///   node-stroke: 1pt,
+  ///   node((0,0), [ABC], name: <A>),
+  ///   node((1,1), [XYZ], name: <Z>),
+  ///   node(
+  ///     enclose: (<A>, <Z>),
+  ///     text(teal)[Enclose node], stroke: teal,
+  ///     name: <group>),
+  ///   edge(<group>, (3,0.5), stroke: teal),
+  /// )
+  /// ```)
+  /// 
+  /// -> array
   enclose: none,
   /// Whether this node can have edges automatically snap to it.
   /// -> bool

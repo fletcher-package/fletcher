@@ -81,7 +81,7 @@ Available node styles:
 By default, nodes are circular if their content is small and square, and rectangular if it is tall or wide.
 The @node.shape[shape] option can be set to any of the following built-in shapes.
 
-#shapes-gallery
+// #shapes-gallery
 
 Most shapes have additional styles specific to the shape, such as:
 - `width`, `height` and @node-fit[`fit`] for all shapes
@@ -147,3 +147,40 @@ This only matters for the layout of a surrounding @flexigrid or @diagram; the `f
   node((1,1), fit-cell: 1)[Total cell fit],
 )
 ```)
+
+== Enclose nodes
+
+Enclose nodes are a special type of node that are positioned around other nodes, which is useful for diagrams with nested layouts.
+Nodes with the @node.enclose option automatically wrap around the specified nodes.
+
+#example(```typ
+#diagram(
+	spacing: (10mm, 5mm),
+	node-stroke: 0.5pt,
+	node-fill: white,
+	node-corner-radius: 2pt,
+
+	node((-2,0), radius: 2pt, fill: black),
+	edge("r,u,r", "->", $f$),
+	edge("r,d,r", "..>", $g$),
+
+	node((0,-1), $F(s)$, <f>),
+	edge("->", (1,0), corner: "-|"),
+
+	node((0,+1), $G(s)$, <g>),
+	edge("..>", (1,0), corner: "-|"),
+
+	node((1,0), $ plus.o $, stroke: none, inset: 2pt),
+	edge("->", "r"),
+
+	// enclose nodes by name
+	node(enclose: (<f>, <g>), text(teal)[Group],
+		inset: 10pt,
+		stroke: teal,
+		fill: teal.transparentize(90%),
+	),
+)
+```)
+
+Nodes can also have @sec-node-cellspan[row and column spans], which is a similar but distinct concept.
+Unlike nodes which span rows or columns, enclose nodes do not exist within a flexigrid layout, and do not affect the position of other nodes.
