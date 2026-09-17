@@ -230,19 +230,13 @@
   )
 }
 
-// by default, setting the rowspan or colspan of a node
-// causes it to fill its cell along that axis
 #let grow-node-in-cell(node, cell) = {
-  let (colspan, rowspan) = node.cellspan
-  if colspan != none {
-    if node.style.at("width", default: none) == auto {
-      node.bounding-size.first() = cell.size.first()
-    }
+  // remember some node shapes don't have width/height
+  if node.style.at("width", default: none) == "cell" {
+    node.bounding-size.at(0) = cell.size.at(0)
   }
-  if rowspan != none {
-    if node.style.at("height", default: none) == auto {
-      node.bounding-size.last() = cell.size.last()
-    }
+  if node.style.at("height", default: none) == "cell" {
+    node.bounding-size.at(1) = cell.size.at(1)
   }
   return node
 }

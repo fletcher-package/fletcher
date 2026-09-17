@@ -21,7 +21,8 @@
           style: style,
           unit-length: ctx.length,
           extrude: extrude,
-          body-center: node.body-center
+          body-center: node.body-center,
+          cell: node.cell,
         ))
       }
     }
@@ -194,6 +195,9 @@
       NODE_SHAPES
       // change default layer for enclose nodes
       if node.enclose != none { (layer: -2) }
+      // change default width/height for nodes with cellspan
+      if node.cellspan.at(0) != none { (width: "cell") }
+      if node.cellspan.at(1) != none { (height: "cell") }
     },
     merge: ctx.style.at("node", default: (:)),
   )
@@ -218,7 +222,6 @@
     utils.error("node shape does not have a `draw` field; got `#0: #1`",
       node.shape, repr(style))
   }
-
 
   // resolve lengths to dimensionless numbers
 
@@ -263,7 +266,8 @@
     extrude: 0,
     unit-length: ctx.length,
     style: style,
-    body-center: body-center
+    body-center: body-center,
+    cell: none,
   ))
   let (low, high) = cetz.process.many(ctx, drawn).bounds
   body-center = cetz.vector.scale(cetz.vector.add(high, low), -0.5).slice(0, 2)

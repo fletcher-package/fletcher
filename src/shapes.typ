@@ -26,6 +26,34 @@
   layer: 0,
 )
 
+// resolve node width/height styles into actual lengths
+// resolving special values like `"body"` and `"cell"`
+// to the node body size or node cell size respectively
+#let resolve-size(node) = {
+  let (w, h) = node.size
+
+  if node.style.width == "body" {
+    // keep w as node width
+  } else if node.style.width == "cell" {
+    if node.cell != none {
+      w = node.cell.size.at(0)
+    }
+  } else if node.style.width != auto {
+    w = node.style.width
+  }
+
+  if node.style.height == "body" {
+    // keep h as node height
+  } else if node.style.height == "cell" {
+    if node.cell != none {
+      h = node.cell.size.at(1)
+    }
+  } else if node.style.height != auto {
+    h = node.style.height
+  }
+
+  return resolve-number(node.unit-length, (w, h))
+}
 
 
 // There is some repetition here, but it makes it possible to:
@@ -34,13 +62,6 @@
 #let NODE_SHAPES = (
   "none": (draw: node => node.body),
 )
-
-#let resolve-size(node) = {
-  let (w, h) = node.size
-  if node.style.width != auto { w = node.style.width }
-  if node.style.height != auto { h = node.style.height }
-  return resolve-number(node.unit-length, (w, h))
-}
 
 /// The default rectangle node shape.
 ///
