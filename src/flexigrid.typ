@@ -399,9 +399,6 @@
   if type(c) == dictionary {
     if "uv" in c { return c.uv }
     if "xy" in c { return nans }
-    if "name" in c {
-      panic(c)
-    }
   }
   return c
 }
