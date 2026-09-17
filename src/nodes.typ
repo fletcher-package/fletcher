@@ -188,7 +188,13 @@
 
   // get style defaults (not yet with the node's specific styles)
   let node-styles = cetz.styles.resolve(
-    DEFAULT_NODE_STYLE + NODE_SHAPES,
+    {
+      // collect default styles
+      DEFAULT_NODE_STYLE
+      NODE_SHAPES
+      // change default layer for enclose nodes
+      if node.enclose != none { (layer: -2) }
+    },
     merge: ctx.style.at("node", default: (:)),
   )
 
@@ -566,13 +572,11 @@
   extrude: auto,
   /// Canvas layer to draw node on.
   ///
-  /// The default layer for normal nodes is `0`, and for enclose
-  /// nodes the default layer is `-1`.
+  /// The default layer for nodes is `0`, which is above edges (on layer `-1` by default; see @edge.layer).
+  /// Enclose nodes are drawn on layer `-2` by default, under nodes and edges.
   /// Nodes with equal layer are drawn in the order they are inserted.
   /// 
   /// _This option is a @node-styles[node style]._
-  /// 
-  /// See also @edge.layer; edges are drawn on layer `-1` by default.
   /// 
   /// -> number
   layer: auto,
