@@ -1,6 +1,5 @@
 #import "common.typ"
 #import common: fletcher
-#import "components.typ": *
 
 // cover page
 
@@ -8,11 +7,11 @@
 
 #align(center)[
 
-  #logo
+  #common.logo
 
   #v(30pt)
 
-  #package-summary
+  #common.package-summary
 
   #link("https://fletcher-package.github.io")[`fletcher-package.github.io`]
 
@@ -75,6 +74,8 @@
 #show raw.where(lang: "example"): common.example
 #show raw.where(lang: "svg"): it => eval(it.text, mode: "code", scope: common.scope)
 #set raw(lang: "typc")
+
+#import common: show-fn
 
 #show-fn(exports.remove("diagram"), level: 2)
 #show-fn(exports.remove("node"), level: 2)

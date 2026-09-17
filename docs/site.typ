@@ -1,11 +1,10 @@
 #import "common.typ"
-#import "components.typ"
+#show: common.style
 
 #let URL_ROOT = sys.inputs.at("url-root", default: "")
 
-#show: common.style
-
-#let menu-tree = state("menu-tree", (:))
+#asset("/styles.css", read("assets/styles.css"))
+#asset("/manual.pdf", read("manual.pdf", encoding: none)) <manual-pdf>
 
 #let manual-pages = (
   ("intro.html", "sections/intro.typ", <manual-intro>),
@@ -17,50 +16,10 @@
   ("debug.html", "sections/debug.typ", <manual-debug>),
 )
 
-#let nav-expander-script = ```js
-  // A script to automatically enlarge the navbar when hovering over wide links
-  const nav = document.querySelector('nav');
-  const navWidth = nav.offsetWidth;
-  let stretchedWidth = navWidth;
-
-  const closeNav = () => {
-    nav.classList.remove('stretched');
-    nav.style.removeProperty('min-width');
-    stretchedWidth = navWidth;
-  }
-
-  const expandNav = (width) => {
-    if (width <= stretchedWidth) return;
-    stretchedWidth = width;
-    nav.classList.add('stretched')
-    nav.style.minWidth = `${stretchedWidth}px`;
-  }
-
-  nav.addEventListener('mouseleave', closeNav)
-  let counter = 0;
-  nav.querySelectorAll('li a').forEach(item => {
-    item.addEventListener('mouseenter', () => {
-      const c = ++counter;
-      setTimeout(() => {
-        const w = item.getBoundingClientRect().right - nav.getBoundingClientRect().left;
-        if (c == counter) expandNav(w + 25);
-      }, 500)
-    });
-    item.addEventListener('mouseleave', () => {
-      const c = ++counter;
-      setTimeout(() => {
-        if (c == counter) closeNav();
-      }, 2e3);
-    });
-  });
-```
-
-#let dropdown(title, body, open: false) = html.details({
-  html.summary(title)
-  body
-}, open: open)
+#let menu-tree = state("menu-tree", (:))
 
 #let sidebar = context html.nav[
+
   #html.div(id: "sidebar-title", link(<home>, html.frame({
     text(1.75em)[_fletcher manual_]
   })))
@@ -97,29 +56,26 @@
     #tree.remove("main").map(fn-link).join()
     // mod functions in dropdowns
     #for (mod, tree) in tree {
-      dropdown(
-        open: mod == this-mod,
-        [#raw(mod) module],
-        tree.map(fn-link).join(),
-      )
+       html.details(open: mod == this-mod, {
+        html.summary[#raw(mod) module]
+        tree.map(fn-link).join()
+       })
     }
 ]
 
-#let menu-button = html.label(..("for": "menu-control"), id: "menu-button")[
-    #html.frame(stack(..(line(length: 1em, stroke: 0.5pt),)*5, spacing: 0.2em, dir: ttb))
-  ]
+#let menu-hamburger-button = html.label(..("for": "menu-control"), id: "menu-button")[
+  #html.frame(stack(..(line(length: 1em, stroke: 0.5pt),)*5, spacing: 0.2em, dir: ttb))
+]
 
 #let page-nav = context {
   let doc-label = state("current-document", none).get()
   if doc-label == none { return }
-
 
   let i = manual-pages.position(((_, _, label)) => label == doc-label)
   if i == none { return }
 
   let prev = if i > 0 { manual-pages.at(i - 1).last() }
   let next = if i < manual-pages.len() - 1 { manual-pages.at(i + 1).last() }
-
 
   let icon(a) = html.frame(common.diagram(common.edge((0pt,0), (a, 1pt), " >", stroke: 1pt)))
   let nav-link(label, dir) = {
@@ -131,8 +87,6 @@
     html.div(if prev != none { nav-link(prev, left) })
     html.div(if next != none { nav-link(next, right) })
   })
-
-
 }
 
 #let template(body) = {
@@ -143,18 +97,14 @@
     html.label(..("for": "menu-control"), class: "menu-overlay")
     html.article[
       #body
-      #menu-button
+      #menu-hamburger-button
       #page-nav
     ]
     html.div(id: "wip-banner")
   })
-  html.script(nav-expander-script.text)
+  common.nav-expander-script()
 }
 
-
-#asset("/styles.css", read("assets/styles.css"))
-
-#asset("/manual.pdf", read("manual.pdf", encoding: none)) <manual-pdf>
 
 // Home page
 
@@ -162,9 +112,9 @@
   #show: html.div.with(style: "text-align: center")
 
   #html.div(style: "margin: 15vh 0;")[
-    #box(components.logo)
+    #box(common.logo)
 
-    #components.package-summary
+    #common.package-summary
 
     *Version #common.VERSION*
   ]
@@ -196,6 +146,7 @@
   "gallery/tree.typ",
   "gallery/algebra-cube.typ",
 )
+
 #for gal in gals [
   #asset(gal, read(gal).replace("\t", "  ")) #label(gal)
 ]
@@ -228,8 +179,6 @@
 
 // Manual
 
-
-
 #for (i, (dest, src, doc-label)) in manual-pages.enumerate() {
 
   let doc = document("/manual/" + dest, {
@@ -242,7 +191,6 @@
 }
 
 
-
 // Function reference
 
 #let fn-doc(module, name, ..args) =  {
@@ -251,7 +199,7 @@
   let doc = document(url, {
     state("current-document").update(doc-label)
     state("current-fn-page").update(_ => (module, name))
-    template(components.show-fn(name, level: 1))
+    template(common.show-fn(name, level: 1))
   })
   [#doc #doc-label]
 

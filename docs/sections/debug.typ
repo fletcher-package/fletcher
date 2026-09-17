@@ -1,5 +1,4 @@
 #import "../common.typ": *
-#import "../components.typ"
 #show: style
 
 = Debugging <debug-options>
@@ -126,7 +125,7 @@ Debug arguments accept the following options:
     continue
   }
 
-  show: components.bordered-section
+  show: bordered-section
   [#heading(raw(repr(key)), depth: 3) #id]
   side-figure(
     [
