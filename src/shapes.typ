@@ -23,6 +23,7 @@
   fit-cell: 1, // how a flexigrid cell encloses the shape
   // one = the shape fits inside the region
   // zero = the shape inscribes the region
+  layer: 0,
 )
 
 

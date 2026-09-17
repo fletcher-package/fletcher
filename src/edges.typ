@@ -24,6 +24,7 @@
   ),
   crossing-fill: white,
   crossing-thickness: 3,
+  layer: -1,
 )
 
 
@@ -456,7 +457,7 @@
 
   if debug-level(edge.debug, "edge.snap") {
     // show where edge would be drawn without any snapping
-    debug-group({
+    debug-group(layer: 10, {
       (
         ctx => (
           ctx: ctx,
@@ -532,8 +533,8 @@
     ))
   }
 
-  if edge.layer != 0 {
-    scene = cetz.draw.on-layer(edge.layer, scene)
+  if edge.style.layer != 0 {
+    scene = cetz.draw.on-layer(edge.style.layer, scene)
   }
 
   scene
@@ -616,7 +617,6 @@
   snap-to: (auto, auto),
   name: none,
   draw: vertices => none,
-  layer: 0,
   crossing: false,
   debug: auto,
 ) = cetz.draw.get-ctx(ctx => {
@@ -652,7 +652,6 @@
     snap-to: snap-to,
     name: name,
     draw: draw,
-    layer: layer,
     crossing: crossing,
     debug: get-debug(ctx, debug),
   )
@@ -1276,7 +1275,7 @@
   /// See also @node.layer, which is `1` by default.
   ///
   /// -> number
-  layer: 0,
+  layer: auto,
 
   /// Draw a backdrop under the edge to give the illusion of it crossing over other lines.
   ///
@@ -1419,12 +1418,12 @@
       decorate: options.decorate,
       crossing-fill: options.crossing-fill,
       crossing-thickness: options.crossing-thickness,
+      layer: layer,
     ),
     labels: labels,
     snap-to: options.snap-to,
     name: options.name,
     draw: options.draw,
-    layer: layer,
     crossing: options.crossing,
     debug: debug,
   )

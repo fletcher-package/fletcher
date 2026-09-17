@@ -26,7 +26,7 @@
       }
     }
 
-    if node.layer != 0 { objs = cetz.draw.on-layer(node.layer, objs) }
+    if node.style.layer != 0 { objs = cetz.draw.on-layer(node.style.layer, objs) }
     let group = cetz.draw.group(objs, name: node.name)
     group = group.first()(ctx)
 
@@ -306,7 +306,6 @@
       weight,
       enclose,
       snap,
-      layer,
       cellspan,
     ) = options.named()
 
@@ -321,7 +320,6 @@
       weight: weight,
       enclose: enclose,
       snap: snap,
-      layer: layer,
       cellspan: cellspan,
       cell: none,
       debug: get-debug(ctx, debug),
@@ -609,6 +607,7 @@
     inset: inset,
     outset: outset,
     extrude: extrude,
+    layer: layer,
   ).pairs().filter(((k, v)) => v != auto).to-dict()
   style += args.named()
 
@@ -621,7 +620,6 @@
     enclose: enclose,
     snap: snap,
     style: style,
-    layer: layer,
     cellspan: (colspan, rowspan),
     debug: debug,
   )
@@ -631,13 +629,6 @@
 
   if options.name != none { options.name = str(options.name) }
 
-  if options.layer == auto {
-    if options.enclose != none {
-      options.layer = -1
-    } else {
-      options.layer = 1
-    }
-  }
 
   if options.enclose != none { options.enclose = utils.one-or-array(options.enclose) }
 
