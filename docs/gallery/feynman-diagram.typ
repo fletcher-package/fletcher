@@ -1,4 +1,4 @@
-#import "@preview/fletcher:0.6.0" as fletcher: cetz, node, edge
+#import "../../src/exports.typ" as fletcher: cetz, node, edge
 
 #cetz.canvas({
 	let (p1, p2, p3) = ((0,0), (0,1), (1.5,1.5))

@@ -10,6 +10,8 @@
     segoe ui emoji;
   --sidebar-width: 12rem;
   --bg: white;
+  --footer-height: 200px;
+  --main-width: 100vw;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -26,6 +28,8 @@ body {
 main {
   display: flex;
   --top-padding: 1.5rem;
+  min-height: calc(100vh - var(--footer-height));
+  background-color: white;
 }
 
 article {
@@ -35,6 +39,34 @@ article {
   overflow-x: hidden;
   padding: 0 2rem;
   padding-top: var(--top-padding);
+  padding-bottom: 2em;
+}
+
+footer {
+  display: flex;
+  min-height: var(--footer-height);
+  box-shadow: 0 20px 15px -15px inset #0006;
+  background: oklch(40% 0.03 200);
+  color: #eee;
+
+  .cols {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    margin: auto;
+    padding: 0 1em;
+    box-sizing: border-box;
+    width: var(--main-width);
+  }
+
+  ul {
+    padding: 0;
+    margin: 0;
+    li {
+      display: block;
+      margin: 1em 0;
+    }
+  }
 }
 
 /* Navigation bar */
@@ -48,94 +80,101 @@ label#menu-button {
 }
 
 nav {
-  #sidebar-title {
-    margin-top: 0.53rem;
-    margin-bottom: 1.4rem;
-  }
-
-  position: fixed;
-  height: 100vh;
   width: var(--sidebar-width);
-  min-width: var(--sidebar-width);
-  overflow-y: scroll;
-  overflow-x: hidden;
-  scrollbar-width: none;
-  white-space: nowrap;
 
-  box-sizing: border-box;
-  padding-left: 1rem;
-  padding-top: var(--top-padding);
-  font-size: 0.9rem;
-  line-height: 1.9;
-
-  --open-duration: 200ms;
-  --stretch-duration: 500ms;
-
-  transition:
-    /* menu open/close */
-    left var(--open-duration),
-    /* menu unstretching to normal width */ box-shadow ease-in-out
-      var(--stretch-duration),
-    min-width ease-in-out var(--stretch-duration);
-  box-shadow: 5px 0 0px -5px #0000;
-  z-index: 1;
-
-  &:not(.stretched) > ul {
-    mask-image: linear-gradient(to right, black 95%, transparent);
-  }
-
-  &.stretched {
-    /* how fast menu stretches out */
-    transition: 500ms;
-    box-shadow: 5px 0 10px -5px #0003;
-  }
-
-  p {
-    margin: 0;
-    /* glitchy when combined with overflow */
-  }
-
-  a {
-    text-decoration: none;
-  }
-
-  & > ul > li {
-    margin-top: 1rem;
-  }
-
-  ul {
-    list-style: none;
-    padding: 0;
-
-    ul ul {
-      padding-left: 1em;
-      font-weight: 300;
-      font-size: 0.9em;
+  & > div {
+    #sidebar-title {
+      margin-top: 0.53rem;
+      margin-bottom: 1.4rem;
     }
-  }
 
-  span[data-depth="3"] {
-    padding-left: 1em;
-  }
+    position: sticky;
+    top: 0;
+    bottom: 0;
+    height: 100%;
+    max-height: 100vh;
+    width: var(--sidebar-width);
+    min-width: var(--sidebar-width);
+    overflow-y: scroll;
+    overflow-x: hidden;
+    scrollbar-width: none;
+    white-space: nowrap;
 
-  details ul {
+    box-sizing: border-box;
     padding-left: 1rem;
-  }
+    padding-top: var(--top-padding);
+    font-size: 0.9rem;
+    line-height: 1.9;
 
-  details {
-    summary {
+    --open-duration: 200ms;
+    --stretch-duration: 500ms;
+
+    transition:
+    /* menu open/close */
+      left var(--open-duration),
+      /* menu unstretching to normal width */ box-shadow ease-in-out
+        var(--stretch-duration),
+      min-width ease-in-out var(--stretch-duration);
+    box-shadow: 5px 0 0px -5px #0000;
+    z-index: 1;
+
+    &:not(.stretched) > ul {
+      mask-image: linear-gradient(to right, black 95%, transparent);
+    }
+
+    &.stretched {
+      /* how fast menu stretches out */
+      transition: 500ms;
+      box-shadow: 5px 0 10px -5px #0003;
+    }
+
+    p {
+      margin: 0;
+      /* glitchy when combined with overflow */
+    }
+
+    a {
+      text-decoration: none;
+    }
+
+    & > ul > li {
+      margin-top: 1rem;
+    }
+
+    ul {
       list-style: none;
-      cursor: pointer;
+      padding: 0;
+
+      ul ul {
+        padding-left: 1em;
+        font-weight: 300;
+        font-size: 0.9em;
+      }
     }
 
-    summary::after {
-      content: "+";
-      float: right;
-      margin-right: 1em;
+    span[data-depth="3"] {
+      padding-left: 1em;
     }
 
-    &[open] summary::after {
-      content: "−";
+    details ul {
+      padding-left: 1rem;
+    }
+
+    details {
+      summary {
+        list-style: none;
+        cursor: pointer;
+      }
+
+      summary::after {
+        content: "+";
+        float: right;
+        margin-right: 1em;
+      }
+
+      &[open] summary::after {
+        content: "−";
+      }
     }
   }
 }
@@ -143,18 +182,22 @@ nav {
 @media screen and (min-width: 45rem) {
   /* Wide page */
 
-  nav {
+  :root {
+    --main-width: calc(min(40rem + 30vw, 100vw));
+  }
+
+  nav > div {
     background: color-mix(in srgb, var(--bg) 90%, transparent);
     backdrop-filter: blur(5px);
   }
 
   main {
     margin: auto;
-    width: calc(min(40rem + 30vw, 100vw));
+    width: var(--main-width);
   }
 
   article {
-    margin-left: var(--sidebar-width);
+    /*margin-left: var(--sidebar-width);*/
   }
 
   #menu-button {
@@ -180,8 +223,12 @@ nav {
   }
 
   nav {
-    background: var(--bg);
-    left: calc(-1 * var(--sidebar-width));
+    width: 0;
+    div {
+      position: fixed;
+      background: var(--bg);
+      left: calc(-1 * var(--sidebar-width));
+    }
   }
 
   article {
@@ -189,7 +236,7 @@ nav {
     padding: 0 5vw;
   }
 
-  #menu-control:checked ~ nav {
+  #menu-control:checked ~ nav > div {
     left: 0px;
     box-shadow: 0 0 15px #0003;
   }
@@ -210,7 +257,8 @@ nav {
   }
 }
 
-#page-nav {
+#page-nav,
+.large-links {
   display: flex;
   gap: 1em;
   margin: 2em 0;

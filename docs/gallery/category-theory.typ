@@ -1,4 +1,4 @@
-#import "@preview/fletcher:0.6.0" as fletcher: diagram, node, edge
+#import "../../src/exports.typ" as fletcher: diagram, node, edge
 
 #let hom = edge.with(in-math: true)
 

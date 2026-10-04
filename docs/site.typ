@@ -18,13 +18,13 @@
 
 #let menu-tree = state("menu-tree", (:))
 
-#let sidebar = context html.nav[
+#let sidebar = context html.nav(html.div[
 
   #html.div(id: "sidebar-title", link(<home>, html.frame({
     text(1.75em)[_fletcher manual_]
   })))
 
-  - #link(<gallery>)[*Gallery*]
+  - #link(<gallery>)[*Example Gallery*]
 
   - #[*Manual*]
     #for (dest, src, id) in manual-pages {
@@ -61,10 +61,10 @@
         tree.map(fn-link).join()
        })
     }
-]
+])
 
 #let menu-hamburger-button = html.label(..("for": "menu-control"), id: "menu-button")[
-  #html.frame(stack(..(line(length: 1em, stroke: 0.5pt),)*5, spacing: 0.2em, dir: ttb))
+  #html.frame(stack(..(line(length: 1.5em, stroke: 1pt),)*4, spacing: 0.4em, dir: ttb))
 ]
 
 #let page-nav = context {
@@ -83,18 +83,45 @@
     let body = if dir == left {icon(180deg) + html.div(title) } else { html.div(title) + icon(0deg) }
     link(label, body)
   }
-  html.footer(id: "page-nav", {
+  html.div(id: "page-nav", {
     html.div(if prev != none { nav-link(prev, left) })
     html.div(if next != none { nav-link(next, right) })
   })
 }
 
+#let footer = html.footer({
+
+  show: html.div.with(class: "cols")
+
+  let cols = ([
+    - *Documentation*
+    - #link(<gallery>)[Example Gallery]
+    - #link(<manual-pdf>)[PDF Manual]
+  ], [
+    - *Package*
+    - #link("https://typst.app/universe/package/fletcher")[Typst Universe]
+    - #link("https://github.com/fletcher-package/fletcher")[GitHub Repo]
+  ], [
+    - *Community*
+    - #link("https://forum.typst.app/")[Typst Forum]
+    - #link("https://discord.com/channels/1054443721975922748/1260973351900414102")[Discord Channel]
+  ], [
+    - *Contributing*
+    - #[Issues & Ideas]
+    - #[Sponsorship]
+  ])
+
+  for col in cols {
+    html.div(class: "col", col)
+  }
+})
+
 #let template(body) = {
   html.link(href: URL_ROOT + "/styles.css", rel: "stylesheet")
   html.main({ // wrap in main so inputs aren't wrapped in <p>
+    html.label(..("for": "menu-control"), class: "menu-overlay")
     html.input(type: "checkbox", id: "menu-control")
     sidebar
-    html.label(..("for": "menu-control"), class: "menu-overlay")
     html.article[
       #body
       #menu-hamburger-button
@@ -102,6 +129,7 @@
     ]
     html.div(id: "wip-banner")
   })
+  footer
   common.nav-expander-script()
 }
 
@@ -111,21 +139,18 @@
 #document("index.html", template[
   #show: html.div.with(style: "text-align: center")
 
-  #html.div(style: "margin: 15vh 0;")[
+  #html.div(style: "margin: 7vw 0;")[
     #box(common.logo)
 
     #common.package-summary
 
-    *Version #common.VERSION*
+    *Version #common.VERSION #highlight[(unreleased)]*
   ]
 
-  #link(<manual-pdf>, html.img(src: "https://img.shields.io/badge/Manual-PDF-orange"))
-  #link("https://typst.app/universe/package/fletcher/", html.img(src: "https://img.shields.io/badge/Typst-Universe-239dad"))
-  #link("https://github.com/fletcher-package/fletcher", html.img(src: "https://img.shields.io/badge/GitHub-Repo-blue?logo=github"))
-  #link("https://forum.typst.app", html.img(src: "https://img.shields.io/badge/ask-on%20Typst%20forum-239dad"))
-  #link("https://discord.com/channels/1054443721975922748/1260973351900414102", html.img(src: "https://img.shields.io/badge/ask-on%20Discord-2a4d7e"))
-
-  This is a #highlight[largely incomplete] web version of the manual for this package.
+  #html.div(class: "large-links", {
+    html.div(link(<gallery>)[Example Gallery])
+      html.div(link(<manual-intro>)[Quick Overview])
+  })
 
 ]) <home>
 
@@ -148,7 +173,10 @@
 )
 
 #for gal in gals [
-  #asset(gal, read(gal).replace("\t", "  ")) #label(gal)
+  #document(gal.replace(".typ", ".html"))[
+    #let src = read(gal).replace("\t", "  ").replace("../../src/exports.typ", "@preview/fletcher:" + common.VERSION)
+    #raw(src, lang: "typ"),
+  ] #label(gal)
 ]
 
 #document("gallery.html", template[
@@ -160,16 +188,9 @@
 
   #show: html.div.with(class: "frame-row")
 
-  #let strip-setup(src) = src.split("\n").filter(line => {
-    line = line.trim()
-    return "@preview" not in line
-  }).join("\n")
-
   #for gal in gals [
-    #let it = eval(strip-setup(read(gal)), scope: common.scope, mode: "markup")
-
     #html.div(class: "gallery-example", {
-      link(label(gal), html.frame(pad(1em, it)))
+      link(label(gal), html.frame(pad(1em, include gal)))
     })
   ]
 
