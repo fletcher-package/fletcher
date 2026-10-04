@@ -69,21 +69,26 @@
   ),
   loop: (
     required: ("loop",),
-    optional: (size: 1.5em),
+    optional: (size: 1.5em, fit: 1),
     n-vertices: 1,
-    validate-args: (ctx, (loop, size)) => {
+    validate-args: (ctx, (loop, size, fit)) => {
       (
         loop: utils.thing-to-angle(loop),
         size: cetz.util.resolve-number(ctx, size)/2,
+        fit: fit,
       )
     },
     pre-snapping-adjust: (edge, snap-objects) => {
+      if snap-objects.first() == none { return edge }
       let bounds = cetz.process.aabb.aabb(cetz.path-util.bounds(snap-objects.first().first().segments))
-      let diag = cetz.vector.dist(bounds.high, bounds.low)
-      let R = diag*0.354 // 1/(2√2)
-      let (loop: θ, size: l) = edge.shape.args
-      let d = calc.sqrt(R*R + l*l) - l
-      let shift = cetz.vector.scale((calc.cos(θ), calc.sin(θ)), d)
+      let (w, h, ..) = cetz.vector.sub(bounds.high, bounds.low)
+
+      let (loop: θ, size, fit) = edge.shape.args
+      let v = (w/2*calc.cos(θ), h/2*calc.sin(θ))
+      // distance from node center to loop center
+      let d = cetz.vector.len((cetz.vector.len(v), size))
+      let s = d*fit - size
+      let shift = cetz.vector.scale(cetz.vector.norm(v), s)
       edge.vertices = edge.vertices.map(pt => cetz.vector.add(pt, shift))
       return edge
     },
@@ -93,18 +98,32 @@
   ),
   bow: (
     required: ("bow",),
-    optional: (size: 2em, angle: 60deg),
+    optional: (size: 1.5em, angle: 60deg, fit: 1),
     n-vertices: 1,
-    validate-args: (ctx, (bow, size, angle)) => {
+    validate-args: (ctx, (bow, size, angle, fit)) => {
       (
         bow: utils.thing-to-angle(bow),
         size: cetz.util.resolve-number(ctx, size),
         angle: angle,
+        fit: fit,
       )
     },
+    pre-snapping-adjust: (edge, snap-objects) => {
+      if snap-objects.first() == none { return edge }
+      let bounds = cetz.process.aabb.aabb(cetz.path-util.bounds(snap-objects.first().first().segments))
+      let (w, h, ..) = cetz.vector.sub(bounds.high, bounds.low)
+
+      let (bow: θ, size, fit) = edge.shape.args
+      let v = (w/2*calc.cos(θ), h/2*calc.sin(θ))
+      let d = cetz.vector.len(v)
+      let s = d*fit - calc.min(d, size/4) // make about a quarter of the bow overlap the node
+      let shift = cetz.vector.scale(cetz.vector.norm(v), s)
+      edge.vertices = edge.vertices.map(pt => cetz.vector.add(pt, shift))
+      return edge
+    },
     draw: ((bow, size, angle), (a, _)) => {
-      let c1 = (to: a, rel: (bow + angle/2, size*1.7))
-      let c2 = (to: a, rel: (bow - angle/2, size*1.7))
+      let c1 = (to: a, rel: (bow + angle/2, size*2))
+      let c2 = (to: a, rel: (bow - angle/2, size*2))
       cetz.draw.bezier(a, a, c1, c2)
     }
   ),

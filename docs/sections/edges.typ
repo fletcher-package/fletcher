@@ -147,8 +147,14 @@ To make it easy to achieve common edge shapes, like arcs, loops or right-angled 
 
 #let edge-kind-examples(examples, ..extra-args) = {
   frame-row(..examples.map(args => align(horizon, {
+    let node-args = if "node" in args {
+      args.remove("node")
+    } else {
+      (radius: 5pt)
+    }
     diagram(
-      node((0,0), radius: 5pt, stroke: black),
+      node-stroke: black,
+      node((0,0), ..node-args),
       edge("->", ..extra-args, ..args, [#raw(repr(args))]),
     )
   })))
@@ -175,27 +181,51 @@ A perfect arc can be made with the `bend` option, which can be an angle (measuri
   (bend: 120deg),
 ))
 
+=== Loop
+`edge(pt, loop: angle | direction, size: length, fit: number)` \
 
-=== Loop and bow
-
-`edge(pt, loop: angle | direction, size: length)` \
-`edge(pt, bow: angle | direction, size: length)`
-
-Loops and bows are edge kinds with only one vertex.
-The required option `loop` or `bow` specifies the general direction of the edge.
-Loops are circular arcs with diameter `size` and bows are Bézier curves with length `size` as well as an `angle` specifying the narrowness or wideness.
+Loop edges are perfect arcs with only one vertex.
+The required option `loop` specifies the general direction of the loop.
+The diameter can be adjusted with `size`, and the distance from the vertex to the center of curvature can be adjusted with `fit`.
 
 #edge-kind-examples((
   (loop: right),
+  (loop: -45deg),
   (loop: 90deg, size: 40pt),
 ))
 
+The `fit` parameter moves the loop inward or outward from the node.
+The default value `fit: 1` ensures the loop meets circular nodes at right angles.
+When `fit: 0`, the loop touches the node's center.
+
+#edge-kind-examples((
+  (loop: top, node: (radius: 5mm), fit: 0.8),
+  (loop: top, node: (radius: 5mm)),
+  (loop: top, node: (radius: 5mm), fit: 1.2),
+))
+
+
+=== Bow
+
+`edge(pt, bow: angle | direction, size: length, angle: angle, fit: number)`
+
+Bows have one vertex, like loops.
+The required option `bow` specifies the general direction of the edge.
+The `size` and `angle` options specify the length and wideness of the bow, which is formed as a cubic Bézier curve with its control points arranged in an isosceles triangle.
+
+#edge-kind-examples((
+  (bow: bottom + right),
+  (bow: top, size: 50pt),
+  (bow: bottom, angle: 90deg),
+))
+
+Like for loop edges, the `fit` option fine-tunes how far in or out the bow is from the node.
 
 
 #edge-kind-examples((
-  (bow: right),
-  (bow: 90deg, size: 20pt),
-  (bow: bottom, angle: 100deg),
+  (bow: top, node: (radius: 5mm), fit: 0.8),
+  (bow: top, node: (radius: 5mm)),
+  (bow: top, node: (radius: 5mm), fit: 1.2),
 ))
 
 

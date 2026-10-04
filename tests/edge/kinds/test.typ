@@ -65,6 +65,44 @@ Edge loops
 
 #pagebreak()
 
+Loops and bows on non-circular nodes
+
+#diagram(
+  node-stroke: 0.5pt,
+  node((0,0), radius: 15pt)[A],
+  for d in (left, right, top, bottom) {
+    edge("->", loop: d)
+  },
+
+  node((1,0))[ABCDEFG],
+  for d in (left, right, top, bottom) {
+    edge("->", loop: d, size: 12pt)
+  },
+
+  node((0,1), radius: 15pt)[A],
+  for d in (left, right, top, bottom) {
+    edge("->", bow: d)
+  },
+
+  node((1,1))[ABCDEFG],
+  for d in (left, right, top, bottom) {
+    edge("->", bow: d)
+  },
+)
+
+#pagebreak()
+
+Loops and bow with same `size`
+
+#diagram(
+  node-fill: yellow,
+  node((), [A], radius: 10pt),
+  edge(loop: right, size: 20pt),
+  edge(bow: right, size: 20pt),
+)
+
+#pagebreak()
+
 Corner edges
 
 #for c in ("-|", "|-", "|-|", "-|-") {
