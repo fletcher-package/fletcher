@@ -1214,6 +1214,9 @@
   /// -> number | length
   crossing-thickness: auto,
 
+  /// CeTZ path function (taking as input the pair of vertices)
+  /// If `auto` (default), the shape of the edge is inferred from the other arguments of `edge`.
+  path: auto,
   /// Whether to return a `metadata` object which can be placed inside equations,
   /// instead of returning an array of functions which can be inserted into a CeTZ canvas.
   ///
@@ -1253,11 +1256,21 @@
     crossing-fill: crossing-fill,
     crossing-thickness: crossing-thickness,
     decorate: decorate,
-    shape: (
-      kind: auto, // edge kind
-      args: (:),  // non-vertex arguments specific to edge kind
-      draw: none, // accepts (args, vertices) and returns a path
-    ),
+    shape: {
+      if path == auto {
+        (
+          kind: auto, // edge kind
+          args: (:),  // non-vertex arguments specific to edge kind
+          draw: none, // accepts (args, vertices) and returns a path
+        )
+      } else {
+        (
+          kind: "cetz",
+          args: (:),
+          draw: (_, vertices) => path(vertices),
+        )
+      }
+    },
   )
 
   options += parsing.interpret-edge-positional-args(args.pos(), options)
