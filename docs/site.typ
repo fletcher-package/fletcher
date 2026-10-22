@@ -119,8 +119,8 @@
 #let template(body) = {
   html.link(href: URL_ROOT + "/styles.css", rel: "stylesheet")
   html.main({ // wrap in main so inputs aren't wrapped in <p>
+    html.input(type: "checkbox", id: "menu-control") // must immediately precede label
     html.label(..("for": "menu-control"), class: "menu-overlay")
-    html.input(type: "checkbox", id: "menu-control")
     sidebar
     html.article[
       #body
