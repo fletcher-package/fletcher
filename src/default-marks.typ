@@ -115,6 +115,27 @@
 		cap-offset: (mark, y) => calc.tan(mark.sharpness + 90deg)*calc.abs(y),
 	),
 
+	corner: (
+		// a right-angle corner which auto-rotates to be straight
+		// intended to be used for pushouts in category theory
+		size: 10,
+		fill: none,
+		tip-origin: mark => mark.size,
+		draw: mark => draw.get-ctx(ctx => {
+			// snap angle to nearest 45deg
+			let (cos, sin) = ctx.transform.at(0).slice(0, 2)
+			let θ = calc.atan2(cos, sin)
+			let θ-snapped = calc.round(θ/45deg)*45deg 
+			draw.rotate(θ - θ-snapped)
+			draw.line(
+				(-45deg, mark.size),
+				(0, 0),
+				(45deg, mark.size),
+			)
+		})
+
+	),
+
 	solid: (
 		inherit: "straight",
 

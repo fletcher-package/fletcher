@@ -166,6 +166,7 @@
   "gallery/digraph.typ",
   "gallery/uml-diagram.typ",
   "gallery/feynman-diagram.typ",
+  "gallery/pushout.typ",
   "gallery/category-theory.typ",
   "gallery/node-groups.typ",
   "gallery/tree.typ",
