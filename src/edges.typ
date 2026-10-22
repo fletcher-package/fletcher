@@ -72,7 +72,10 @@
       label.anchor = utils.angle-to-anchor(label.angle)
     }
   }
-  assert(type(label.angle) == angle)
+
+  if type(label.angle) != angle {
+    utils.error("invalid label angle: #0", label.angle)
+  }
 
   // 2. resolve label.side to boolean or none/center and resolve anchor
   if label.side == auto {
@@ -773,7 +776,7 @@
 }
 
 // consumes `label-*` named arguments and validates
-#let interpret-label-args(named, options) = {
+#let interpret-label-args(options, named) = {
   let default-spec = (
     body: none,
     pos: 50%,
@@ -784,11 +787,11 @@
     anchor: auto,
   )
 
-  let label-args = named.keys().filter(arg => arg.starts-with("label-"))
-  for arg in label-args {
+  let label-args = (options + named).pairs().filter(((k, v)) => k.starts-with("label-")).to-dict()
+  for (arg, val) in label-args {
     let suffix = arg.trim("label-", at: start)
     if suffix in default-spec {
-      default-spec.at(suffix) = named.remove(arg)
+      default-spec.at(suffix) = val
     } else {
       let possible-options = default-spec.keys().map(o => "label-" + o)
       utils.error("invalid option #0. Try #..1", repr(arg), possible-options)
@@ -813,7 +816,7 @@
 
   let spec = utils.one-or-array(options.label).map(as-label-spec).filter(l => l != none)
 
-  return (named, spec)
+  return spec
 }
 
 #let interpret-decorate-arg(it) = {
@@ -1247,6 +1250,12 @@
     marks: marks,
     mark-scale: mark-scale,
     label: label,
+    label-pos: label-pos,
+    label-side: label-side,
+    label-sep: label-sep,
+    label-fill: label-fill,
+    label-angle: label-angle,
+    label-anchor: label-anchor,
     snap-to: utils.as-pair(snap-to),
     snap-method: snap-method,
     outset: utils.as-pair(outset),
@@ -1282,18 +1291,7 @@
   options.decorate = interpret-decorate-arg(options.decorate)
 
   let named = args.named()
-  let (named, labels) = interpret-label-args(
-    named
-      + (
-        label-pos: label-pos,
-        label-side: label-side,
-        label-sep: label-sep,
-        label-fill: label-fill,
-        label-angle: label-angle,
-        label-anchor: label-anchor,
-      ),
-    options,
-  )
+  let labels = interpret-label-args(options, named)
 
   options += determine-edge-kind(named, options)
 

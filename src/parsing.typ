@@ -196,7 +196,7 @@
 		if options.at(key) == default { return }
 		utils.error(
 			"#0 specified twice with positional argument(s) #..pos and named argument #named.",
-			key, pos: value.pos().map(repr), named: repr(options.at(key)),
+			key, pos: value.pos(), named: repr(options.at(key)),
 		)
 	}
 

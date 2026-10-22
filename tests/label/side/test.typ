@@ -95,3 +95,12 @@ for multi-stroke edges
 #diagram(edge((0,0), (1,1), "==>", stroke: 1pt, $f$, debug: "edge.label", label-side: left))
 #diagram(edge((0,0), (1,1), "==>", stroke: 1pt, $f$, debug: "edge.label", label-side: center))
 #diagram(edge((0,0), (1,1), "==>", stroke: 1pt, $f$, debug: "edge.label", label-side: right))
+
+#pagebreak()
+
+Label side with positional argument
+
+#diagram(edge("->", $f$, label-side: top))
+#diagram(edge("->", $f$, top))
+#diagram(edge("->", $f$, label-side: bottom))
+#diagram(edge("->", $f$, bottom))
