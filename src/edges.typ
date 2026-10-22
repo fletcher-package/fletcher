@@ -746,7 +746,14 @@
       named-arg-suggestion.args.filter(n => n not in named).map(repr).join(", ", last: " and ")
       "."
     }
-    utils.error("Unknown edge arguments #..0." + hint, named.keys())
+    if hint == none and type(kind) == str and kind in EDGE_KINDS {
+      let spec = EDGE_KINDS.at(kind)
+      hint = {
+        " Options for " + kind + " edges: "
+        (spec.required + spec.optional.keys()).map(repr).join(", ")
+      }
+    }
+    utils.error("Unknown edge argument #..0." + hint, named.keys())
   }
 
   // fallback
