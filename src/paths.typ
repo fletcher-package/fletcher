@@ -332,8 +332,12 @@
       let s = prev-pt
       let (_, c1, c2, e) = this-segment
       let (lo, hi) = cetz.path-util.bezier.split(s, e, c1, c2, t)
-      let (_, e, c1, c2) = lo
-      sliced-segment = ("c", c1, c2, e)
+      let (s, e, c1, c2) = lo
+      if s == e {
+        sliced-segment = ("l", s)
+      } else {
+        sliced-segment = ("c", c1, c2, e)
+      }
     }
 
     let sliced-subpath = (start, closed, (..prior-segments, sliced-segment))
@@ -377,9 +381,15 @@
       let (_, c1, c2, e) = this-segment
       let (lo, hi) = cetz.path-util.bezier.split(s, e, c1, c2, t)
       let (s, e, c1, c2) = hi
-      sliced-segment = ("c", c1, c2, e)
+      if s == e {
+        sliced-segment = ("l", s)
+      } else {
+        sliced-segment = ("c", c1, c2, e)
+      }
       start = s
     }
+
+
 
     let sliced-subpath = (start, closed, (sliced-segment, ..post-segments))
 
