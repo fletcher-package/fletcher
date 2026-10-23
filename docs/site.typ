@@ -163,6 +163,7 @@
   "gallery/block-diagram.typ",
   "gallery/ml-architecture.typ",
   // "gallery/io-flowchart.typ",
+  "gallery/states.typ",
   "gallery/digraph.typ",
   "gallery/uml-diagram.typ",
   "gallery/feynman-diagram.typ",
@@ -170,6 +171,7 @@
   "gallery/category-theory.typ",
   "gallery/node-groups.typ",
   "gallery/tree.typ",
+  "gallery/dot-tree.typ",
   "gallery/algebra-cube.typ",
 )
 

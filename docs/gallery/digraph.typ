@@ -1,4 +1,4 @@
-#import "../../src/exports.typ" as fletcher: diagram, node, edge
+#import "../../src/exports.typ" as fletcher: cetz, node, edge
 
 #let nodes = ("A", "B", "C", "D", "E", "F", "G")
 #let edges = (
@@ -11,13 +11,13 @@
 	(6, 5),
 )
 
-#diagram({
+#cetz.canvas({
 	for (i, n) in nodes.enumerate() {
 		let θ = 90deg - i*360deg/nodes.len()
 		node((θ, 18mm), n, stroke: 0.5pt, name: str(i))
 	}
 	for (from, to) in edges {
-		let bend = if (to, from) in edges { 10deg } else { 0deg }
+		let bend = if (to, from) in edges { 12deg } else { 0deg }
 		// refer to nodes by label, e.g., <1>
 		edge(label(str(from)), label(str(to)), "-|>", bend: bend)
 	}
