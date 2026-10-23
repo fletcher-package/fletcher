@@ -107,8 +107,8 @@
     - #link("https://discord.com/channels/1054443721975922748/1260973351900414102")[Discord Channel]
   ], [
     - *Contributing*
-    - #[Issues & Ideas]
-    - #[Sponsorship]
+    - #link("https://github.com/fletcher-package/fletcher/issues")[Issues & Ideas]
+    - #link("https://github.com/sponsors/fletcher-package/")[Sponsor]
   ])
 
   for col in cols {
@@ -149,7 +149,8 @@
 
   #html.div(class: "large-links", {
     html.div(link(<gallery>)[Example Gallery])
-      html.div(link(<manual-intro>)[Quick Overview])
+    html.div(link(<manual-intro>)[Introduction])
+    html.div(link(<manual-pdf>)[PDF Manual])
   })
 
 ]) <home>
