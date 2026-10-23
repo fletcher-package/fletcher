@@ -440,6 +440,7 @@ pre {
 .fn-arg-details {
   display: inline-block;
   margin-left: 1em;
+  font-weight: initial;
   font-size: 0.8em;
 }
 
@@ -450,5 +451,4 @@ pre {
 .type {
   border-radius: 0.3rem;
   padding: 1px 4px;
-  display: inlineblock;
 }

@@ -345,7 +345,7 @@
   import tidy.styles.default: colors
   let clr = colors.at(ty, default: colors.default)
   if is-html() {
-    let hex = if type(clr) == color { clr.to-hex() } else { "" }
+    let hex = if type(clr) == color { clr.to-hex() } else { "#ffcde1" }
     html.span(class: "type", style: "background: " + hex, ty)
   } else {
     h(2pt)
@@ -416,9 +416,8 @@
 
   if is-html() {
     bordered-section({
-      heading(raw(arg), level: level)
 
-      html.div(class: "fn-arg-details", {
+      let details = html.div(class: "fn-arg-details", {
         if "types" in info {
           info.types.map(show-type).join[ or ]
         }
@@ -428,6 +427,7 @@
         }
       })
 
+      heading(raw(arg) + details, level: level)
       eval(info.description, mode: "markup", scope: scope)
     })
   } else {
