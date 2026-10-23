@@ -159,6 +159,7 @@
 // Gallery
 
 #let gals = (
+  "gallery/first-iso-thm.typ",
   "gallery/commutative.typ",
   "gallery/block-diagram.typ",
   "gallery/ml-architecture.typ",

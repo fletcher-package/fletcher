@@ -13,6 +13,35 @@ After the final flexigrid is determined, all nodes, edges and other objects are 
 If nodes have fractional $u v$ coordinates, an iterative algorithm is used to calculate the minimum row and column sizes which accommodate the nodes.
 This usually requires only a few steps (see the @flexigrid.max-layout-iterations option for details).
 
+== Math-mode diagrams
+
+Nodes can be specified using equations with alignment points `&` separating columns and newlines `\` separating rows.
+
+#example(```typ
+#diagram(
+  $
+    A & X \
+    Y & X +_A Y
+  $,
+  edge((0,0), "-->", (1,1), from: -90deg, to: 90deg, snap-method: "move")
+)
+```)
+
+To use @node and @edge inside equations, the @edge.in-math[`in-math`] option must be enabled.
+It can be convenient to define an alias such as
+```
+#let hom = edge.with(in-math: true)
+```
+when using equation-based layouts.
+
+#example(```typ
+#let hom = edge.with(in-math: true)
+#diagram($
+	G hom(f, ->) hom("d", pi, ->>) & im(f) \
+	G slash ker(f) hom("ur", tilde(f), "hook-->", #bottom)
+$)
+```)
+
 == Nodes are placed within _cells_ <node-cells>
 
 A node inside a flexigrid lives within a _cell_, which is visible when the @debug.node.cell debug option is turned on for the node or diagram.
