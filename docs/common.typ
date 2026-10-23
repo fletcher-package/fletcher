@@ -493,7 +493,7 @@
 
 #let nav-expander-script() = html.script(```js
   // A script to automatically enlarge the navbar when hovering over wide links
-  const nav = document.querySelector('nav');
+  const nav = document.querySelector('nav > div');
   const navWidth = nav.offsetWidth;
   let stretchedWidth = navWidth;
 

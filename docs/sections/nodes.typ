@@ -9,7 +9,7 @@ Nodes are content centered at a coordinate.
 By default, nodes fit to their content (with an @node.inset[inset]), but can also be given a specific size and @node-shapes[shape].
 Nodes can be given various styles including @node.stroke[stroke] and @node.fill[fill].
 
-Edges automatically snap to nodes (with an @node.outset) and the positions and sizes of nodes @manual-diagrams[affects diagram layout] (unlike edges or plain CeTZ objects).
+Edges automatically snap to nodes (with an @node.outset[outset]) and the positions and sizes of nodes @manual-diagrams[affects diagram layout] (unlike edges or plain CeTZ objects).
 
 #example(```typ
 #diagram(
@@ -32,33 +32,6 @@ Edges automatically snap to nodes (with an @node.outset) and the positions and s
 
 == Node styles <node-styles>
 
-Node styles can be set with named arguments, like
-```
-node(stroke: 2pt, ..)
-```
-while default styles can be set by passing options to the enclosing diagram by adding a prefix, like ```
-diagram(node-stroke: 2pt, ..)
-```
-or by using
-```
-cetz.draw.set-style(node: (stroke: 2pt))
-```
-which works in a @diagram and a CeTZ canvas.
-Like CeTZ styles, `cetz.draw.set-style()` is scoped to the current `cetz.draw.group()`.
-
-#example(```typ
-#diagram(
-  node-stroke: 2pt, // default stroke style for nodes
-  node((0,0), fill: yellow, [A]),
-  edge("<->"),
-  {
-    import cetz.draw: *
-    set-style(node: (extrude: (2,0)))
-		// stroke becomes 2pt + blue
-    node((0,1), stroke: blue, [B], outset: 4pt)
-  }
-)
-```)
 
 Available node styles:
 
@@ -76,12 +49,35 @@ Available node styles:
 	- and so on
 
 
+
+Node styles can be set with named arguments, like `node(stroke: 2pt, ..)`.
+Default styles can be set by passing options to the enclosing diagram by adding a prefix, like `diagram(node-stroke: 2pt, ..)`, or by inserting
+```
+cetz.draw.set-style(node: (stroke: 2pt))
+```
+inside a @diagram and a CeTZ canvas.
+Like CeTZ styles, `cetz.draw.set-style()` is scoped to the current `cetz.draw.group()`.
+
+#example(```typ
+#diagram(
+  node-stroke: 2pt, // default stroke style for nodes
+  node((0,0), fill: yellow, [A]),
+  edge("<->"),
+  {
+    import cetz.draw: *
+    set-style(node: (extrude: (2,0)))
+		// stroke becomes 2pt + blue
+    node((0,1), stroke: blue, [B], outset: 4pt)
+  }
+)
+```)
+
 == Node shapes <node-shapes>
 
-By default, nodes are circular if their content is small and square, and rectangular if it is tall or wide.
+By default, nodes are circular if the body is small and roughly as wide as it is tall, and rectangular otherwise.
 The @node.shape[shape] option can be set to any of the following built-in shapes.
 
-// #shapes-gallery
+#shapes-gallery
 
 Most shapes have additional styles specific to the shape, such as:
 - `width`, `height` and @node-fit[`fit`] for all shapes

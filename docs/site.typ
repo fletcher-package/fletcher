@@ -24,7 +24,7 @@
     text(1.75em)[_fletcher manual_]
   })))
 
-  - #link(<gallery>)[*Example Gallery*]
+  - #link(<gallery>)[*Gallery*]
 
   - #[*Manual*]
     #for (dest, src, id) in manual-pages {
@@ -176,7 +176,7 @@
 #for gal in gals [
   #document(gal.replace(".typ", ".html"))[
     #let src = read(gal).replace("\t", "  ").replace("../../src/exports.typ", "@preview/fletcher:" + common.VERSION)
-    #raw(src, lang: "typ"),
+    #raw(src, lang: "typ")
   ] #label(gal)
 ]
 

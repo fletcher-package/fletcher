@@ -1,7 +1,7 @@
 #import "../common.typ": *
 #show: style
 
-= Quick Overview
+= Introduction
 
 Import fletcher with:
 
@@ -15,10 +15,10 @@ Objects in a @diagram are arranged on a @flexigrids[flexible coordinate grid].
 #example(```typ
 #diagram({
   node((0,0), $G$)
-  edge("->", $f$) // start/end at prev/next node
+  edge("->", $f$)
   node((1,0), $im(f)$)
-  edge((0,0), "->>", $pi$) // start given; end is next node
-  edge("<--hook'", $tilde(f)$)
+  edge((0,0), "->>", $pi$)
+  edge("<--hook'", $tilde(f)$, bottom)
   node((0,1), $G slash ker(f)$)
 })
 ```)
@@ -29,7 +29,7 @@ Default styles can be set by passing the same arguments prefixed with "`node-`" 
 #example(```typ
 #diagram(
 	spacing: (1cm, 4mm), // column and row gutter
-	node-inset: 8pt, // padding around node content
+	node-inset: 8pt,     // padding around node body
 	node-fill: teal.mix(fuchsia),
 	edge-stroke: 2pt + gray,
 	node((0,0))[A], edge(), node((1,0))[B],
