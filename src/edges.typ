@@ -413,8 +413,13 @@
   let objs = (edge.shape.draw)(edge.shape.args, edge.vertices)
   if objs.len() != 1 { utils.error("edge.draw should return a single CeTZ object") }
 
-  let (drawables, element) = cetz.process.element(ctx, objs.first())
-  element.name = edge.name
+  let (drawables,) = cetz.process.element(ctx, objs.first())
+
+  // CETZ 0.5.3: removed element
+  let element = (
+    name: edge.name,
+    drawables: drawables
+  )
 
   if drawables.len() != 1 { utils.error("edge.draw should return a single drawable") }
   let drawable = drawables.first()

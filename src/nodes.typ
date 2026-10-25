@@ -27,18 +27,11 @@
       }
     }
 
-    if node.style.layer != 0 { objs = cetz.draw.on-layer(node.style.layer, objs) }
-    let group = cetz.draw.group(objs, name: node.name)
-    group = group.first()(ctx)
-
-    // override anchor behaviour for nodes
-    let calc-anchors = if "node" in (group.anchors)(()) {
-      // defer all anchors to the node named "node" within the group
-      k => (group.anchors)(("node", k).flatten())
-    } else {
-      k => (group.anchors)(k)
+    if node.style.layer != 0 {
+      objs = cetz.draw.on-layer(node.style.layer, objs)
     }
-    return group + (anchors: calc-anchors)
+    let group = cetz.draw.group(objs, name: node.name)
+    return group.first()(ctx)
   },)
 
 

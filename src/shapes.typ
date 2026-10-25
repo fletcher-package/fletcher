@@ -30,7 +30,7 @@
 // resolving special values like `"body"` and `"cell"`
 // to the node body size or node cell size respectively
 #let resolve-size(node) = {
-  let (w, h) = node.size
+  let (w, h, ..) = node.size
 
   if node.style.width == "body" {
     // keep w as node width
