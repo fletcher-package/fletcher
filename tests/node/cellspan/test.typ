@@ -12,7 +12,7 @@
   node((2,0), [Smell], name: <smell>),
   node((0,1), [Senses], colspan: 3),
   node((0,0), rowspan: 2, colspan: 3,
-    fill: yellow, extrude: 4pt, layer: -1, inset: 0)[],
+    fill: yellow, extrude: 4pt, layer: -1)[],
 )
 
 #pagebreak()

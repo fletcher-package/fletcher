@@ -14,7 +14,7 @@ for (i, a) in (
     center
   ).enumerate() {
     let c = oklch(70%, 70%, i*40deg)
-    node(align: a, fill: c, ..args)
+    node(align: a, fill: c, radius: 0.075, ..args)
   }
 }
 
@@ -23,7 +23,7 @@ for (i, a) in (
   spacing: 1mm,
   node((0,1), width: 2)[X],
   node((1,0), height: 1)[Y],
-  aligned-nodes((0,0), radius: 0.075)
+  aligned-nodes((0,0))
 )
 
 #diagram(
@@ -32,7 +32,7 @@ for (i, a) in (
   axes: (btt, rtl),
   node((0,1), width: 2)[X],
   node((1,0), height: 1)[Y],
-  aligned-nodes((0,0), radius: 0.075)
+  aligned-nodes((0,0))
 )
 
 #diagram(
@@ -40,7 +40,7 @@ for (i, a) in (
   spacing: 1mm,
   node((0,1), width: 2)[X],
   node((1,0), height: 1)[Y],
-  aligned-nodes((0,0), radius: 0.075)
+  aligned-nodes((0,0))
 )
 
 
@@ -50,5 +50,5 @@ for (i, a) in (
   node((0,1), width: 2)[X],
   node((-1,0), height: 1)[Y],
   node((1,-1), width: 2)[Z],
-  aligned-nodes((0,0), colspan: 2, radius: 0.075)
+  aligned-nodes((0,0), colspan: 2)
 )
