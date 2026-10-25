@@ -35,3 +35,16 @@ Positive/negative row/colspans
   node((0,2), $arrow.b$, rowspan: -2),
   node((2,2), $<-$, colspan: -2, rowspan: 1, extrude: 3pt),
 )
+
+#pagebreak()
+
+Cellspan with non-cell width
+
+#diagram(
+  node-fill: teal,
+  spacing: 5pt,
+  node((0,0), [Left]),
+  node((1,0), [Right]),
+  node((0,1), [Aligned], colspan: 2, width: "body", align: right),
+  node((0,2), [Fullwidth], colspan: 2, align: right),
+)
