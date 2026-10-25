@@ -243,25 +243,27 @@
   crossing-stroke: none,
 ) = {
   assert(utils.is-cetz-element(element))
+  assert.eq(element.drawables.len(), 1)
+  let drawable = element.drawables.first()
 
   shorten = shorten.map(s => cetz.util.resolve-number(ctx, s))
   if shorten.any(s => s != 0) {
-    let path = element.drawables.first().segments
-    element.drawables.first().segments = cetz.path-util.shorten-to(path, shorten)
+    let path = drawable.segments
+    drawable.segments = cetz.path-util.shorten-to(path, shorten)
   }
 
   let (shorten-start, shorten-end, marks) = Marks.draw-marks-on-path(
     ctx,
-    element.drawables.first().segments,
+    drawable.segments,
     marks,
     stroke: stroke,
     extrude: extrude,
     debug: debug,
   )
 
-  let element = paths.element-path-effect(
+  let (drawables, anchors) = paths.drawable-path-effect(
     ctx,
-    element,
+    drawable,
     shorten-start: shorten-start,
     shorten-end: shorten-end,
     stroke: stroke,
@@ -270,10 +272,12 @@
     ..extra-path-effect-args,
   )
 
-  let total-length = element.drawables.map(d => cetz.path-util.length(d.segments)).sum(default: 0.)
+  let total-length = drawables.map(d => cetz.path-util.length(d.segments)).sum(default: 0.)
 
   if decorate != none {
-    let obj = (ctx => element,)
+    // panic("todo")
+    // TODO
+    let obj = (ctx => (ctx: ctx, drawables: drawables),)
     let (new-obj,) = apply-decorations(
       ctx,
       obj,
@@ -285,7 +289,7 @@
       smooth: decorate.smooth,
       shorten: decorate.shorten,
     )
-    element.drawables = new-obj(ctx).drawables
+    drawables = new-obj(ctx).drawables
   }
 
 
@@ -297,13 +301,12 @@
     (ctx => (ctx: ctx, drawables: crossing),)
   }
 
-  // obj
-  (ctx => (ctx: ctx, name: element.name, anchors: element.anchors, drawables: element.drawables),)
+  (ctx => (ctx: ctx, name: element.name, anchors: anchors, drawables: drawables),)
 
   marks
 
   for label in labels {
-    draw-label-at-anchor(ctx, element.anchors, label, debug: debug)
+    draw-label-at-anchor(ctx, anchors, label, debug: debug)
   }
 }
 
@@ -413,8 +416,13 @@
   let objs = (edge.shape.draw)(edge.shape.args, edge.vertices)
   if objs.len() != 1 { utils.error("edge.draw should return a single CeTZ object") }
 
-  let (drawables, element) = cetz.process.element(ctx, objs.first())
-  element.name = edge.name
+  let (drawables,) = cetz.process.element(ctx, objs.first())
+
+  // CETZ 0.5.3: removed element
+  let element = (
+    name: edge.name,
+    drawables: drawables
+  )
 
   if drawables.len() != 1 { utils.error("edge.draw should return a single drawable") }
   let drawable = drawables.first()

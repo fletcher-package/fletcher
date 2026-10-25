@@ -6,7 +6,6 @@
   ("l", (10,10,0)),
 ))
 #let path = (subpath,)
-
 #let (pos, vel, acc) = paths.point-on-path-by-segment(path, .5)
 #assert.eq(pos, (5,0,0))
 #assert.eq(vel, (10,0,0))
@@ -91,6 +90,7 @@ Multi-subpath paths
         segments: path,
         fill: blue.transparentize(50%),
         stroke: black,
+        tags: ()
       ),)
     ),)
 

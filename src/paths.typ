@@ -790,15 +790,15 @@
 
 
 
-// Apply path effects to a CeTZ element.
+// Apply path effects to a CeTZ drawable.
 //
 // A CeTZ element is a dictionary of the form `(name, anchors, drawables)`.
 // The `drawables` field is updated with path effects (corner rounding, extrusion,
 // shortening) applied and the `anchors` function is updated to accept path segment
 // anchors.
-#let element-path-effect(
+#let drawable-path-effect(
   ctx,
-  element,
+  drawable,
   stroke: auto,
   fill: auto,
   shorten-start: 0,
@@ -809,9 +809,8 @@
   miter-limit: 4.0,
   dynamic-radius: true,
 ) = {
-  if element.drawables.len() != 1 {
-    utils.error("path effect requires each element to have one drawable; found #0", element.drawables.len())
-  }
+  assert(is-drawable(drawable))
+
   let extrude = utils.one-or-array(extrude, types: (int, float))
 
   if type(shorten-start) != array {
@@ -841,60 +840,58 @@
   let anchor-stops = ()
 
   let new-drawables = ()
-  for drawable in element.drawables {
-    assert.eq(drawable.type, "path")
 
-    let stroke = {
-      utils.stroke-to-dict(drawable.stroke)
-      utils.stroke-to-dict(stroke)
+  let stroke = {
+    utils.stroke-to-dict(drawable.stroke)
+    utils.stroke-to-dict(stroke)
+  }
+  stroke.miter-limit = miter-limit
+  // force round stroke join style for rounded corners
+  if join == "round" { stroke.join = "round" }
+  let thickness = utils.get-thickness(stroke).to-absolute()
+
+  let resolve-thickness-multiples(x) = {
+    if type(x) in (int, float) { x*thickness/ctx.length }
+    else if type(x) == length { x.to-absolute()/ctx.length }
+  }
+
+  let offsets = extrude.map(resolve-thickness-multiples)
+
+  for (i, offset) in offsets.enumerate() {
+    let new-path = drawable.segments
+
+    // path shortening
+    let l = resolve-thickness-multiples(shorten-start.at(i))
+    if l != 0 {
+      new-path = cetz.path-util.shorten-to(new-path, l)
     }
-    stroke.miter-limit = miter-limit
-    // force round stroke join style for rounded corners
-    if join == "round" { stroke.join = "round" }
-    let thickness = utils.get-thickness(stroke).to-absolute()
-
-    let resolve-thickness-multiples(x) = {
-      if type(x) in (int, float) { x*thickness/ctx.length }
-      else if type(x) == length { x.to-absolute()/ctx.length }
+    let l = resolve-thickness-multiples(shorten-end.at(i))
+    if l != 0 {
+      new-path = cetz.path-util.shorten-to(new-path, l, reverse: true)
     }
 
-    let offsets = extrude.map(resolve-thickness-multiples)
-    for (i, offset) in offsets.enumerate() {
-      let new-path = drawable.segments
-
-      // path shortening
-      let l = resolve-thickness-multiples(shorten-start.at(i))
-      if l != 0 {
-        new-path = cetz.path-util.shorten-to(new-path, l)
-      }
-      let l = resolve-thickness-multiples(shorten-end.at(i))
-      if l != 0 {
-        new-path = cetz.path-util.shorten-to(new-path, l, reverse: true)
-      }
-
-      let new-stops = ()
-      for i in range(new-path.len()) {
-        let (subpath, stops) = subpath-effect(
-          new-path.at(i),
-          offset: offset,
-          min-offset: calc.min(..offsets),
-          max-offset: calc.max(..offsets),
-          join: join,
-          corner-radius: corner-radius,
-          miter-limit: miter-limit,
-          dynamic-radius: dynamic-radius,
-        )
-        new-path.at(i) = subpath
-        new-stops += stops
-      }
-      anchor-stops = new-stops
-
-      new-drawables.push({
-        drawable
-        (segments: new-path, stroke: stroke)
-        if fill != auto { (fill: fill) }
-      })
+    let new-stops = ()
+    for i in range(new-path.len()) {
+      let (subpath, stops) = subpath-effect(
+        new-path.at(i),
+        offset: offset,
+        min-offset: calc.min(..offsets),
+        max-offset: calc.max(..offsets),
+        join: join,
+        corner-radius: corner-radius,
+        miter-limit: miter-limit,
+        dynamic-radius: dynamic-radius,
+      )
+      new-path.at(i) = subpath
+      new-stops += stops
     }
+    anchor-stops = new-stops
+
+    new-drawables.push({
+      drawable
+      (segments: new-path, stroke: stroke)
+      if fill != auto { (fill: fill) }
+    })
   }
 
 
@@ -923,7 +920,7 @@
     } else if new-drawables.len() == 0 {
       // this happens for "invisible" line styles, or `extrude: ()`
       // just use path before effects were applied in this case
-      derivatives = sample-subpath(element.drawables.first().segments)
+      derivatives = sample-subpath(drawable.segments)
 
     } else {
       // path has multi-stroke effect
@@ -953,9 +950,7 @@
   }
 
   return (
-    ctx: ctx,
     drawables: new-drawables,
-    name: element.name,
     anchors: anchors,
   )
 }
@@ -1100,12 +1095,16 @@
       } else { e }
     })
 
-    let elements = cetz.process.many(ctx, objs).elements
 
-    for element in elements {
-      let new-element = element-path-effect(
+    let (ctx: new-ctx, drawables) = cetz.process.many(ctx, objs)
+
+    assert.eq(drawables.len(), 1)
+    let cetz-node = new-ctx.nodes.values().at(0, default: none)
+
+    for drawable in drawables {
+      let (drawables, anchors) = drawable-path-effect(
         ctx,
-        element,
+        drawable,
         stroke: stroke,
         fill: fill,
         shorten-start: shorten-start,
@@ -1116,7 +1115,14 @@
         miter-limit: miter-limit,
         dynamic-radius: dynamic-radius,
       )
-      (ctx => (ctx: ctx, ..new-element),)
+
+      if cetz-node != none {
+        ctx.nodes.insert(cetz-node.name, (
+          ..cetz-node,
+          anchors: anchors
+        ))
+      }
+      (ctx_ => (ctx: ctx, drawables: drawables),)
     }
   })
 }
