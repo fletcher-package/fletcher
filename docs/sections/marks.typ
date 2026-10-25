@@ -43,7 +43,7 @@ A few other built-in marks are provided, and all marks can be placed at any posi
 
 
 
-== Built-in marks and line styles
+== Built-in marks and line styles <all-marks>
 
 A mark shorthand such as `"<->"` consists of _mark names_ `"<"` and `">"` joined with _line styles_, `"-"`.
 

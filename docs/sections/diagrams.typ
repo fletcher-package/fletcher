@@ -6,7 +6,11 @@
 
 Fletcher encourages the use of an "elastic, tabular layout" called a _flexigrid_.
 
-Diagrams use a flexigrid layout by default, but you can also draw in a CeTZ canvas instead (see @draw-in-cetz).
+Flexigrids have rows and columns which grow to accommodate the sizes of nodes, like a table.
+Unlike tables, however, fractional coordinates are supported.
+If you don't want the positions of nodes to be affected by other nodes' sizes, you can @manual-cetz[place notes directly inside a CeTZ canvas instead].
+
+
 To render a diagram, fletcher first collects the row/column positions (or $u v$ coordinates) of all nodes in the diagram and calculates the row and column sizes for the flexigrid layout.
 After the final flexigrid is determined, all nodes, edges and other objects are drawn in a context where both $u v$ coordinates and normal $x y$ coordinates can be used.
 
@@ -90,7 +94,7 @@ By default, nodes are placed in the center of their cell, but they can also be *
 
 == Node row and column span <sec-node-cellspan>
 
-A node's cell can be made to span multiple columns or rows in a flexigrid.
+A node's cell can be made to span multiple columns or rows in a flexigrid using @node.colspan and @node.rowspan.
 When this happens, the node's size is automatically set to the full size of the cell.
 
 #example(```typ
@@ -122,4 +126,4 @@ However, this use case is rare, since you can also place nodes in between cells 
 )
 ```)
 
-This is similar but different to @enclose-nodes; row and column spans only work inside a flexigrid.
+Spanning multiple flexigrid cells is similar but different to @enclose-nodes; row and column spans only work inside a flexigrid.

@@ -56,7 +56,7 @@ Below, we use fletcher's marks to draw an edge in a CeTZ-based figure.
 
 == Flexible coordinate grids <flexigrids>
 
-Diagrams are laid out on a _flexible coorginate grid_, visible when the `debug` option of @diagram is on.
+Diagrams are laid out on a @manual-diagrams[flexible coordinate grid or _flexigrid_], visible when the `debug` option of @diagram is on.
 The rows and columns in this coordinate system grow to accommodate the sizes of nodes, useful for tabular layouts:
 
 #example(```typ

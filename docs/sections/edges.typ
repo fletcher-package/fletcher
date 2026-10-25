@@ -262,7 +262,7 @@ Edges with one or two right-angled corners can be specified with `corner`, which
 )
 
 
-=== CeTZ <cetz-edge>
+=== CeTZ paths <cetz-edge>
 
 When @cetz-interop[integrating with CeTZ], you can wrap a CeTZ element in @edge to apply any of fletcher's edge effects to it.
 When used in this mode, edges cannot have vertices.

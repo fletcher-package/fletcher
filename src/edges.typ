@@ -933,7 +933,22 @@
   corner-radius: auto,
   /// Marks or arrows to draw along the edge.
   ///
-  /// TODO
+  /// This can be a _mark shorthand_ like `"->"`, `"<|.."` or `"-x-"`, or an array of _mark objects_ like `(none, ">")` or `((pos: 0.7, inherit: "stealth"),)`.
+  ///
+  /// Mark shorthands are strings of the form $A_1 L A_2 L dots.c L A_n$, where each $A_i$ is a mark name and
+  /// $L in \{#fletcher.parsing.LINE_ALIASES.keys().map(repr).map(raw).map(math.op).join($, $)}$
+  /// is a line style (which must be the same for the whole edge).
+  /// See the @all-marks for all possible marks and line styles.
+  /// 
+  /// For more control, an array of mark shorthands or @mark-objects[mark objects] may be given.
+  /// 
+  /// #example(```typ
+  /// #diagram(edge(marks: (none, ">"))) \
+  /// #diagram(edge(marks: (none, (inherit: ">", size: 20)))) \
+  /// #diagram(edge(marks: ((inherit: ">", pos: 0.7, stroke: 1pt + blue),)))
+  /// ```)
+  ///
+  /// -> str | array
   marks: (),
   /// Mark size multiplier.
   ///
@@ -1254,7 +1269,7 @@
     label-fill: label-fill,
     label-angle: label-angle,
     label-anchor: label-anchor,
-    snap-to: utils.as-pair(snap-to),
+    snap-to: utils.as-pair(snap-to).map(s => if type(s) == std.label { str(s) } else { s }),
     snap-method: snap-method,
     outset: utils.as-pair(outset),
     shorten: utils.as-pair(shorten),

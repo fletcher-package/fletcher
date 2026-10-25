@@ -11,7 +11,7 @@ Under the hood, fletcher builds upon CeTZ by defining:
 
 - @node for placing content which influences the layout of an enclosing @flexigrid;
 
-- @edge for drawing paths with convenient styling options including outline snapping, arrow marks, multistroke effects, corner rounding, and label placement;
+- @edge for drawing paths with convenient styling options including @cetz-snapping[automatic snapping], arrow marks, multistroke effects, corner rounding, and label placement;
 
 - @diagram, which is simply @flexigrid wrapped in a CeTZ canvas with styling shortcuts.
 
@@ -56,3 +56,41 @@ Nodes and edges can be given names and participate in CeTZ's anchoring system.
 
 You can wrap a CeTZ path in @edge to apply edge effects to it (see @cetz-edge).
 Using @edge in this way is a convenient wrapper to the path modification functions offered by fletcher, which includes @path-effect for applying corner rounding (for @edge.corner-radius) and offsetting (for @edge.extrude) to CeTZ paths, and @apply-edge-effects for placing marks and labels.
+
+#example(```typ
+#cetz.canvas({
+  import cetz.draw: *
+
+  let path = line((0,0), (1,0), (2,1), (2,0), (3,0), stroke: 0.5pt)
+  path // plain cetz path
+
+  translate(y: -2)
+
+  edge(path, ")==>", text(blue)[_effects_], stroke: 1pt + blue)
+})
+```)
+
+== Snapping edges to CeTZ objects <cetz-snapping>
+
+You can use @edge to enable path snapping.
+You can make edges snap to nodes or plain CeTZ objects using the @edge.snap-to option and providing a name.
+You can also make plain CeTZ paths snap to objects by wrapping them in @edge.
+
+#example(```typ
+#cetz.canvas({
+  import cetz.draw: *
+
+  // plain cetz objects with names
+  line((0,0), (1,1), (2,0), (1,-1), close: true, name: "l")
+  circle((3,0), radius: 0.3, name: "c")
+
+  set-style(edge: (stroke: 1pt + eastern)) // styles applied edge(..)
+
+  // fletcher edge snapping to cetz objects
+  edge((1,0), "-->", (3,0), bend: -40deg, snap-to: ("l", "c"))
+
+  // making a cetz path snap to cetz objects
+  let path = line((1,0), (1,2), (3,2), (3,0))
+  edge(path, "<=", snap-to: ("l", "c"))
+})
+```)

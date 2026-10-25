@@ -180,3 +180,42 @@ Nodes with the @node.enclose option automatically wrap around the specified node
 
 Nodes can also have @sec-node-cellspan[row and column spans], which is a similar but distinct concept.
 Unlike nodes which span rows or columns, enclose nodes do not exist within a flexigrid layout, and do not affect the position of other nodes.
+
+== Column span and row span
+
+Nodes also support @sec-node-cellspan[spanning multiple columns or rows], but only when used inside a flexigrid layout.
+See the section on @manual-diagrams[diagrams and layout] for details.
+
+== Anatomy of a node
+
+
+#import "../../src/debug.typ": DEBUG_STYLES
+
+A summary of the node box model is shown below.
+The different components of a node can be displayed using @debug.node[node debug options].
+
+#side-figure[
+  #let minirect(..args) = box(html.frame(scale(200%, reflow: true, rect(width: 1em, height: 0.5em, ..args))))
+
+  - @debug.node.inset[`"node.inset"`], bounds of node body: #minirect(..DEBUG_STYLES.node.inset)
+
+  - @debug.node.body[`"node.body"`], bounds of node body, including @node.inset[inset]: #minirect(..DEBUG_STYLES.node.body)
+
+  - @debug.node.bounds[`"node.bounds"`], bounds of node shape: #minirect(..DEBUG_STYLES.node.bounds)
+
+  - @debug.node.outset[`"node.outset"`], snapping outline, including @node.outset[outset]: #minirect(..DEBUG_STYLES.node.outset)
+
+  - @debug.node.cell[`"node.cell"`], node's enclosing @node-cells[flexigrid cell]: #minirect(..DEBUG_STYLES.node.cell)
+
+][
+  #frame(scale(175%, reflow: true, diagram(
+    debug: "node node.bounds node.cell",
+    node-fill: luma(80%),
+    node-outset: 5pt,
+    node((0,0), [Body], colspan: 2, shape: "pill", <a>),
+    edge(<a>, "->"),
+    node((0,1), [A], radius: 5mm),
+    edge(<a>, "->"),
+    node((1,1), [B]),
+  )))
+]
