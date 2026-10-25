@@ -5,25 +5,39 @@
 #import "parsing.typ"
 
 
-#let draw-node-at(node, origin, debug: false) = {
-  (ctx => {
-    let objs = {
-      cetz.draw.translate(origin)
-      let style = node.style
+#let draw-node-snapping-outline(ctx, node, origin, outset) = {
+  let bounds-center = cetz.vector.neg(cetz.vector.lerp(node.bounds.high, node.bounds.low, 0.5))
+  cetz.draw.group({
+    cetz.draw.translate(cetz.vector.add(node.pos, bounds-center))
+    (node.draw)((
+      size: node.body-size,
+      style: node.style,
+      unit-length: ctx.length,
+      extrude: outset,
+    ))
+  })
+}
 
-      style.fit = style.fit*(1 - style.fit-cell)
+#let draw-node-at(node, origin, debug: false) = {
+  let bounds-center = cetz.vector.neg(cetz.vector.lerp(node.bounds.high, node.bounds.low, 0.5))
+  let translate-to-origin = cetz.draw.translate(cetz.vector.add(origin, bounds-center))
+
+  (ctx => {
+
+    let objs = {
+      translate-to-origin
 
       for (i, extrude) in node.style.extrude.enumerate() {
-        cetz.draw.set-style(..style, fill: if i == 0 { style.fill })
+        cetz.draw.set-style(..node.style, fill: if i == 0 { node.style.fill })
         (node.draw)((
-          body: if i == 0 { node.body },
-          size: node.bounding-size,
-          style: style,
+          size: node.body-size,
+          style: node.style,
           unit-length: ctx.length,
           extrude: extrude,
-          body-center: node.body-center,
           cell: node.cell,
         ))
+        let (w, h) = node.body-size
+        cetz.draw.content((-w/2, -h/2), (+w/2, +h/2), node.body)
       }
     }
 
@@ -43,31 +57,24 @@
       cetz.draw.rect(lo, hi, ..DEBUG_STYLES.node.cell)
     }
 
-    if debug-level(debug, "node.body") {
-      let c = cetz.vector.add(node.pos, node.body-center)
-      let s = cetz.vector.scale(node.body-size, 0.5)
-      let lo = cetz.vector.sub(c, s)
-      let hi = cetz.vector.add(c, s)
-      cetz.draw.rect(lo, hi, ..DEBUG_STYLES.node.body)
-    }
-
     if debug-level(debug, "node.outset") {
-      let n = node
-      n.style.extrude = (node.style.outset,)
-      n.style.fill = none
-      n.name = none
-      n.body = none
-      n.style.stroke = DEBUG_STYLES.node.outset.stroke
-      cetz.draw.group(draw-node-at(n, n.pos, debug: false))
+      cetz.draw.get-ctx(ctx => {
+        cetz.draw.set-style(..DEBUG_STYLES.node.outset)
+        draw-node-snapping-outline(ctx, node, node.pos, node.style.outset)
+      })
     }
 
-    cetz.draw.translate(origin)
+    translate-to-origin
+
     if debug-level(debug, "node.origin") {
       cetz.draw.circle((0, 0), radius: 0.8pt, fill: red, stroke: none)
     }
+    if debug-level(debug, "node.body") {
+      let (w, h) = node.body-size
+      cetz.draw.rect((-w/2,-h/2), (+w/2,+h/2), ..DEBUG_STYLES.node.body)
+    }
     if debug-level(debug, "node.bounds") {
-      let (w, h) = node.bounding-size
-      cetz.draw.rect((-w/2,-h/2), (+w/2,+h/2), ..DEBUG_STYLES.node.bounds)
+      cetz.draw.rect(node.bounds.low, node.bounds.high, ..DEBUG_STYLES.node.bounds)
     }
 
   })
@@ -189,8 +196,8 @@
       // change default layer for enclose nodes
       if node.enclose != none { (layer: -2) }
       // change default width/height for nodes with cellspan
-      if node.cellspan.at(0) != none { (width: "cell") }
-      if node.cellspan.at(1) != none { (height: "cell") }
+      if node.cellspan.at(0) not in (none, 0) { (width: "cell") }
+      if node.cellspan.at(1) not in (none, 0) { (height: "cell") }
     },
     merge: ctx.style.at("node", default: (:)),
   )
@@ -232,70 +239,89 @@
 }
 
 
-#let measure-node(ctx, style, body) = {
+#let measure-body(ctx, body) = {
+  measure(body)
+    .values()
+    .map(x => utils.to-length(x, to-float: ctx.length))
+}
 
-  // measure node label/body
-  let body-size = {
-    let (low, high) = cetz.process.many(ctx, body).bounds
-    let (w, h, ..) = cetz.vector.sub(high, low)
-    (w, h)
-  }
-
-  // account for how the shape fits within an enclosing flexigrid cell
-  // if fit-cell is 1 then the whole node shape is enclosed in the cell
-  // if fit-cell is 0 then the cell wraps around the node body (while the
-  // node shape can bleed outside the cell bounds)
-  style.fit *= style.fit-cell
-
-  // measure size of node including its shape
-  // and, for asymmetric shapes, determine the center of the node body
-  // relative to the bounding center of the shape
-  let bounding-size = body-size
-  let body-center = (0., 0., 0.)
-
-  let drawn = (style.draw)((
-    size: body-size,
-    body: body,
+#let measure-shape(ctx, size, style) = {
+  let shape = (style.draw)((
+    size: size,
     extrude: 0,
     unit-length: ctx.length,
     style: style,
-    body-center: body-center,
-    cell: none,
   ))
-  let (low, high) = cetz.process.many(ctx, drawn).bounds
-  body-center = cetz.vector.scale(cetz.vector.add(high, low), -0.5).slice(0, 2)
-  bounding-size = cetz.vector.sub(high, low).slice(0, 2)
+  return cetz.process.many(ctx, shape).bounds
+}
 
-  return (body: body-size, bounding: bounding-size, body-center: body-center)
+#let resolve-body-size(ctx, node) = {
+  let (w, h) = node.content-size
+
+  if "width" in node.style {
+    if node.style.width == "body" {
+      // keep w as node width
+    } else if node.style.width == "cell" {
+      if node.cell != none {
+        w = node.cell.size.at(0)
+      }
+    } else if node.style.width != auto {
+      w = node.style.width
+    }
+  }
+  if "height" in node.style {
+    if node.style.height == "body" {
+      // keep h as node height
+    } else if node.style.height == "cell" {
+      if node.cell != none {
+        h = node.cell.size.at(1)
+      }
+    } else if node.style.height != auto {
+      h = node.style.height
+    }
+  }
+
+
+  return (w, h)
+    .map(x => utils.to-length(x, to-float: ctx.length))
 }
 
 
-// ensure body is a cetz drawable and apply inset
-#let resolve-node-body(ctx, body, inset, debug) = {
-  if utils.is-cetz(body) { return body }
+#let apply-body-inset(ctx, body, inset, debug: false) = {
+  if body == none { return }
 
-  if body == none {
-    // empty nodes should still affect canvas bounds
-    return cetz.draw.content((0,0), none)
+  let inset = cetz.util.as-padding-dict(inset)
+    .pairs().map(((k, v)) => (k, utils.to-length(v, units-of: ctx.length)))
+    .to-dict()
+
+  if debug {
+    body = rect(body, ..DEBUG_STYLES.node.inset, inset: 0pt)
   }
 
-  let body = text([#body], top-edge: "cap-height", bottom-edge: "baseline")
-  if debug-level(get-debug(ctx, debug), "node.inset") {
-    body = rect(body, inset: 0pt, outset: 0pt, ..DEBUG_STYLES.node.inset)
+  let wrapper(it) = {
+    show: box.with(inset: inset)
+    set text(top-edge: "cap-height", bottom-edge: "baseline")
+    it
   }
 
-  return cetz.draw.content((0,0), [#body], padding: inset, name: "body")
+  if type(body) == content and body.func() == std.align {
+    // preserve outer align element
+    return std.align(body.alignment, wrapper(body.body))
+  } else {
+    return wrapper(body)
+  }
 }
+
 
 /// Resolve an enclose node given the final layout information
 /// about all preceding nodes.
 #let resolve-enclose-node(ctx, data, preceding-nodes) = {
   let node-corners(node) = {
-    let (w, h) = node.bounding-size
+    let (w, h, ..) = cetz.vector.sub(node.bounds.high, node.bounds.low)
     let (x, y, ..) = node.pos
     return ((x - w/2, y - h/2), (x + w/2, y + h/2))
   }
-  
+
   let key-to-points(key) = {
     if type(key) == label {
       let node = preceding-nodes.find(n => n.name == str(key))
@@ -333,7 +359,7 @@
   v.high.at(1) += padding.top
 
   data.pos = cetz.vector.lerp(v.low, v.high, 0.5)
-  data.bounding-size = cetz.vector.sub(v.high, v.low)
+  data.bounds = (high: v.high, low: v.low)
   data
 }
 
@@ -342,44 +368,26 @@
   debug: auto,
 ) = {
 
+  let data = (
+    class: "node",
+    pos: options.position,
+    body: options.body,
+    shape: options.shape,
+    style: options.style,
+    name: options.name,
+    align: options.align,
+    // weight: options.weight,
+    enclose: options.enclose,
+    snap: options.snap,
+    cellspan: options.cellspan,
+    cell: none, // size of enclosing flexigrid cell, if any
+  )
+
+
+
+
   (ctx => {
-    let (
-      position,
-      body,
-      shape,
-      style,
-      align,
-      name,
-      weight,
-      enclose,
-      snap,
-      cellspan,
-    ) = options.named()
-
-    let data = (
-      class: "node",
-      pos: position,
-      body: body,
-      shape: shape,
-      style: style,
-      name: name,
-      align: align,
-      weight: weight,
-      enclose: enclose,
-      snap: snap,
-      cellspan: cellspan,
-      cell: none,
-      debug: get-debug(ctx, debug),
-    )
-
-    /* Resolve styles */
-
-    data = resolve-node-styles(ctx, data)
-    data.body = resolve-node-body(ctx, data.body, data.style.inset, debug)
-    let m = measure-node(ctx, data.style, data.body)
-    data.body-size = m.body
-    data.bounding-size = m.bounding
-    data.body-center = m.body-center
+    let data = data
 
 
     if "fletcher" not in ctx.shared-state {
@@ -397,9 +405,27 @@
     }
 
 
+    data.debug = get-debug(ctx, debug)
+
+
+
     if fletcher-ctx.pass == "layout" {
       // In the layout pass, we only care about resolving
-      // the uv coordinates of nodes and recording this in ctx.shared-state.
+      // the positions and sizes of nodes and recording this
+      // for later passes
+
+      data = resolve-node-styles(ctx, data)
+
+      data.body = apply-body-inset(ctx, data.body, data.style.inset)
+      data.body = std.align(center + horizon, data.body)
+
+      data.content-size = measure-body(ctx, data.body)
+
+      data.body-size = resolve-body-size(ctx, data)
+      data.bounds = measure-shape(ctx,
+        data.body-size,
+        data.style + (fit: data.style.fit*data.style.fit-cell),
+      )
 
       if data.enclose != none {
         data.pos = utils.nans
@@ -421,13 +447,15 @@
       // In the node placement pass, node positions and sizes are resolved.
       // This happens after the flexigrid is determined but before edges are processed.
 
-      let self = fletcher-ctx.nodes.at(fletcher-ctx.current-node)
-      let original-pos = data.pos
-      if self.uv-pos != none {
-        // this is a uv node
-        data = (fletcher-ctx.place-node-in-flexigrid)(self)
+      data = fletcher-ctx.nodes.at(fletcher-ctx.current-node)
 
-      } else if self.enclose != none {
+      let original-pos = data.pos
+      if data.uv-pos != none {
+        // this is a uv node
+        data = (fletcher-ctx.place-node-in-flexigrid)(data)
+        data.body-size = resolve-body-size(ctx, data)
+
+      } else if data.enclose != none {
         // this is an enclose node
         let preceding-nodes = fletcher-ctx.nodes.slice(0, fletcher-ctx.current-node)
         data = resolve-enclose-node(ctx, data, preceding-nodes)
@@ -457,18 +485,43 @@
       // about nodes' final attributes.
       let self = fletcher-ctx.nodes.at(fletcher-ctx.current-node)
       data.pos = self.pos
-      data.bounding-size = self.bounding-size
+      data.bounds = self.bounds
       data.cell = self.cell
       data.draw = self.draw
+      // data.body-center = self.body-center
+      // data.body = self.body
+
+      data.body-size = self.body-size
+      data.style = self.style
+
+      data.body = apply-body-inset(ctx, options.body, data.style.inset, debug: debug-level(data.debug, "node.inset"))
+      data.body = std.align(center + horizon, data.body)
+      // data.body = self.body
+      
       ctx.prev.pt = data.pos
 
+      
     } else {
       // Node does not appear in a flexigrid.
+
+      // todo: same setup as in layout pass
+      data = resolve-node-styles(ctx, data)
+
+      data.body = apply-body-inset(ctx, data.body, data.style.inset)
+      data.body = std.align(center + horizon, data.body)
+
+      data.content-size = measure-body(ctx, data.body)
+
+      data.body-size = resolve-body-size(ctx, data)
+      data.bounds = measure-shape(ctx,
+        data.body-size,
+        data.style + (fit: data.style.fit*data.style.fit-cell),
+      )
 
       if data.enclose != none {
         data = resolve-enclose-node(ctx, data, fletcher-ctx.nodes)
       }
-      
+
       let xy
       (ctx, xy) = cetz.coordinate.resolve(ctx, data.pos)
       data.pos = xy
@@ -495,7 +548,7 @@
   ///
   /// This content is measured to automatically determine the size of the node.
   /// The @debug.node.body debug option shows the body's bounding box after @node.inset is applied.
-  /// 
+  ///
   /// For nodes without a body, note that @node.inset[inset] is applied if the body is empty content (`[]`),
   /// but not if the body is `none`.
   /// -> content
@@ -522,11 +575,11 @@
   ///   node((1,0), [B], extrude: (3, 0)),
   /// )
   /// ```)
-  /// 
+  ///
   /// _This option is a @node-styles[node style]._
   fill: auto,
   /// Stroke style for the node outline.
-  /// 
+  ///
   /// _This option is a @node-styles[node style]._
   stroke: auto,
   /// Padding applied to the content in a node's body.
@@ -537,9 +590,9 @@
   /// The inset can be a length like `5pt`, or a CeTZ-style array
   /// or dictionary: for example, `(0, 5pt)` for only horizontal
   /// padding; `(left: 5pt, rest: 10pt)` for per-edge padding.
-  /// 
+  ///
   /// _This option is a @node-styles[node style]._
-  /// 
+  ///
   /// -> length | array | dictionary
   inset: auto,
   /// Separation between the node's visible outline and the
@@ -559,7 +612,7 @@
   ///   node((1,0), [World], outset: 5pt, shape: "ellipse"),
   /// )
   /// ```)
-  /// 
+  ///
   /// _This option is a @node-styles[node style]._
   ///
   /// See also @edge.outset, which controls how closely individual edges connect to nodes.
@@ -571,7 +624,7 @@
   ///
   /// The node's fill is drawn within the boundary defined by the first offset in
   /// the array.
-  /// 
+  ///
   /// _This option is a @node-styles[node style]._
   /// -> array
   extrude: auto,
@@ -580,9 +633,9 @@
   /// The default layer for nodes is `0`, which is above edges (on layer `-1` by default; see @edge.layer).
   /// Enclose nodes are drawn on layer `-2` by default, under nodes and edges.
   /// Nodes with equal layer are drawn in the order they are inserted.
-  /// 
+  ///
   /// _This option is a @node-styles[node style]._
-  /// 
+  ///
   /// -> number
   layer: auto,
   /// Name of the node for use with coordinate anchors.
@@ -616,11 +669,11 @@
   /// -> number
   weight: 1,
   /// Positions or names of nodes to be enclosed by this node.
-  /// 
+  ///
   /// When set, the node's position must be unset (or `auto`).
   /// The node is automatically positioned and enlarged so that it
   /// encloses the specified nodes.
-  /// 
+  ///
   /// #example(```typ
   /// #diagram(
   ///   node-stroke: 1pt,
@@ -633,7 +686,7 @@
   ///   edge(<group>, (3,0.5), stroke: teal),
   /// )
   /// ```)
-  /// 
+  ///
   /// -> array
   enclose: none,
   /// Whether this node can have edges automatically snap to it.

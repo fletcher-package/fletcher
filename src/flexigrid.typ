@@ -191,7 +191,7 @@
   let rod = (
     lo: lo,
     hi: hi,
-    size: node.bounding-size.at(axis),
+    size: node.bounds.high.at(axis) - node.bounds.low.at(axis),
   )
   return rod
 }
@@ -223,27 +223,29 @@
   let ((lo: x-lo, hi: x-hi), (lo: y-lo, hi: y-hi)) = node-to-rods(node, flexigrid.flips)
   let x-span = get-interpolated-flexiline-cell(flexigrid.x, x-lo, x-hi)
   let y-span = get-interpolated-flexiline-cell(flexigrid.y, y-lo, y-hi)
-  let (w, h) = node.bounding-size
+  let (w, h, ..) = cetz.vector.sub(node.bounds.high, node.bounds.low)
   return (
     center: (x-span.center, y-span.center),
     size: (calc.max(x-span.size, w), calc.max(y-span.size, h)),
   )
 }
 
-#let grow-node-in-cell(node, cell) = {
-  // remember some node shapes don't have width/height
-  if node.style.at("width", default: none) == "cell" {
-    node.bounding-size.at(0) = cell.size.at(0)
-  }
-  if node.style.at("height", default: none) == "cell" {
-    node.bounding-size.at(1) = cell.size.at(1)
-  }
-  return node
-}
 
 #let align-node-in-cell(node, cell) = {
-  let (w, h) = node.bounding-size
+  let (w, h, ..) = cetz.vector.sub(node.bounds.high, node.bounds.low)
   let (cw, ch) = cell.size
+
+  if node.style.at("width", default: none) == "cell" {
+    w = cw
+    node.bounds.low.at(0) = -cw/2
+    node.bounds.high.at(0) = +cw/2
+  }
+  if node.style.at("height", default: none) == "cell" {
+    h = ch
+    node.bounds.low.at(1) = -ch/2
+    node.bounds.high.at(1) = +ch/2
+
+  }
 
   let (x-shift, y-shift) = (0, 0)
   if node.align.x == left   { x-shift = -cw/2 + w/2 }
@@ -258,7 +260,6 @@
 #let place-node-in-flexigrid(fg, node) = {
   let cell = get-interpolated-flexigrid-cell(fg, node)
   node.cell = cell // currently only used for debug drawing
-  node = grow-node-in-cell(node, cell)
   node = align-node-in-cell(node, cell)
   return node
 }

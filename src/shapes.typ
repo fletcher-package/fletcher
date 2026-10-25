@@ -30,29 +30,30 @@
 // resolving special values like `"body"` and `"cell"`
 // to the node body size or node cell size respectively
 #let resolve-size(node) = {
-  let (w, h, ..) = node.size
+  return node.size
+  // let (w, h) = node.size
 
-  if node.style.width == "body" {
-    // keep w as node width
-  } else if node.style.width == "cell" {
-    if node.cell != none {
-      w = node.cell.size.at(0)
-    }
-  } else if node.style.width != auto {
-    w = node.style.width
-  }
+  // if node.style.width == "body" {
+  //   // keep w as node width
+  // } else if node.style.width == "cell" {
+  //   if node.cell != none {
+  //     w = node.cell.size.at(0)
+  //   }
+  // } else if node.style.width != auto {
+  //   w = node.style.width
+  // }
 
-  if node.style.height == "body" {
-    // keep h as node height
-  } else if node.style.height == "cell" {
-    if node.cell != none {
-      h = node.cell.size.at(1)
-    }
-  } else if node.style.height != auto {
-    h = node.style.height
-  }
+  // if node.style.height == "body" {
+  //   // keep h as node height
+  // } else if node.style.height == "cell" {
+  //   if node.cell != none {
+  //     h = node.cell.size.at(1)
+  //   }
+  // } else if node.style.height != auto {
+  //   h = node.style.height
+  // }
 
-  return resolve-number(node.unit-length, (w, h))
+  // return resolve-number(node.unit-length, (w, h))
 }
 
 
@@ -90,7 +91,8 @@
       .to-dict()
   }
   draw.rect((-x, -y), (+x, +y), radius: radii)
-  node.body
+
+  draw.content((-w/2, -h/2), (+w/2, +h/2), node.body)
 }
 #NODE_SHAPES.insert("rect", (
   width: auto,
@@ -347,7 +349,8 @@
   draw.line(..verts, close: true)
   draw.group({
     draw.translate(node.body-center)
-    node.body
+    draw.content((-w/2, -h/2), (+w/2, +h/2), node.body)
+
   })
 }
 #NODE_SHAPES.insert("triangle", (

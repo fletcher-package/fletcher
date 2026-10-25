@@ -316,12 +316,7 @@
   // TODO: memoise this and store in node itself??
   let node-drawables(node, outset) = {
     if outset == auto { outset = node.style.outset }
-    outset = cetz.util.resolve-number(ctx, outset)
-    node.style.extrude = (outset,)
-    node.name = none
-    node.body = none
-    node.style.stroke = purple.transparentize(50%) + 0.5pt
-    let objs = Nodes.draw-node-at(node, node.pos, debug: false)
+    let objs = Nodes.draw-node-snapping-outline(ctx, node, node.pos, outset)
     return cetz.process.many(ctx, objs).drawables
   }
 
@@ -347,7 +342,8 @@
       let dist(node) = cetz.vector.dist(node.pos, pos)
       let node = nodes
         .filter(n => {
-          n.snap and dist(n) <= cetz.vector.len(n.bounding-size) / 2
+          let r = cetz.vector.len(cetz.vector.sub(n.bounds.high, n.bounds.low))
+          n.snap and dist(n) <= r / 2
         })
         .sorted(key: dist)
         .at(0, default: none)
