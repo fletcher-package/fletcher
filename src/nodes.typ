@@ -502,6 +502,9 @@
   ///
   /// This content is measured to automatically determine the size of the node.
   /// The @debug.node.body debug option shows the body's bounding box after @node.inset is applied.
+  /// 
+  /// For nodes without a body, note that @node.inset[inset] is applied if the body is empty content (`[]`),
+  /// but not if the body is `none`.
   /// -> content
   body: none,
   /// The shape of the node's body enclosing its label.
