@@ -23,7 +23,7 @@
 	blob((0,4), [Input], <in>, shape: "house", angle: 30deg,
 		width: auto, tint: red),
 
-	edge(<in>, <mha>, "-|>"),
+	edge(<in>, <mha>, "-n", mark-scale: 150%),
 	edge(<in>, "-|>", (rel: (+0.3,0), to: <mha>), corner: "|-|"),
 	edge(<in>, "-|>", (rel: (-0.3,0), to: <mha>), corner: "|-|"),
 
