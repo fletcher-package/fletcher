@@ -48,3 +48,16 @@
 
   }
 }
+
+// to-length
+
+#assert.eq(to-length(5mm), 5mm)
+#assert.eq(to-length(5mm, to-float: 1cm), 0.5)
+#assert.eq(to-length(0.5, to-float: 1cm), 0.5)
+#assert.eq(to-length(10, units-of: 1pt), 10pt)
+#assert.eq(to-length(5pt, units-of: 1pt), 5pt)
+#assert.eq(to-length(10, units-of: 1pt, to-float: 1cm), 10pt/1cm)
+#assert.eq(to-length(5cm, units-of: 1pt, to-float: 1cm), 5)
+#assert.eq(to-length(50%, ratios-of: 100mm), 50mm)
+#assert.eq(to-length(10mm, ratios-of: 100mm), 10mm)
+#assert.eq(to-length(70%, ratios-of: 100mm, to-float: 1mm), 70)

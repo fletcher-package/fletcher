@@ -59,7 +59,10 @@
 		if ratios-of == none { error("expected length, got #0", it) }
 		float(it)*ratios-of
 	} else if type(it) in (int, float) {
-		if units-of == none { error("expected length, got #0", it) }
+		if units-of == none {
+			if to-float != none { return it }
+			error("expected length, got #0", it)
+		}
 		it*units-of
 	} else if type(it) == length {
 		to-abs(it)
