@@ -35,6 +35,7 @@ See the [documentation](https://fletcher-package.github.io) or ask the community
 - Edges can be named and support path anchors.
 - The `debug` option of `diagram()` has been added to `node()` and `edge()`, and allows more granular control with string arguments (e.g., `debug: "grid.cells"` or `debug: "node edge.snap"`).
 - Mark objects no longer use a `scale` property; instead the `mark-scale` style/option applies a multiplier to the `size` mark property, which is now required.
+- Content in nodes is `center + horizon` aligned by default.
 
 ### 0.5.8
 
