@@ -36,8 +36,7 @@
           extrude: extrude,
           cell: node.cell,
         ))
-        let (w, h) = node.body-size
-        cetz.draw.content((-w/2, -h/2), (+w/2, +h/2), node.body)
+        cetz.draw.content(..utils.rect-lo-hi(size: node.body-size), node.body)
       }
     }
 
@@ -51,10 +50,7 @@
 
   debug-group(layer: 10, {
     if node.cell != none and debug-level(debug, "node.cell") {
-      let (center, size) = node.cell
-      let lo = cetz.vector.sub(center, cetz.vector.scale(size, 0.5))
-      let hi = cetz.vector.add(center, cetz.vector.scale(size, 0.5))
-      cetz.draw.rect(lo, hi, ..DEBUG_STYLES.node.cell)
+      cetz.draw.rect(..utils.rect-lo-hi(..node.cell), ..DEBUG_STYLES.node.cell)
     }
 
     if debug-level(debug, "node.outset") {
@@ -70,8 +66,7 @@
       cetz.draw.circle((0, 0), radius: 0.8pt, fill: red, stroke: none)
     }
     if debug-level(debug, "node.body") {
-      let (w, h) = node.body-size
-      cetz.draw.rect((-w/2,-h/2), (+w/2,+h/2), ..DEBUG_STYLES.node.body)
+      cetz.draw.rect(..utils.rect-lo-hi(size: node.body-size), ..DEBUG_STYLES.node.body)
     }
     if debug-level(debug, "node.bounds") {
       cetz.draw.rect(node.bounds.low, node.bounds.high, ..DEBUG_STYLES.node.bounds)
@@ -317,9 +312,10 @@
 /// about all preceding nodes.
 #let resolve-enclose-node(ctx, data, preceding-nodes) = {
   let node-corners(node) = {
-    let (w, h, ..) = cetz.vector.sub(node.bounds.high, node.bounds.low)
-    let (x, y, ..) = node.pos
-    return ((x - w/2, y - h/2), (x + w/2, y + h/2))
+    return (
+      cetz.vector.add(node.bounds.low, node.pos),
+      cetz.vector.add(node.bounds.high, node.pos),
+    )
   }
 
   let key-to-points(key) = {

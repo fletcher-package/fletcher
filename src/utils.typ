@@ -313,3 +313,12 @@
 	}
 	return angles.at(i)
 }
+
+#let rect-lo-hi(size: (0, 0), center: (0, 0)) = {
+	let (w, h, ..) = size
+	let (x, y, ..) = center
+	(
+		(x - w/2, y - h/2),
+		(x + w/2, y + h/2),
+	)
+}
