@@ -313,6 +313,8 @@
 #let resolve-enclose-node(ctx, data, preceding-nodes) = {
   let node-corners(node) = {
     return (
+      // node.bounds.low,
+      // node.bounds.high,
       cetz.vector.add(node.bounds.low, node.pos),
       cetz.vector.add(node.bounds.high, node.pos),
     )
@@ -340,22 +342,26 @@
     }
   }
 
-  let v = data.enclose.map(key-to-points).join()
+  let pts = data.enclose.map(key-to-points).join()
 
-  v = cetz.util.bezier.aabb.aabb(v)
+  let bounds = cetz.util.bezier.aabb.aabb(pts)
 
   let padding = cetz.util.as-padding-dict(data.style.inset)
     .pairs()
     .map(((k, v)) => (k, cetz.util.resolve-number(ctx, v)))
     .to-dict()
 
-  v.low.at(0) -= padding.left
-  v.low.at(1) -= padding.bottom
-  v.high.at(0) += padding.right
-  v.high.at(1) += padding.top
+  bounds.low.at(0) -= padding.left
+  bounds.low.at(1) -= padding.bottom
+  bounds.high.at(0) += padding.right
+  bounds.high.at(1) += padding.top
 
-  data.pos = cetz.vector.lerp(v.low, v.high, 0.5)
-  data.bounds = (high: v.high, low: v.low)
+  data.pos = cetz.vector.lerp(bounds.low, bounds.high, 0.5)
+  data.bounds = (
+    high: cetz.vector.sub(bounds.high, data.pos),
+    low: cetz.vector.sub(bounds.low, data.pos),
+  )
+  data.body-size = cetz.vector.sub(bounds.high, bounds.low).slice(0, 2)
   data
 }
 
