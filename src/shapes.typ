@@ -26,42 +26,12 @@
   layer: 0,
 )
 
-// resolve node width/height styles into actual lengths
-// resolving special values like `"body"` and `"cell"`
-// to the node body size or node cell size respectively
-#let resolve-size(node) = {
-  return node.size
-  // let (w, h) = node.size
-
-  // if node.style.width == "body" {
-  //   // keep w as node width
-  // } else if node.style.width == "cell" {
-  //   if node.cell != none {
-  //     w = node.cell.size.at(0)
-  //   }
-  // } else if node.style.width != auto {
-  //   w = node.style.width
-  // }
-
-  // if node.style.height == "body" {
-  //   // keep h as node height
-  // } else if node.style.height == "cell" {
-  //   if node.cell != none {
-  //     h = node.cell.size.at(1)
-  //   }
-  // } else if node.style.height != auto {
-  //   h = node.style.height
-  // }
-
-  // return resolve-number(node.unit-length, (w, h))
-}
-
 
 // There is some repetition here, but it makes it possible to:
 // - automatically deduce node shape from given named arguments (e.g., radius implies circle)
 // - report helpful errors when an invalid named argument is given (instead of silently ignoring it!)
 #let NODE_SHAPES = (
-  "none": (draw: node => node.body),
+  "none": (draw: node => draw.content((0, 0), none)),
 )
 
 /// The default rectangle node shape.
@@ -71,7 +41,7 @@
 /// - `corner-radius`: Accepts the same inputs as ```typc cetz.draw.rect(radius: ..)```.
 ///   #frame-row(..(0, 5pt, (south: 1em)).map(o => shape-demo("rect", corner-radius: o, label: raw("corner-radius: " + repr(o)))))
 #let rect(node) = {
-  let (w, h) = resolve-size(node)
+  let (w, h) = node.size
   let x = w / 2 + node.extrude
   let y = h / 2 + node.extrude
 
@@ -91,8 +61,6 @@
       .to-dict()
   }
   draw.rect((-x, -y), (+x, +y), radius: radii)
-
-  draw.content((-w/2, -h/2), (+w/2, +h/2), node.body)
 }
 #NODE_SHAPES.insert("rect", (
   width: auto,
@@ -114,7 +82,6 @@
   if node.style.radius != auto { r = node.style.radius }
   r = resolve-number(node.unit-length, r)
   draw.circle((0, 0), radius: r + node.extrude, name: "node")
-  node.body
 }
 #NODE_SHAPES.insert("circle", (
   radius: auto,
@@ -130,12 +97,11 @@
 /// - `fit`: Adjusts how comfortably the ellipse fits the label's bounding box.
 ///   #frame-row(..(0, 0.5, 1).map(o => shape-demo("ellipse", fit: o)))
 #let ellipse(node) = {
-  let (w, h) = resolve-size(node)
+  let (w, h) = node.size
   let f = 1 + node.style.fit * (calc.sqrt(2) - 1)
   let rx = f * w / 2 + node.extrude
   let ry = f * h / 2 + node.extrude
   draw.circle((0, 0), radius: (rx, ry))
-  node.body
 }
 #NODE_SHAPES.insert("ellipse", (
   width: auto,
@@ -152,12 +118,12 @@
 /// - `fit`: Adjusts how comfortably the pill fits the label's bounding box.
 ///   #frame-row(..(0, 0.5, 1).map(o => shape-demo("pill", fit: o)))
 #let pill(node) = {
-  let (w, h) = resolve-size(node)
+  let (w, h) = node.size
   let r = calc.min(w, h)
   if w >= h {
-    node.style.width = w + r * node.style.fit
+    node.size.at(0) = w + r * node.style.fit
   } else {
-    node.style.height = h + r * node.style.fit
+    node.size.at(1) = h + r * node.style.fit
   }
   node.style.corner-radius = r / 2
   rect(node)
@@ -184,7 +150,7 @@
 /// - `fit`: Adjusts how comfortably the parallelogram fits the label's bounding box.
 ///   #frame-row(..(0, 0.5, 1).map(o => shape-demo("parallelogram", fit: o)))
 #let parallelogram(node) = {
-  let (w, h) = resolve-size(node)
+  let (w, h) = node.size
   let (flip, fit, angle) = node.style
   if flip { (w, h) = (h, w) }
 
@@ -193,7 +159,7 @@
 
   let (x, y) = (w / 2, h / 2 + node.extrude)
   let μ = h * calc.tan(angle)
-  x -= μ*(1 - fit)
+  x -= μ * (1 - fit)
   μ += node.extrude / calc.tan(45deg - angle / 2)
 
   let δ = node.extrude / calc.tan(45deg + angle / 2)
@@ -208,7 +174,6 @@
   if flip { verts = verts.map(((i, j)) => (j, i)) }
 
   draw.line(..verts, close: true)
-  node.body
 }
 #NODE_SHAPES.insert("parallelogram", (
   width: auto,
@@ -241,7 +206,7 @@
   let flip = dir in (right, left) // flip along diagonal line x = y
   let rotate = dir in (bottom, left) // rotate 180deg
 
-  let (w, h) = resolve-size(node)
+  let (w, h) = node.size
   if flip { (w, h) = (h, w) }
 
   let s = if angle > 0deg { 1 } else { -1 }
@@ -249,7 +214,7 @@
 
   let (x, y) = (w / 2, h / 2 + node.extrude)
   let μ = h * calc.tan(angle) // extent of larger side
-  x -= μ*(1 - fit) // widen to fit
+  x -= μ * (1 - fit) // widen to fit
   μ += node.extrude / calc.tan(45deg - angle / 2)
 
   let δ = node.extrude / calc.tan(45deg + angle / 2) // extent of shorter side
@@ -265,7 +230,6 @@
   if rotate { verts = verts.map(((i, j)) => (-i, -j)) }
 
   draw.line(..verts, close: true)
-  node.body
 }
 #NODE_SHAPES.insert("keystone", (
   width: auto,
@@ -284,7 +248,7 @@
 /// - `fit`: Adjusts how comfortably the diamond fits the label's bounding box.
 ///   #frame-row(..(0, 0.5, 1).map(o => shape-demo("diamond", fit: o)))
 #let diamond(node) = {
-  let (w, h) = resolve-size(node)
+  let (w, h) = node.size
   let φ = calc.atan2(w, h)
   let x = w / 2 * (1 + node.style.fit) + node.extrude / calc.sin(φ)
   let y = h / 2 * (1 + node.style.fit) + node.extrude / calc.cos(φ)
@@ -295,7 +259,6 @@
     (0, +y),
     close: true,
   )
-  node.body
 }
 #NODE_SHAPES.insert("diamond", (
   width: auto,
@@ -324,7 +287,7 @@
   let flip = dir in (right, left) // flip along diagonal line x = y
   let rotate = dir in (bottom, left) // rotate 180deg
 
-  let (w, h) = resolve-size(node)
+  let (w, h) = node.size
   if flip { (w, h) = (h, w) }
 
   if angle == auto and aspect == auto { aspect = w / h }
@@ -347,11 +310,6 @@
   if rotate { verts = verts.map(((i, j)) => (-i, -j)) }
 
   draw.line(..verts, close: true)
-  draw.group({
-    draw.translate(node.body-center)
-    draw.content((-w/2, -h/2), (+w/2, +h/2), node.body)
-
-  })
 }
 #NODE_SHAPES.insert("triangle", (
   width: auto,
@@ -381,7 +339,7 @@
   let flip = dir in (right, left) // flip along diagonal line x = y
   let rotate = dir in (bottom, left) // rotate 180deg
 
-  let (w, h) = resolve-size(node)
+  let (w, h) = node.size
   if flip { (w, h) = (h, w) }
 
   let (x, y) = (w / 2 + node.extrude, h / 2 + node.extrude)
@@ -396,7 +354,7 @@
   let verts = (
     (-x, -y),
     (-x, a + dy),
-    (0,  b + dy),
+    (0, b + dy),
     (+x, a + dy),
     (+x, -y),
   )
@@ -405,10 +363,6 @@
   if rotate { verts = verts.map(((i, j)) => (-i, -j)) }
 
   draw.line(..verts, close: true)
-  draw.group({
-    draw.translate(node.body-center)
-    node.body
-  })
 }
 #NODE_SHAPES.insert("house", (
   width: auto,
@@ -438,9 +392,8 @@
   let flip = dir in (right, left) // flip along diagonal line x = y
   let rotate = dir in (bottom, left) // rotate 180deg
 
-  let (w, h) = resolve-size(node)
+  let (w, h) = node.size
   if flip { (w, h) = (h, w) }
-
 
   let e = node.extrude
   let (x, y) = (w / 2 + e, h / 2 + e)
@@ -463,9 +416,7 @@
   if flip { verts = verts.map(((i, j)) => (j, i)) }
   if rotate { verts = verts.map(((i, j)) => (-i, -j)) }
 
-
   draw.line(..verts, close: true)
-  node.body
 }
 #NODE_SHAPES.insert("chevron", (
   width: auto,
@@ -491,7 +442,7 @@
 ///   #frame-row(..(0, 0.5, 1).map(o => shape-demo("hexagon", fit: o)))
 #let hexagon(node) = {
   let (angle, flip, fit) = node.style
-  let (w, h) = resolve-size(node)
+  let (w, h) = node.size
 
   if flip { (w, h) = (h, w) }
 
@@ -512,7 +463,6 @@
   if flip { verts = verts.map(((x, y)) => (y, x)) }
 
   draw.line(..verts, close: true)
-  node.body
 }
 #NODE_SHAPES.insert("hexagon", (
   width: auto,
@@ -533,7 +483,7 @@
 ///   interpreted as a multiple of the smaller of the node's width or height.
 ///   #frame-row(..(0, 0.5, 1).map(o => shape-demo("octagon", truncate: o)))
 #let octagon(node) = {
-  let (w, h) = resolve-size(node)
+  let (w, h) = node.size
   let (x, y) = (w / 2 + node.extrude, h / 2 + node.extrude)
 
   let truncate = node.style.truncate
@@ -552,7 +502,6 @@
     (+x - d, -y),
     close: true,
   )
-  node.body
 }
 #NODE_SHAPES.insert("octagon", (
   width: auto,
@@ -577,6 +526,7 @@
 /// - `rings` (length, array, none): Array of vertical positions at which to draw arcs around the body.
 ///   #frame-row(..(none, (0,), (0, 3pt), (0, 100% - 3pt)).map(o => shape-demo("cylinder", rings: o, label: align(center, raw("rings:\n" + repr(o))), inset: 8pt)))
 #let cylinder(node) = {
+  import "utils.typ": lerp
   let (fit, tilt, rings) = node.style
 
   if rings == none { rings = () }
@@ -588,29 +538,30 @@
 
   let sign = if tilt >= 0deg { +1 } else { -1 }
 
-  let (w, h) = resolve-size(node)
+  let (w, h) = node.size
+  let lid = calc.abs(calc.sin(tilt)) * w / 2
+  h += lid * lerp(-2, 0, fit)
   let (x, y) = (w / 2, sign * h / 2)
   x += node.extrude
   let ry = sign * x * calc.abs(calc.sin(tilt))
 
-  draw.merge-path(
-    {
-      draw.arc((-x, +y), radius: (x, ry), start: 180deg, stop: 0deg)
-      draw.arc((+x, -y), radius: (x, ry), start: 0deg, stop: -180deg)
-    },
-    close: true,
-  )
-  if true {
-    for ring in rings {
-      ring = ring + 0pt + 0%
-      let t = float(ring.ratio) + sign * ring.length.to-absolute() / (2 * y * node.unit-length)
-      let yt = y * (1 - t) - y * t
-      draw.arc((+x, yt), radius: (x, ry), start: 0deg, stop: -180deg, fill: none)
-    }
-  }
   draw.group({
-    draw.translate(y: -ry * fit)
-    node.body
+    draw.translate(y: lid * lerp(0, 1, fit))
+    draw.merge-path(
+      {
+        draw.arc((-x, +y), radius: (x, ry), start: 180deg, stop: 0deg)
+        draw.arc((+x, -y), radius: (x, ry), start: 0deg, stop: -180deg)
+      },
+      close: true,
+    )
+    if true {
+      for ring in rings {
+        ring = ring + 0pt + 0%
+        let t = float(ring.ratio) + sign * ring.length.to-absolute() / (2 * y * node.unit-length)
+        let yt = y * (1 - t) - y * t
+        draw.arc((+x, yt), radius: (x, ry), start: 0deg, stop: -180deg, fill: none)
+      }
+    }
   })
 }
 #NODE_SHAPES.insert("cylinder", (
