@@ -1,3 +1,4 @@
+/// [max-delta: 40]
 #set page(width: auto, height: auto, margin: 1em)
 #import "/src/deps.typ": cetz
 #import "/src/edges.typ": edge

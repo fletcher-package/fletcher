@@ -1,3 +1,4 @@
+/// [max-delta: 20]
 #set page(width: auto, height: auto, margin: 1em)
 #import "/src/exports.typ": paths, cetz
 
