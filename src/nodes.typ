@@ -4,12 +4,23 @@
 #import "shapes.typ": DEFAULT_NODE_STYLE, NODE_SHAPES
 #import "parsing.typ"
 
+// Node box model:
+//
+// - Content
+// - placed/aligned inside a body
+// - enclosed by a shape
+// - (if in a flexigrid) placed/aligned inside a cell
+//
+// Content is given a padding controlled by @node.inset.
+// The `width` and `height` options control the body size.
+// The node shape encloses the body by default
+
 
 #let draw-node-snapping-outline(ctx, node, origin, outset) = {
   let bounds-center = cetz.vector.neg(cetz.vector.lerp(node.bounds.high, node.bounds.low, 0.5))
   cetz.draw.group({
     cetz.draw.translate(cetz.vector.add(node.pos, bounds-center))
-    (node.draw)((
+    (node.style.draw)((
       size: node.body-size,
       style: node.style,
       unit-length: ctx.length,
@@ -23,13 +34,12 @@
   let translate-to-origin = cetz.draw.translate(cetz.vector.add(origin, bounds-center))
 
   (ctx => {
-
     let objs = {
       translate-to-origin
 
       for (i, extrude) in node.style.extrude.enumerate() {
         cetz.draw.set-style(..node.style, fill: if i == 0 { node.style.fill })
-        (node.draw)((
+        (node.style.draw)((
           size: node.body-size,
           style: node.style,
           unit-length: ctx.length,
@@ -46,7 +56,6 @@
     let group = cetz.draw.group(objs, name: node.name)
     return group.first()(ctx)
   },)
-
 
   debug-group(layer: 10, {
     if node.cell != none and debug-level(debug, "node.cell") {
@@ -230,24 +239,22 @@
 
   style.outset = cetz.util.resolve-number(ctx, style.outset)
 
-  node.style = style
-  node.draw = style.draw
-  return node
+  return style
 }
 
 
-#let measure-body(ctx, body) = {
-  measure(body)
+#let measure-content(ctx, it) = {
+  measure(it)
     .values()
     .map(x => utils.to-length(x, to-float: ctx.length))
 }
 
-#let measure-shape(ctx, size, style) = {
-  let shape = (style.draw)((
-    size: size,
+#let measure-node-bounds(ctx, node) = {
+  let shape = (node.style.draw)((
+    size: node.body-size,
     extrude: 0,
     unit-length: ctx.length,
-    style: style,
+    style: node.style + (fit: node.style.fit*node.style.fit-cell),
   ))
   return cetz.process.many(ctx, shape).bounds
 }
@@ -278,34 +285,36 @@
     }
   }
 
-
+  w = utils.to-length(w, to-float: ctx.length)
+  h = utils.to-length(h, to-float: ctx.length)
   return (w, h)
-    .map(x => utils.to-length(x, to-float: ctx.length))
 }
 
 
-#let apply-body-inset(ctx, body, inset, debug: false) = {
+#let apply-body-inset(ctx, node) = {
+  let (body, style, debug) = node
   if body == none { return }
 
-  let inset = cetz.util.as-padding-dict(inset)
+  let inset = cetz.util.as-padding-dict(style.inset)
     .pairs().map(((k, v)) => (k, utils.to-length(v, units-of: ctx.length)))
     .to-dict()
 
-  if debug {
-    body = rect(body, ..DEBUG_STYLES.node.inset, inset: 0pt)
-  }
 
   let wrapper(it) = {
     show: box.with(inset: inset)
     set text(top-edge: "cap-height", bottom-edge: "baseline")
+    if debug-level(debug, "node.inset") {
+      it = rect(it, ..DEBUG_STYLES.node.inset, inset: 0pt)
+    }
     it
   }
 
+  show: align.with(center + horizon)
   if type(body) == content and body.func() == std.align {
     // preserve outer align element
-    return std.align(body.alignment, wrapper(body.body))
+    std.align(body.alignment, wrapper(body.body))
   } else {
-    return wrapper(body)
+    wrapper(body)
   }
 }
 
@@ -315,8 +324,6 @@
 #let resolve-enclose-node(ctx, data, preceding-nodes) = {
   let node-corners(node) = {
     return (
-      // node.bounds.low,
-      // node.bounds.high,
       cetz.vector.add(node.bounds.low, node.pos),
       cetz.vector.add(node.bounds.high, node.pos),
     )
@@ -345,9 +352,7 @@
   }
 
   let pts = data.enclose.map(key-to-points).join()
-
   let bounds = cetz.util.bezier.aabb.aabb(pts)
-
   let padding = cetz.util.as-padding-dict(data.style.inset)
     .pairs()
     .map(((k, v)) => (k, cetz.util.resolve-number(ctx, v)))
@@ -387,12 +392,23 @@
     cell: none, // size of enclosing flexigrid cell, if any
   )
 
+  let resolve-node-data(ctx, data) = {
+    data.style = resolve-node-styles(ctx, data)
+    data.body = apply-body-inset(ctx, data)
+    data.content-size = measure-content(ctx, data.body)
+    data.body-size = resolve-body-size(ctx, data)
+    data.bounds = measure-node-bounds(ctx, data)
+    return data
+  }
 
-
+  // open question: should this be explicitly memoised between passes?
+  let draw-and-process(ctx, data) = {
+    cetz.process.many(ctx, {
+      draw-node-at(data, data.pos, debug: data.debug)
+    })
+  }
 
   (ctx => {
-    let data = data
-
 
     if "fletcher" not in ctx.shared-state {
       // node is not inside a flexigrid
@@ -408,52 +424,37 @@
       ctx.shared-state.fletcher.current-node += 1
     }
 
-
+    let data = data
     data.debug = get-debug(ctx, debug)
 
-
-
     if fletcher-ctx.pass == "layout" {
-      // In the layout pass, we only care about resolving
-      // the positions and sizes of nodes and recording this
-      // for later passes
+      // In the layout pass, we only care about resolving the positions
+      // and sizes of nodes and recording this in shared ctx for later.
 
-      data = resolve-node-styles(ctx, data)
-
-      data.body = apply-body-inset(ctx, data.body, data.style.inset)
-      data.body = std.align(center + horizon, data.body)
-
-      data.content-size = measure-body(ctx, data.body)
-
-      data.body-size = resolve-body-size(ctx, data)
-      data.bounds = measure-shape(ctx,
-        data.body-size,
-        data.style + (fit: data.style.fit*data.style.fit-cell),
-      )
+      data = resolve-node-data(ctx, data)
 
       if data.enclose != none {
+        // enclose nodes are positioned in the placement pass
         data.pos = utils.nans
       }
 
-      // resolve uv coordinates
+      // resolve uv coordinates now
       let pos = utils.interpret-as-uv(data.pos)
-      let uv
-      (ctx, uv) = cetz.coordinate.resolve(ctx, pos)
-
+      let (ctx, uv) = cetz.coordinate.resolve(ctx, pos)
       data.uv-pos = if not uv.any(float.is-nan) { uv.slice(0, 2) }
-      ctx.shared-state.fletcher.nodes.push(data)
 
       // do not draw anything in layout pass
       // but do register dummy anchors so coordinates depending on this node don't panic
+      ctx.shared-state.fletcher.nodes.push(data)
       return (ctx: ctx, name: data.name, anchors: _ => utils.nans)
 
     } else if fletcher-ctx.pass == "placement" {
       // In the node placement pass, node positions and sizes are resolved.
       // This happens after the flexigrid is determined but before edges are processed.
 
+      // restore data from layout pass
       data = fletcher-ctx.nodes.at(fletcher-ctx.current-node)
 
-      let original-pos = data.pos
       if data.uv-pos != none {
         // this is a uv node
         data = (fletcher-ctx.place-node-in-flexigrid)(data)
@@ -466,15 +467,11 @@
 
       } else {
         // this is an xy node
-        // draw node at an exact coordinate
-        let pos = utils.interpret-as-uv(data.pos)
-        let xy
-        (ctx, xy) = cetz.coordinate.resolve(ctx, pos)
-        data.pos = xy
-
-        if data.pos.any(float.is-nan) {
-          utils.error("node coordinate #0 did not resolve (nodes cannot depend on edges)", original-pos)
+        let (_, xy) = cetz.coordinate.resolve(ctx, data.pos)
+        if xy.any(float.is-nan) {
+          utils.error("node coordinate #0 did not resolve (hint: nodes cannot depend on edges)", data.pos)
         }
+        data.pos = xy
       }
 
       // pass data to state to be read in final pass
@@ -482,62 +479,35 @@
 
       // since we need to resolve coordinates which might depend on anchors
       // continue and draw elements in the placement pass
+      return draw-and-process(ctx, data)
 
     } else if fletcher-ctx.pass == "final" {
       // The node's position and size must be resolved by now (see placement pass).
       // Edges and nodes both read from `fletcher-ctx.nodes` as the source of truth
       // about nodes' final attributes.
-      let self = fletcher-ctx.nodes.at(fletcher-ctx.current-node)
-      data.pos = self.pos
-      data.bounds = self.bounds
-      data.cell = self.cell
-      data.draw = self.draw
-      // data.body-center = self.body-center
-      // data.body = self.body
-
-      data.body-size = self.body-size
-      data.style = self.style
-
-      data.body = apply-body-inset(ctx, options.body, data.style.inset, debug: debug-level(data.debug, "node.inset"))
-      data.body = std.align(center + horizon, data.body)
-      // data.body = self.body
-
-      ctx.prev.pt = data.pos
-
+      data = fletcher-ctx.nodes.at(fletcher-ctx.current-node)
+      return draw-and-process(ctx, data)
 
     } else {
       // Node does not appear in a flexigrid.
 
-      // todo: same setup as in layout pass
-      data = resolve-node-styles(ctx, data)
-
-      data.body = apply-body-inset(ctx, data.body, data.style.inset)
-      data.body = std.align(center + horizon, data.body)
-
-      data.content-size = measure-body(ctx, data.body)
-
-      data.body-size = resolve-body-size(ctx, data)
-      data.bounds = measure-shape(ctx,
-        data.body-size,
-        data.style + (fit: data.style.fit*data.style.fit-cell),
-      )
+      data = resolve-node-data(ctx, data)
 
       if data.enclose != none {
+        // enclose nodes are resolved immediately
+        // and can only see past nodes
         data = resolve-enclose-node(ctx, data, fletcher-ctx.nodes)
       }
 
-      let xy
-      (ctx, xy) = cetz.coordinate.resolve(ctx, data.pos)
+      let (ctx, xy) = cetz.coordinate.resolve(ctx, data.pos)
       data.pos = xy
       ctx.shared-state.fletcher.nodes.push(data)
 
+      return draw-and-process(ctx, data)
+
     }
 
-
-    cetz.process.many(ctx, {
-      draw-node-at(data, data.pos, debug: data.debug)
-    })
-
+    panic()
   },)
 }
 

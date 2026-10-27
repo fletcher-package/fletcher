@@ -587,6 +587,7 @@
     layout-ctx.shared-state.fletcher = (
       pass: "layout",
       nodes: (),
+      debug: debug,
     )
     let layout-pass = process-only-ctx(layout-ctx, objects)
     let nodes = layout-pass.shared-state.fletcher.nodes
