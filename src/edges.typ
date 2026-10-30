@@ -312,6 +312,8 @@
 
 
 #let find-snapping-drawables(ctx, nodes, edge) = {
+ 
+  // TODO: memoise this and store in node itself??
   let node-drawables(node, outset) = {
     if outset == auto { outset = node.style.outset }
     outset = cetz.util.resolve-number(ctx, outset)
@@ -508,7 +510,7 @@
   scene
 }
 
-#let ignore-no-flip-coords(ctx, c) = {
+#let ignore-no-flip-coords(c) = {
   if type(c) == dictionary and "no-flip" in c {
     let (no-flip, ..rest) = c
     rest
@@ -517,66 +519,71 @@
   }
 }
 
-#let resolve-edge-styles(ctx, edge-data) = {
+#let resolve-edge-styles(ctx, data) = {
   // resolve styles
   let ctx-style = ctx.style.at("edge", default: (:))
   if "stroke" in ctx-style {
     // strokes must be dictionaries to enable folding
     ctx-style.stroke = utils.stroke-to-dict(ctx-style.stroke)
   }
-  edge-data.style = cetz.styles.resolve(
+  data.style = cetz.styles.resolve(
     ctx-style,
     base: DEFAULT_EDGE_STYLE,
-    merge: edge-data.style,
+    merge: data.style,
   )
 
   // resolve extrude to multiples of edge thickness
-  edge-data.style.extrude = utils
+  data.style.extrude = utils
     .one-or-array(
-      edge-data.style.extrude,
+      data.style.extrude,
       types: (length, float, int),
     )
-    .map(e => {
-      if type(e) == length {
-        e.to-absolute() / edge-data.style.stroke.thickness.to-absolute()
-      } else { e }
-    })
+    .map(utils.to-length.with(
+      to-float: data.style.stroke.thickness.to-absolute(),
+    ))
     .sorted()
 
   // resolve marks
-  edge-data.style.marks = edge-data.style.marks.map(mark => {
-    mark.scale = mark.at("scale", default: 1) * float(edge-data.style.mark-scale)
-    mark.edge-extrude = edge-data.style.extrude
+  data.style.marks = data.style.marks.map(mark => {
+    mark.scale = mark.at("scale", default: 1) * float(data.style.mark-scale)
+    mark.edge-extrude = data.style.extrude
     Marks.resolve-mark(mark)
   })
 
   // validate some styles
-  edge-data.style.snap-method = utils
-    .as-pair(edge-data.style.snap-method)
+  data.style.snap-method = utils
+    .as-pair(data.style.snap-method)
     .map(m => {
       let options = ("trim", "move")
       if m not in options { utils.error("Snapping method must be #..1; got #0", repr(m), options) }
       m
     })
 
-  let mark-0 = edge-data.style.marks.find(m => m.pos == 0)
-  let mark-1 = edge-data.style.marks.find(m => m.pos == 1)
-  if edge-data.style.decorate.smooth == auto {
-    edge-data.style.decorate.smooth = (
+  let mark-0 = data.style.marks.find(m => m.pos == 0)
+  let mark-1 = data.style.marks.find(m => m.pos == 1)
+  if data.style.decorate.smooth == auto {
+    data.style.decorate.smooth = (
       if mark-0 == none { 0 } else { 1.0 },
       if mark-1 == none { 0 } else { 1.0 },
     )
   }
-  if edge-data.style.decorate.shorten == auto {
+  if data.style.decorate.shorten == auto {
     panic()
-    let t = edge-data.style.stroke.thickness
-    edge-data.style.decorate.shorten = (
+    let t = data.style.stroke.thickness
+    data.style.decorate.shorten = (
       if mark-0 == none { 0 } else { -(0 + 2 * mark-0.tip-hang) * t },
       if mark-1 == none { 0 } else { -(0 + 2 * mark-1.tip-hang) * t },
     )
   }
 
-  return edge-data
+
+  // resolve edge shape args
+  let spec = EDGE_KINDS.at(data.shape.kind, default: (:))
+  if "validate-args" in spec {
+    data.shape.args = (spec.validate-args)(ctx, data.shape.args)
+  }
+
+  return data
 }
 
 #let _edge(
@@ -588,29 +595,9 @@
   shape: none,
   crossing: false,
   debug: auto,
-) = cetz.draw.get-ctx(ctx => {
-  if "fletcher" not in ctx.shared-state {
-    ctx.shared-state.fletcher = (
-      pass: none,
-      nodes: (),
-    )
-  }
-  let fletcher-ctx = ctx.shared-state.fletcher
+) = {
 
-  let dummy-anchor-handler = (ctx => (ctx: ctx, name: name, anchors: _ => utils.nans),)
-
-  if fletcher-ctx.pass == "layout" {
-    // only nodes are collected during the layout pass
-    dummy-anchor-handler
-    return
-  }
-  if fletcher-ctx.pass == "placement" {
-    // don't bother drawing edges during node placement pass
-    dummy-anchor-handler
-    return
-  }
-
-  let edge-data = (
+  let data = (
     class: "edge",
     vertices: vertices,
     style: style.pairs().filter(((k, v)) => v != auto).to-dict(),
@@ -619,58 +606,78 @@
     name: name,
     shape: shape,
     crossing: crossing,
-    debug: get-debug(ctx, debug),
   )
 
-  edge-data = resolve-edge-styles(ctx, edge-data)
+  cetz.draw.get-ctx(ctx => {
+    let data = data
+    data.debug = get-debug(ctx, debug)
 
-  // resolve edge shape args
-  let spec = EDGE_KINDS.at(edge-data.shape.kind, default: (:))
-  if "validate-args" in spec {
-    edge-data.shape.args = (spec.validate-args)(ctx, edge-data.shape.args)
-  }
-
-  if fletcher-ctx.pass == "final" {
-    // if edge appears in a flexigrid, interpret coordinates in uv system by default
-    edge-data.vertices = edge-data.vertices.map(utils.interpret-as-uv)
-  } else {
-    // resolve normally, ignoring special no-flip coordinates specific to flexigrids
-    edge-data.vertices = edge-data.vertices.map(ignore-no-flip-coords.with(ctx))
-  }
-
-  // resolve auto vertices to prev/next node
-  let (first, .., last) = edge-data.vertices
-  if fletcher-ctx.pass == "final" {
-    let i = fletcher-ctx.current-node
-    if first == auto and i > 0 {
-      first = fletcher-ctx.nodes.at(i - 1).pos
+    if "fletcher" not in ctx.shared-state {
+      ctx.shared-state.fletcher = (
+        pass: none,
+        nodes: (),
+      )
     }
-    if last == auto and i < fletcher-ctx.nodes.len() {
-      last = fletcher-ctx.nodes.at(i).pos
+    let fletcher-ctx = ctx.shared-state.fletcher
+
+    let dummy-anchor-handler = (ctx => (ctx: ctx, name: name, anchors: _ => utils.nans),)
+
+    if fletcher-ctx.pass == "layout" {
+      // only nodes are collected during the layout pass
+      dummy-anchor-handler
+      return
     }
-  }
-  // give reasonable defaults rather than panic
-  if first == auto { first = () }
-  if last == auto { last = (rel: (1, 0)) }
-  edge-data.vertices.first() = first
-  edge-data.vertices.last() = last
+    if fletcher-ctx.pass == "placement" {
+      // edges can't be drawn until after all nodes are placed
+      // because they can snap to future nodes
+      dummy-anchor-handler
+      return
+    }
 
-  // snap to cetz nodes if first/last vertex is a node name
-  if type(first) == str and edge-data.snap-to.first() == auto {
-    if first in ctx.nodes { edge-data.snap-to.first() = first }
-  }
-  if type(last) == str and edge-data.snap-to.last() == auto {
-    if last in ctx.nodes { edge-data.snap-to.last() = last }
-  }
+    data = resolve-edge-styles(ctx, data)
 
-  // resolve vertex coordinate expressions
-  // discard ctx because we do not want to update ctx.prev.pt
-  // edge vertices should never affect nodes with relative positions
-  let (_, ..vertices) = cetz.coordinate.resolve(ctx, ..edge-data.vertices)
-  edge-data.vertices = vertices
+    if fletcher-ctx.pass == "final" {
+      // if edge appears in a flexigrid, interpret coordinates in uv system by default
+      data.vertices = data.vertices.map(utils.interpret-as-uv)
+    } else {
+      // resolve normally, ignoring special no-flip coordinates specific to flexigrids
+      data.vertices = data.vertices.map(ignore-no-flip-coords)
+    }
 
-  draw-edge(ctx, edge-data)
-})
+    // resolve auto vertices to prev/next node
+    let (first, .., last) = data.vertices
+    if fletcher-ctx.pass == "final" {
+      let i = fletcher-ctx.current-node
+      if first == auto and i > 0 {
+        first = fletcher-ctx.nodes.at(i - 1).pos
+      }
+      if last == auto and i < fletcher-ctx.nodes.len() {
+        last = fletcher-ctx.nodes.at(i).pos
+      }
+    }
+    // give reasonable defaults rather than panic
+    if first == auto { first = () }
+    if last == auto { last = (rel: (1, 0)) }
+    data.vertices.first() = first
+    data.vertices.last() = last
+
+    // snap to cetz nodes if first/last vertex is a node name
+    if type(first) == str and data.snap-to.first() == auto {
+      if first in ctx.nodes { data.snap-to.first() = first }
+    }
+    if type(last) == str and data.snap-to.last() == auto {
+      if last in ctx.nodes { data.snap-to.last() = last }
+    }
+
+    // resolve vertex coordinate expressions
+    // discard ctx because we do not want to update ctx.prev.pt
+    // edge vertices should never affect nodes with relative positions
+    let (_, ..vertices) = cetz.coordinate.resolve(ctx, ..data.vertices)
+    data.vertices = vertices
+
+    draw-edge(ctx, data)
+  })
+}
 
 
 #let interpret-marks-arg(marks) = {
@@ -947,9 +954,9 @@
   /// $L in \{#fletcher.parsing.LINE_ALIASES.keys().map(repr).map(raw).map(math.op).join($, $)}$
   /// is a line style (which must be the same for the whole edge).
   /// See the @all-marks for all possible marks and line styles.
-  /// 
+  ///
   /// For more control, an array of mark shorthands or @mark-objects[mark objects] may be given.
-  /// 
+  ///
   /// #example(```typ
   /// #diagram(edge(marks: (none, ">"))) \
   /// #diagram(edge(marks: (none, (inherit: ">", size: 20)))) \
