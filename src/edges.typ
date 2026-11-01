@@ -312,7 +312,7 @@
 
 
 #let find-snapping-drawables(ctx, nodes, edge) = {
- 
+
   // TODO: memoise this and store in node itself??
   let node-drawables(node, outset) = {
     if outset == auto { outset = node.style.outset }
@@ -531,6 +531,13 @@
     base: DEFAULT_EDGE_STYLE,
     merge: data.style,
   )
+
+  // resolve lengths to numbers
+  data.style.outset = utils.as-pair(data.style.outset)
+    .map(x => {
+      if x == auto { x }
+      else { cetz.util.resolve-number(ctx, x) }
+    })
 
   // resolve extrude to multiples of edge thickness
   data.style.extrude = utils
