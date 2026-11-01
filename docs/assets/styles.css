@@ -8,7 +8,7 @@
     sans-serif,
     apple color emoji,
     segoe ui emoji;
-  --sidebar-width: 12rem;
+  --sidebar-width: 13rem;
   --bg: white;
   --footer-height: 200px;
   --main-width: 100vw;
@@ -79,15 +79,15 @@ label#menu-button {
   cursor: pointer;
 }
 
+#sidebar-title {
+  margin-top: 0.53rem;
+  margin-bottom: 1.4rem;
+}
+
 nav {
   width: var(--sidebar-width);
 
   & > div {
-    #sidebar-title {
-      margin-top: 0.53rem;
-      margin-bottom: 1.4rem;
-    }
-
     position: sticky;
     top: 0;
     bottom: 0;
@@ -224,7 +224,7 @@ nav {
 
   nav {
     width: 0;
-    div {
+    & > div {
       position: fixed;
       background: var(--bg);
       left: calc(-1 * var(--sidebar-width));
