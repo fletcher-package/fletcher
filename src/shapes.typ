@@ -290,7 +290,9 @@
   let (w, h) = node.size
   if flip { (w, h) = (h, w) }
 
-  if angle == auto and aspect == auto { aspect = w / h }
+  if angle == auto and aspect == auto {
+    aspect = if h != 0 { w / h } else { 1 }
+  }
   if angle == auto { angle = 2 * calc.atan(aspect / 2) }
   if aspect == auto { aspect = 2 * calc.tan(angle / 2) }
 
