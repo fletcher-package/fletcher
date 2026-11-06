@@ -5,7 +5,6 @@
   line: (
     draw: (_, vertices) => cetz.draw.line(..vertices)
   ),
-  cetz: (),
   arc: (
     required: ("bend",),
     optional: (:),
@@ -145,5 +144,10 @@
         utils.error("edge shape `corner` accepts one of #..0; got #1", ("-|", "|-", "-|-", "|-|"), repr(corner))
       }
     },
+  ),
+  custom: (
+    required: ("path",),
+    optional: (:),
+    draw: ((path,), vertices) => path(vertices),
   ),
 )

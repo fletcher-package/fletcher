@@ -248,6 +248,8 @@ You can also specify a Bézier curve through another point with `edge(.., throug
 
 === Corner
 
+`edge(.., corner: "|-" | "-|" | "-|-" | "|-|")`
+
 Edges with one or two right-angled corners can be specified with `corner`, which is a string of `"-"` and `"|"` specifying the order of horizontal or vertical segments.
 
 #edge-kind-examples(
@@ -262,22 +264,49 @@ Edges with one or two right-angled corners can be specified with `corner`, which
 )
 
 
-=== CeTZ paths <cetz-edge>
+=== Custom <custom-edge>
+
+`edge(.., path: vertices => ..)`
+
+The `custom` edge kind accepts a `path` option, which must be a function accepting an array of edge vertices and returning a single CeTZ path.
+Note that you can also @cetz-edge[wrap CeTZ paths in edges directly].
+
+For example, below we make a custom path which draws the edge as a Hobby curve through its vertices.
+
+#example(```typ
+#diagram(
+  $
+    A & B & C \
+    D & E & F \
+    G & H & I
+  $,
+  edge((0,0), "rr,d,ll,dr", "-->",
+    path: verts => cetz.draw.hobby(..verts)),
+)
+```)
+
+
+
+=== Wrapping CeTZ paths <cetz-edge>
 
 When @cetz-interop[integrating with CeTZ], you can wrap a CeTZ element in @edge to apply any of fletcher's edge effects to it.
 When used in this mode, edges cannot have vertices.
+To support edge vertices, consider using the @custom-edge[custom] edge kind.
 
 For example, below we draw a composite CeTZ path using lines and a cubic Bézier segment and apply fletcher's marks, multistroke effects, label placement and snapping.
 #example(```typ
 #cetz.canvas({
   import cetz.draw: *
+  circle((0,0), radius: .4, name: "orb")
+
+  // cetz path to be used as edge
   let path = merge-path({
     line((0,0), (0,1))
     bezier((0,1), (2,0), (1,1), (1,0))
     line((2,0), (2,1))
   })
-  scale(1.4)
-  circle((0,0), radius: .4, name: "orb")
+
+  // add edge effects to cetz path
   edge(path, "<=>", snap-to: ("orb", none), label: (
     (body: $L$, pos: 0.5),
     (body: $R$, pos: 2.5, side: right),

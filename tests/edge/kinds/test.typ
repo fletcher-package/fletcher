@@ -110,3 +110,16 @@ Corner edges
   )
   linebreak()
 }
+
+#pagebreak()
+
+CeTZ paths
+
+#diagram(
+  $
+    A & B & C \
+    D & E & F \
+    G & H & I
+  $,
+  edge((0,0), "rr,d,ll,dr", "-->", path: verts => cetz.draw.hobby(..verts)),
+)
