@@ -154,140 +154,148 @@ To make it easy to achieve common edge shapes, like arcs, loops or right-angled 
     }
     diagram(
       node-stroke: black,
-      node((0,0), ..node-args),
+      node((0, 0), ..node-args),
       edge("->", ..extra-args, ..args, [#raw(repr(args))]),
     )
   })))
 }
 
+#bordered-section[
+  === Polyline
 
-=== Polyline
+  By default, edges are displayed as straight paths between two or more vertices.
+  As with all edge kinds, they can have @edge.corner-radius[rounded corners].
+]
 
-By default, edges are displayed as straight paths between two or more vertices.
-As with all edge kinds, they can have @edge.corner-radius[rounded corners].
+#bordered-section[
+  === Arc <edge-kind-arc>
 
+  `edge(.., bend: angle | length)`
 
-=== Arc <edge-kind-arc>
-
-`edge(.., bend: angle | length)`
-
-A perfect arc can be made with the `bend` option, which can be an angle (measuring the initial angle of the arc relative to a straight edge) or a length, specifying the height of the arc.
-
-
-#edge-kind-examples((
-  (bend: 30deg),
-  (bend: 3pt),
-  (bend: -90deg),
-  (bend: 120deg),
-))
-
-=== Loop
-`edge(pt, loop: angle | direction, size: length, fit: number)` \
-
-Loop edges are perfect arcs with only one vertex.
-The required option `loop` specifies the general direction of the loop.
-The diameter can be adjusted with `size`, and the distance from the vertex to the center of curvature can be adjusted with `fit`.
-
-#edge-kind-examples((
-  (loop: right),
-  (loop: -45deg),
-  (loop: 90deg, size: 40pt),
-))
-
-The `fit` parameter moves the loop inward or outward from the node.
-The default value `fit: 1` ensures the loop meets circular nodes at right angles.
-When `fit: 0`, the loop touches the node's center.
-
-#edge-kind-examples((
-  (loop: top, node: (radius: 5mm), fit: 0.8),
-  (loop: top, node: (radius: 5mm)),
-  (loop: top, node: (radius: 5mm), fit: 1.2),
-))
+  A perfect arc can be made with the `bend` option, which can be an angle (measuring the initial angle of the arc relative to a straight edge) or a length, specifying the height of the arc.
 
 
-=== Bow
+  #edge-kind-examples((
+    (bend: 30deg),
+    (bend: 3pt),
+    (bend: -90deg),
+    (bend: 120deg),
+  ))
+]
 
-`edge(pt, bow: angle | direction, size: length, angle: angle, fit: number)`
+#bordered-section[
+  === Loop
+  `edge(pt, loop: angle | direction, size: length, fit: number)` \
 
-Bows have one vertex, like loops.
-The required option `bow` specifies the general direction of the edge.
-The `size` and `angle` options specify the length and wideness of the bow, which is formed as a cubic Bézier curve with its control points arranged in an isosceles triangle.
+  Loop edges are perfect arcs with only one vertex.
+  The required option `loop` specifies the general direction of the loop.
+  The diameter can be adjusted with `size`, and the distance from the vertex to the center of curvature can be adjusted with `fit`.
 
-#edge-kind-examples((
-  (bow: bottom + right),
-  (bow: top, size: 50pt),
-  (bow: bottom, angle: 90deg),
-))
+  #edge-kind-examples((
+    (loop: right),
+    (loop: -45deg),
+    (loop: 90deg, size: 40pt),
+  ))
 
-Like for loop edges, the `fit` option fine-tunes how far in or out the bow is from the node.
+  The `fit` parameter moves the loop inward or outward from the node.
+  The default value `fit: 1` ensures the loop meets circular nodes at right angles.
+  When `fit: 0`, the loop touches the node's center.
 
+  #edge-kind-examples((
+    (loop: top, node: (radius: 5mm), fit: 0.8),
+    (loop: top, node: (radius: 5mm)),
+    (loop: top, node: (radius: 5mm), fit: 1.2),
+  ))
+]
 
-#edge-kind-examples((
-  (bow: top, node: (radius: 5mm), fit: 0.8),
-  (bow: top, node: (radius: 5mm)),
-  (bow: top, node: (radius: 5mm), fit: 1.2),
-))
+#bordered-section[
 
+  === Bow
 
-=== Bézier
+  `edge(pt, bow: angle | direction, size: length, angle: angle, fit: number)`
 
-`edge(.., from: angle | (angle, length), to: angle | (angle, length))`
+  Bows have one vertex, like loops.
+  The required option `bow` specifies the general direction of the edge.
+  The `size` and `angle` options specify the length and wideness of the bow, which is formed as a cubic Bézier curve with its control points arranged in an isosceles triangle.
 
-Quadratic or cubic Bézier curves can be specified by giving an angle or polar coordinate such as `(90deg, 5mm)` to one of `from`, `to` or both.
+  #edge-kind-examples((
+    (bow: bottom + right),
+    (bow: top, size: 50pt),
+    (bow: bottom, angle: 90deg),
+  ))
 
-#edge-kind-examples((
-  (from: 90deg),
-  (to: -90deg),
-  (to: (45deg, 80pt)),
-  (from: 90deg, to: -90deg),
-  // (through: (0.5,0.5)),
-))
-
-You can also specify a Bézier curve through another point with `edge(.., through: <coord>)`.
-
-
-=== Corner
-
-`edge(.., corner: "|-" | "-|" | "-|-" | "|-|")`
-
-Edges with one or two right-angled corners can be specified with `corner`, which is a string of `"-"` and `"|"` specifying the order of horizontal or vertical segments.
-
-#edge-kind-examples(
-  (
-    (corner: "|-"),
-    (corner: "-|"),
-    (corner: "|-|"),
-    (corner: "-|-"),
-  ),
-  (2, 1.5),
-  label-fill: white,
-)
+  Like for loop edges, the `fit` option fine-tunes how far in or out the bow is from the node.
 
 
-=== Custom <custom-edge>
+  #edge-kind-examples((
+    (bow: top, node: (radius: 5mm), fit: 0.8),
+    (bow: top, node: (radius: 5mm)),
+    (bow: top, node: (radius: 5mm), fit: 1.2),
+  ))
+]
 
-`edge(.., path: vertices => ..)`
+#bordered-section[
+  === Bézier
 
-The `custom` edge kind accepts a `path` option, which must be a function accepting an array of edge vertices and returning a single CeTZ path.
-Note that you can also @cetz-edge[wrap CeTZ paths in edges directly].
+  `edge(.., from: angle | (angle, length), to: angle | (angle, length))`
 
-For example, below we make a custom path which draws the edge as a Hobby curve through its vertices.
+  Quadratic or cubic Bézier curves can be specified by giving an angle or polar coordinate such as `(90deg, 5mm)` to one of `from`, `to` or both.
 
-#example(```typ
-#diagram(
-  $
-    A & B & C \
-    D & E & F \
-    G & H & I
-  $,
-  edge((0,0), "rr,d,ll,dr", "-->",
-    path: verts => cetz.draw.hobby(..verts)),
-)
-```)
+  #edge-kind-examples((
+    (from: 90deg),
+    (to: -90deg),
+    (to: (45deg, 80pt)),
+    (from: 90deg, to: -90deg),
+    // (through: (0.5,0.5)),
+  ))
+
+  You can also specify a Bézier curve through another point with `edge(.., through: <coord>)`.
+]
+
+#bordered-section[
+  === Corner
+
+  `edge(.., corner: "|-" | "-|" | "-|-" | "|-|")`
+
+  Edges with one or two right-angled corners can be specified with `corner`, which is a string of `"-"` and `"|"` specifying the order of horizontal or vertical segments.
+
+  #edge-kind-examples(
+    (
+      (corner: "|-"),
+      (corner: "-|"),
+      (corner: "|-|"),
+      (corner: "-|-"),
+    ),
+    (2, 1.5),
+    label-fill: white,
+  )
+]
+
+#bordered-section[
+  === Custom <custom-edge>
+
+  `edge(.., path: vertices => ..)`
+
+  The `custom` edge kind accepts a `path` option, which must be a function accepting an array of edge vertices and returning a single CeTZ path.
+  Note that you can also @cetz-edge[wrap CeTZ paths in edges directly].
+
+  For example, below we use the `path` option to draw the edge as a Hobby curve through its vertices.
+
+  #example(```typ
+  #diagram(
+    $
+      A & B & C \
+      D & E & F \
+      G & H & I
+    $,
+    edge((0,0), "rr,d,ll,dr", "-->",
+      path: verts => cetz.draw.hobby(..verts)),
+  )
+  ```)
+]
 
 
-
-=== Wrapping CeTZ paths <cetz-edge>
+== Wrapping CeTZ paths <cetz-edge>
 
 When @cetz-interop[integrating with CeTZ], you can wrap a CeTZ element in @edge to apply any of fletcher's edge effects to it.
 When used in this mode, edges cannot have vertices.
@@ -331,8 +339,7 @@ In particular, the @edge.label-pos[label position] is a path anchor, and if the 
   `25%`, [Fraction of total length along path],
   `"start", "mid", "end"`, [Aliases for `0%`, `50%` and `100%`],
   `10pt, -2em`, [Certain length from start or end of path],
-  `0.5, 2.5, -1`, [Segment indices referring to or between vertices of the path]
-
+  `0.5, 2.5, -1`, [Segment indices referring to or between vertices of the path],
 )
 
 The default path anchor is the midpoint, so in the example below `<f>` refers to `(name: "f", anchor: 50%)`.

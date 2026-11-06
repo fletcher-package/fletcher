@@ -18,6 +18,11 @@
   :root {
     filter: invert(100%) hue-rotate(180deg) contrast(85%);
   }
+
+  footer {
+    filter: invert(100%) hue-rotate(180deg);
+    background: oklch(20% 0.02 200) !important;
+  }
 }
 
 body {
@@ -45,7 +50,7 @@ article {
 footer {
   display: flex;
   min-height: var(--footer-height);
-  box-shadow: 0 20px 15px -15px inset #0006;
+  box-shadow: 0 20px 15px -15px inset #000a;
   background: oklch(40% 0.03 200);
   color: #eee;
 
@@ -388,6 +393,7 @@ pre {
 
   & > svg {
     margin-left: -3em;
+    z-index: 1;
   }
 }
 
