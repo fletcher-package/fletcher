@@ -54,9 +54,11 @@
     }
 
     if debug-level(debug, "node.outset") {
-      cetz.draw.get-ctx(ctx => {
-        cetz.draw.set-style(..DEBUG_STYLES.node.outset)
-        draw-node-snapping-outline(ctx, node, node.pos, node.style.outset)
+      cetz.draw.group({
+        cetz.draw.get-ctx(ctx => {
+          cetz.draw.set-style(..DEBUG_STYLES.node.outset)
+          draw-node-snapping-outline(ctx, node, node.pos, node.style.outset)
+        })
       })
     }
 
@@ -499,10 +501,10 @@
       data.body = apply-body-inset(ctx, options.body, data.style.inset, debug: debug-level(data.debug, "node.inset"))
       data.body = std.align(center + horizon, data.body)
       // data.body = self.body
-      
+
       ctx.prev.pt = data.pos
 
-      
+
     } else {
       // Node does not appear in a flexigrid.
 
