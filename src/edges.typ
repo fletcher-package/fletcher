@@ -832,6 +832,17 @@
 
   let spec = utils.one-or-array(options.label).map(as-label-spec).filter(l => l != none)
 
+  // validate values
+  for s in spec {
+    if type(s.side) not in (alignment, bool, type(auto)) {
+      utils.error("label side should be an alignment, bool or auto; got #1 (#0).", type(s.side), repr(s.side))
+    }
+
+    if type(s.angle) not in (angle, alignment, type(auto)) {
+      utils.error("label angle should be an angle, alignment or auto; got #1 (#0).", type(s.angle), repr(s.angle))
+    }
+  }
+
   return spec
 }
 
@@ -1045,7 +1056,7 @@
   /// `false` is the opposite side.
   /// In these cases, the side never flips depending on the edge's angle.
   ///
-  /// If `center` or `none`, the label is placed directly over the edge, and the label fill defaults to white.
+  /// If `center`, the label is placed directly over the edge, and the label fill defaults to white.
   ///
   /// The special alignment values `start` and `end` place the label before or after a point, travelling along the edge. This works best when used like `(pos: 0%, side: start)` or `(pos: 100%, side: end)`.
   /// ```example
@@ -1062,7 +1073,7 @@
   ///
   /// This can be given as an _edge argument_ like `edge(.., $f$, label-side: top)` or as a @edge.label option like `edge(.., label: (body: $f$, side: top))`.
   ///
-  /// -> auto | none | center | top | bottom | left | right | start | end
+  /// -> auto | center | top | bottom | left | right | start | end | bool
   label-side: auto,
   /// Separation between label body and the edge.
   ///
