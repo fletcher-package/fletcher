@@ -2,31 +2,47 @@
 #show: style
 
 
-= Diagrams and Layout
+= Diagrams and Layout <flexigrids>
 
-Fletcher encourages the use of an flexible, tabular layout called a _flexigrid_.
-Flexigrids have rows and columns which grow to accommodate nodes, like a table.
-Unlike tables, flexigrids allow nodes to be placed at fractional coordinates.
-You can see the flexigrid using @debug.grid.
+Fletcher encourages tabular layouts.
+Nodes in a @diagram are laid out on a @manual-diagrams[flexible coordinate grid or _flexigrid_], visible when the @debug.grid[`debug` option] is on.
+The rows and columns in this coordinate system grow to accommodate the sizes of nodes, like a table.
 
 #example(```typ
 #diagram(
-  debug: "grid",
-  node-stroke: 0.5pt,
-  node((0,0), $A A A$),
-  node((1,0), $B$),
-  node((0,1), $C$),
-  node((1,1), $ D\ D\ D $),
-  node((0.5, 0.5), $E$),
+  debug: "grid", // show helper annotations
+  spacing: 5mm,  // gutter between cells
+  node((0,0), stroke: yellow, [Wide node]),
+  node((1,0), fill: green, [A\ tall\ node], name: "tall"),
+  node((0,1), fill: red, emph[top left], align: top + left),
+  node((1,1), fill: blue, text(white, $ a/b $)),
+	cetz.draw.polygon("tall.north-east", 6, radius: 4pt)
 )
 ```)
 
-If you don't want the positions of nodes to be affected by node sizes, you can @manual-cetz[place notes directly inside a CeTZ canvas instead].
+Unlike normal tables, flexigrid coordinates can be fractional.
+For example, the center of a node placed at `0.25` is $25%$ between the centers of the nearest cells.
+Notice how the column sizes respond to the green node as it moves between columns.
+
+#frame-row(..(0, .25, .5, .75, 1).map(t => {
+  let c = (orange, red, green, blue).map(x => x.lighten(50%))
+  fletcher.diagram(
+    debug: "grid.cells",
+    spacing: 2mm,
+    node-corner-radius: 3pt,
+    node((0, 0), [a], fill: c.at(0), width: 10mm, height: 10mm),
+    node((1, 0), [b], fill: c.at(1), width: 5mm, height: 5mm),
+    node((t, -1), $(#t, 1)$, fill: c.at(2), width: 20mm, height: 5mm),
+    node((0, -2), [d], fill: c.at(3), width: 5mm, height: 5mm),
+  )
+}))
+
+If you don't want a tabular layout, and don't want the position of nodes to be affected by other nodes' sizes, you can @manual-cetz[place nodes and edges directly inside a CeTZ canvas instead].
 
 
-== Math-mode diagrams
+== Math-mode diagrams <math-mode-diagrams>
 
-Nodes can be specified using equations with alignment points `&` separating columns and newlines `\` separating rows.
+Nodes can also be specified using equations with alignment points `&` separating columns and newlines `\` separating rows.
 
 #example(```typ
 #diagram(
@@ -56,6 +72,7 @@ $)
 == Placing nodes in cells <node-cells>
 
 A node in a flexigrid lives inside a _flexigrid cell_, which is visible when the @debug.node.cell debug option is on.
+Below, the circular node's flexigrid cell is shaded:
 
 #example(```typ
 #diagram(
@@ -99,8 +116,8 @@ By default, nodes are placed in the center of their cell.
 
 === Making nodes fill their cell
 
-By default, the width and height of a node is determined by its @node.body[body].
-You can force a node to enlarge to the size of its cell by using the special values `width: "cell"` or `height: "cell"`.
+By default, the width and height of a node is determined by its @node.body[body content], plus an @node.inset[inset].
+You can force a node to fill its cell by using the special values `width: "cell"` or `height: "cell"`.
 Similarly, you can force a node to fit to its body with `width: "body"` or `height: "body"`.
 
 #example(```typ
@@ -111,7 +128,7 @@ Similarly, you can force a node to fit to its body with `width: "body"` or `heig
 )
 ```)
 
-This can be useful for achieving table-like outlines:
+This can be useful to ensure the edges of nodes are aligned.
 
 #example(```typ
 #diagram(
@@ -129,7 +146,7 @@ This can be useful for achieving table-like outlines:
 
 
 
-=== Row and column span <sec-node-cellspan>
+== Row and column span <sec-node-cellspan>
 
 A node's cell can span multiple flexigrid rows or columns using @node.rowspan and @node.colspan.
 

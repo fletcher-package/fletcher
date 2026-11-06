@@ -3,9 +3,21 @@
 
 = Introduction
 
-Import fletcher with:
 
-#raw(block: true, lang: "typ", "#import \"@preview/fletcher:" + VERSION + "\" as fletcher: diagram, node, edge")
+#[
+  #show "{VERSION}": VERSION
+  Import fletcher with:
+  ```typ
+  #import "@preview/fletcher:{VERSION}": diagram, node, edge
+  ```
+  Fletcher {VERSION} depends on CeTZ #fletcher.cetz.version, so if you also use CeTZ, you can import it from fletcher to ensure compatible versions are used.
+  ```typ
+  #import "@preview/fletcher:{VERSION}"
+  #import fletcher: cetz, diagram, node, edge
+  ```
+]
+
+== Diagrams
 
 Diagrams contain #[@node]s and #[@edge]s.
 Nodes contain content and can have various @node-shapes[shapes] and @node-styles[styles], while edges snap to nodes and can be given @edge.marks[marks] and @edge.label[labels].
@@ -23,8 +35,20 @@ Objects in a @diagram are arranged on a @flexigrids[flexible coordinate grid].
 })
 ```)
 
+== Math-mode diagrams
+
+Nodes can alternatively be defined using a @math-mode-diagrams[block equation inside a diagram].
+
+#example(```typ
+#let hom = edge.with(in-math: true) // required for edges in math
+#diagram($
+  G hom(f, ->) hom("d", pi, ->>) & im(f) \
+  G slash ker(f) hom("ur", tilde(f), "hook-->", #bottom)
+$)
+```)
+
+== Styles
 Styles can be controlled with the named arguments of @node and @edge.
-Default styles can be set by passing the same arguments prefixed with "`node-`" or "`edge-`" to @diagram.
 
 #example(```typ
 #diagram(
@@ -40,54 +64,9 @@ Default styles can be set by passing the same arguments prefixed with "`node-`" 
 ```)
 
 
-You can also place nodes and edges directly into `cetz.canvas()` and set node and edge styles with `cetz.draw.set-style()`.
-Below, we use fletcher's marks to draw an edge in a CeTZ-based figure.
+== Row span, column span, and enclose nodes
 
-#example(```typ
-#import fletcher.cetz // import this way to ensure compatibility
-#cetz.canvas(length: 5mm, {
-	import cetz.draw: *
-	set-style(fill: teal, edge: (stroke: 1pt + teal))
-	circle((5,0), radius: (1.2,0.8), name: "egg")
-	line((0,1), (1,0), (0,-1), (-1,0), close: true, name: "jewel")
-	edge(<jewel>, "stealth--stealth", <egg>, bend: 45deg)
-})
-```)
-
-== Flexible coordinate grids <flexigrids>
-
-Diagrams are laid out on a @manual-diagrams[flexible coordinate grid or _flexigrid_], visible when the `debug` option of @diagram is on.
-The rows and columns in this coordinate system grow to accommodate the sizes of nodes, useful for tabular layouts:
-
-#example(```typ
-#diagram(
-  debug: "grid", // show helper annotations
-  spacing: 5mm,  // gutter between cells
-  node((0,0), stroke: yellow, [Wide node]),
-  node((1,0), fill: green, [A\ tall\ node], name: "tall"),
-  node((0,1), fill: red, emph[top left], align: top + left),
-  node((1,1), fill: blue, text(white, $ a/b $)),
-	cetz.draw.polygon("tall.north-east", 6, radius: 4pt)
-)
-```)
-
-Unlike a table, coordinates can be fractional; the center of a node placed at `0.25` is $25%$ between the adjacent columns or rows.
-Notice how the column sizes respond to the green node:
-
-#frame-row(..(0, .25, .5, .75, 1).map(t => {
-  let c = (orange, red, green, blue).map(x => x.lighten(50%))
-  fletcher.diagram(
-    debug: "grid.cells",
-    spacing: 2mm,
-    node-corner-radius: 3pt,
-    node((0, 0), [a], fill: c.at(0), width: 10mm, height: 10mm),
-    node((1, 0), [b], fill: c.at(1), width: 5mm, height: 5mm),
-    node((t, -1), $(#t, 1)$, fill: c.at(2), width: 20mm, height: 5mm),
-    node((0, -2), [d], fill: c.at(3), width: 5mm, height: 5mm),
-  )
-}))
-
-When inside a flexigrid, nodes can also span multiple columns or rows:
+Nodes can @enclose-nodes[enclose] other nodes and, when inside a flexigrid, @sec-node-cellspan[span multiple columns or rows].
 
 #example(```typ
 #diagram(
@@ -100,12 +79,31 @@ When inside a flexigrid, nodes can also span multiple columns or rows:
 	node((2,0), [Smell], name: <smell>),
 	node((0,1), [Senses], colspan: 3),
 	node((0,0), rowspan: 2, colspan: 3,
-	  fill: yellow, extrude: 4pt, layer: -1, []),
+	  fill: yellow, extrude: 4pt, layer: -1),
 )
 ```)
 
-Under the hood, a @diagram is just a @flexigrid inside a CeTZ canvas. You can also use the flexigrid coordinate system inside a normal CeTZ canvas (see @cetz-interop for details.)
+Overlapping nodes can be ordered with @node.layer, and @node.extrude can be used to offset shapes so that rounded corners stay concentric.
 
+
+== CeTZ integration
+
+You can also place nodes and edges directly into `cetz.canvas()` and set node and edge styles with `cetz.draw.set-style()`.
+Under the hood, a @diagram is just a @flexigrid inside a CeTZ canvas (see @cetz-interop for details).
+
+For example, here we use fletcher's marks to draw an edge in a CeTZ-based figure.
+
+#example(```typ
+#import fletcher.cetz
+
+#cetz.canvas(length: 5mm, {
+	import cetz.draw: *
+	set-style(fill: teal, edge: (stroke: 1pt + teal))
+	circle((5,0), radius: (1.2,0.8), name: "egg")
+	line((0,1), (1,0), (0,-1), (-1,0), close: true, name: "jewel")
+	edge(<jewel>, "stealth~stealth", <egg>, bend: 80deg)
+})
+```)
 
 == Coordinate expressions
 
@@ -114,7 +112,7 @@ You can also use physical lengths like `(20mm, 5mm)` or any CeTZ coordinate expr
 
 #example(```typ
 #diagram(
-	node((1, 0), name: "O"), // elastic coordinate
+	node((1, 0), name: "O"),
 	for i in range(12) {
     let θ = i/12*360deg
 		edge(<O>, "->", auto)
