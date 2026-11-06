@@ -9,42 +9,52 @@
 
 
 /// Identical to `cetz.intersection.line-line` but returns
-/// a pair `(pt, t)` of the point and its t parameter along
-/// the c-d line segment (or `none`).
-#let line-line(a, b, c, d, ray: false) = {
-  let lli8(x1, y1, x2, y2, x3, y3, x4, y4) = {
-    let nx = (x1*y2 - y1*x2)*(x3 - x4)-(x1 - x2)*(x3*y4 - y3*x4)
-    let ny = (x1*y2 - y1*x2)*(y3 - y4)-(y1 - y2)*(x3*y4 - y3*x4)
-    let d = (x1 - x2)*(y3 - y4)-(y1 - y2)*(x3 - x4)
-    if d == 0 {
-      return none
-    }
-    return (nx / d, ny / d, 0)
+/// a pair `(pt, t)` with the point and the parameter value `t`
+/// of the point `pt` along the line segment from `p3` to `p4`.
+#let line-line(p1, p2, p3, p4, ray: false, eps: 1e-6) = {
+  let (x1, y1, z1, ..) = if p1.len() >= 3 { p1 } else { (..p1, 0) }
+  let (x2, y2, z2, ..) = if p2.len() >= 3 { p2 } else { (..p2, 0) }
+  let (x3, y3, z3, ..) = if p3.len() >= 3 { p3 } else { (..p3, 0) }
+  let (x4, y4, z4, ..) = if p4.len() >= 3 { p4 } else { (..p4, 0) }
+
+  let p13 = (x1 - x3, y1 - y3, z1 - z3)
+  let p21 = (x2 - x1, y2 - y1, z2 - z1)
+  let p43 = (x4 - x3, y4 - y3, z4 - z3)
+
+  let d-21-21 = cetz.vector.dot(p21, p21)
+  let d-43-43 = cetz.vector.dot(p43, p43)
+  if d-21-21 <= calc.pow(eps, 2) or d-43-43 <= calc.pow(eps, 2) {
+    return none
   }
-  let pt = lli8(a.at(0), a.at(1), b.at(0), b.at(1),
-                c.at(0), c.at(1), d.at(0), d.at(1))
-  if pt != none {
-    let on-line(pt, a, b) = {
-      let (x, y, ..) = pt
-      let epsilon = util.float-epsilon
-      let mx = calc.min(a.at(0), b.at(0)) - epsilon
-      let my = calc.min(a.at(1), b.at(1)) - epsilon
-      let Mx = calc.max(a.at(0), b.at(0)) + epsilon
-      let My = calc.max(a.at(1), b.at(1)) + epsilon
-      return mx <= x and Mx >= x and my <= y and My >= y
-    }
-    if ray or (on-line(pt, a, b) and on-line(pt, c, d)) {
-      let t = {
-        if calc.abs(d.at(0) - c.at(0)) > 0 {
-          (pt.at(0) - c.at(0))/(d.at(0) - c.at(0))
-        } else if calc.abs(d.at(1) - c.at(1)) > 0 {
-          (pt.at(1) - c.at(1))/(d.at(1) - c.at(1))
-        } else {
-          0.
-        }
-      }
-      return (pt, t)
-    }
+
+  let d-43-21 = cetz.vector.dot(p43, p21)
+  let d-13-43 = cetz.vector.dot(p13, p43)
+  let d-13-21 = cetz.vector.dot(p13, p21)
+  let d = d-21-21 * d-43-43 - d-43-21 * d-43-21
+  let parallel-eps = calc.pow(eps, 2) * d-21-21 * d-43-43
+  if calc.abs(d) <= parallel-eps {
+    return none
+  }
+
+  let m-a = (d-13-43 * d-43-21 - d-13-21 * d-43-43) / d
+  let m-b = (d-13-43 + m-a * d-43-21) / d-43-43
+
+  if not ray and (m-a < -eps or m-a > 1 + eps or m-b < -eps or m-b > 1 + eps) {
+    return none
+  }
+
+  let m-a = if ray { m-a } else { calc.clamp(m-a, 0, 1) }
+  let m-b = if ray { m-b } else { calc.clamp(m-b, 0, 1) }
+
+  let a = (x1 + m-a * (x2 - x1), y1 + m-a * (y2 - y1), z1 + m-a * (z2 - z1))
+  let b = (x3 + m-b * (x4 - x3), y3 + m-b * (y4 - y3), z3 + m-b * (z4 - z3))
+  let d-ab = cetz.vector.dist(a, b)
+  let distance-eps = eps * calc.max(1, calc.sqrt(d-21-21), calc.sqrt(d-43-43))
+
+  return if d-ab <= distance-eps {
+    (a, m-b)
+  } else {
+    none
   }
 }
 
