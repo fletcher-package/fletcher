@@ -488,6 +488,13 @@
   	)
 	}
 
-	utils.error("invalid path anchor #0.", repr(it))
+	if type(it) == relative {
+	  return (
+			length: it,
+			rev: false,
+		)
+	}
+
+	utils.error("invalid path anchor #0 (#1).", repr(it), type(it))
 
 }

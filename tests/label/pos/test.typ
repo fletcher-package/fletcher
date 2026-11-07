@@ -20,3 +20,16 @@ Segment placement
     (body: `5`, pos: 4.5),
   ), corner-radius: none)
 })
+
+#pagebreak()
+
+Relative lengths
+
+#diagram(
+	node((0,0))[Many],
+	edge("r,d,r", "n?-1", label: (
+		(body: $k$, pos: 1.5em),
+		(body: $1$, pos: 100% - 1em),
+	), label-side: center),
+	node((2,1))[One],
+)
