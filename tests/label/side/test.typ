@@ -105,3 +105,13 @@ Label side with positional argument
 #diagram(edge("->", $f$, top))
 #diagram(edge("->", $f$, label-side: bottom))
 #diagram(edge("->", $f$, bottom))
+
+#pagebreak()
+
+Optical bounds
+
+#diagram(
+  edge((0,0), "d", $ ~ $, label-angle: auto, left),
+  edge((1,0), "d", $ ~ $, label-angle: auto, center),
+  edge((2,0), "d", $ ~ $, label-angle: auto, right),
+)
