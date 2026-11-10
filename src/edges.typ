@@ -108,7 +108,7 @@
       } else {
         label.anchor = "center"
       }
-      label.side = none
+      label.side = center
     } else {
       label.side = utils.wrap-angle-180(calc.atan2(..v) - tangent-angle) > -1deg
     }
@@ -134,15 +134,17 @@
   }
   pt = cetz.util.revert-transform(ctx.transform, pt)
 
+  let body = box(
+    label.body,
+    baseline: horizon,
+    outset: 2pt,
+    fill: label.fill,
+    stroke: if debug-level(debug, "edge.label") { purple.transparentize(50%) + 0.25pt },
+  )
+
   cetz.draw.content(
     pt,
-    box(
-      label.body,
-      outset: 2pt,
-      inset: 0pt,
-      fill: label.fill,
-      stroke: if debug-level(debug, "edge.label") { purple.transparentize(50%) + 0.25pt },
-    ),
+    body,
     anchor: label.anchor,
     angle: label.angle,
     padding: label.sep,
