@@ -1,5 +1,5 @@
-#import "deps.typ"
-#import deps.cetz.draw
+#import "deps.typ": cetz
+#import cetz.draw
 #import "utils.typ": interp, interp-inv
 
 #let DEFAULT_MARKS = (
@@ -125,7 +125,7 @@
 			// snap angle to nearest 45deg
 			let (cos, sin) = ctx.transform.at(0).slice(0, 2)
 			let θ = calc.atan2(cos, sin)
-			let θ-snapped = calc.round(θ/45deg)*45deg 
+			let θ-snapped = calc.round(θ/45deg)*45deg
 			draw.rotate(θ - θ-snapped)
 			draw.line(
 				(-45deg, mark.size),
@@ -492,6 +492,23 @@
 	"1": (inherit: "crowfoot", zero: false, one: true, many: false),
 	"1!": (inherit: "crowfoot", zero: false, one: true, many: false, extrude: mark => (0, -calc.max(4, mark.gap))),
 	"1?": (inherit: "crowfoot", zero: true, one: true, many: false),
+
+
+	// draws content beside the edge, like a label with label-angle: auto
+	glyph: (
+	  sep: 0.2em,
+		content: "A",
+  	draw: mark => draw.get-ctx(ctx => {
+			let (cos, sin) = ctx.transform.at(0).slice(0, 2)
+			let θ = calc.atan2(cos, sin)
+			if mark.flip { θ = 180deg - θ }
+			let e = if mark.flip { calc.max(..mark.edge-extrude) } else { -calc.min(..mark.edge-extrude) }
+    	draw.content((0,e), mark.content, angle: -θ, anchor: "south", padding: mark.sep)
+  	}),
+	),
+
+	// intended for isomorphism arrows
+	tilde: (inherit: "glyph", content: $ ~ $),
 
 )
 
