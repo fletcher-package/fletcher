@@ -43,10 +43,10 @@ Available node styles:
 - @node.shape
 - @node.layer
 - Any other styles specific to the @node-shapes[node shape]:
-	- `width`, `height`, `corner-radius` for @rect nodes
-	- `radius` for @circle nodes
-	- @node-fit[`fit` and `cell-fit`]
-	- and so on
+  - `width`, `height`, `corner-radius` for @rect nodes
+  - `radius` for @circle nodes
+  - @node-fit[`fit` and `cell-fit`]
+  - and so on
 
 
 
@@ -186,8 +186,32 @@ Unlike nodes which span rows or columns, enclose nodes do not exist within a fle
 Nodes also support @sec-node-cellspan[spanning multiple columns or rows], but only when used inside a flexigrid layout.
 See the section on @manual-diagrams[diagrams and layout] for details.
 
-== Anatomy of a node
+== Aligning content within nodes <align-in-node>
 
+If a node is larger than its body content, you can align the content inside the body using an #link("https://typst.app/docs/reference/layout/align/")[`align()`] element.
+
+#example(```typ
+#diagram(
+  node-stroke: 0.5pt,
+  node-corner-radius: 2pt,
+  node-shape: rect,
+  node-fill: oklch(80%, 20%, 300deg),
+  node((0,0), [A]),
+  node((1,0), [B]),
+  node((0,1), align(left)[Left], colspan: 2),
+  node(enclose: ((0,0), (0,1)), align(top)[Top],
+    fill: none, name: <group>),
+
+  // manually draw content
+  cetz.draw.content("group.north", [Around],
+    anchor: "south", padding: 5pt)
+)
+```)
+
+Note that the @node.align option aligns the node itself relative to the @node-cells[parent cell], as described in @node-alignment.
+
+
+== Anatomy of a node
 
 #import "../../src/debug.typ": DEBUG_STYLES
 
@@ -212,10 +236,10 @@ The different components of a node can be displayed using @debug.node[node debug
     debug: "node node.bounds node.cell",
     node-fill: luma(80%),
     node-outset: 5pt,
-    node((0,0), [Body], colspan: 2, shape: "pill", <a>),
+    node((0, 0), [Body], colspan: 2, shape: "pill", <a>),
     edge(<a>, "->"),
-    node((0,1), [A], radius: 5mm),
+    node((0, 1), [A], radius: 5mm),
     edge(<a>, "->"),
-    node((1,1), [B]),
+    node((1, 1), [B]),
   )))
 ]

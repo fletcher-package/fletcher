@@ -100,7 +100,7 @@ For example, below the circle's cell is shown as it moves along $(0, 0) -> (1, 1
 
 This behaviour guarantees that a small nudge in a node's position only results in a small change to the diagram's final appearance.
 
-=== Alignment within cells
+=== Alignment within cells <node-alignment>
 
 If a node's cell is larger than its bounding box (visible with @debug.node.bounds), you can align the node within the cell using @node.align.
 By default, nodes are placed in the center of their cell.
@@ -113,6 +113,8 @@ By default, nodes are placed in the center of their cell.
   node((0,1))[This is a wide node],
 )
 ```)
+
+To @align-in-node[align content within a node], use the `align()` element.
 
 === Making nodes fill their cell
 
