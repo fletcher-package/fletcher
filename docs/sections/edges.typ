@@ -125,6 +125,8 @@ In the example below, the vertical edges have two labels each:
 )
 ```)
 
+For isomorphism arrows, you can also use the `tilde` mark, like in #ref(label("gallery/iso-square.typ"), supplement: [this example]).
+
 == Kinds of edges <edge-kinds>
 
 To make it easy to achieve common edge shapes, like arcs, loops or right-angled corners, edges can have different _kinds_, depending on the combination of named arguments present.
