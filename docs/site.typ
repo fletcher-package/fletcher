@@ -180,6 +180,7 @@
 #for gal in gals [
   #document(gal.replace(".typ", ".html"))[
     #let src = read(gal).replace("\t", "  ").replace("../../src/exports.typ", "@preview/fletcher:" + common.VERSION)
+    #html.frame(include gal)
     #raw(src, lang: "typ")
   ] #label(gal)
 ]
