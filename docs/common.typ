@@ -4,7 +4,8 @@
 #import "../src/exports.typ" as fletcher: diagram, node, edge
 #import "../src/debug.typ": DEBUG_LEVELS
 
-#let VERSION = toml("/typst.toml").package.version
+#let TYPST_TOML = toml("/typst.toml")
+#let VERSION = TYPST_TOML.package.version
 
 #let is-html() = if "target" in std { target() == "html" } else { false }
 
@@ -44,6 +45,24 @@
   ]
 ]
 
+#let gallery-files = (
+  "gallery/first-iso-thm.typ",
+  "gallery/commutative.typ",
+  "gallery/block-diagram.typ",
+  "gallery/ml-architecture.typ",
+  // "gallery/io-flowchart.typ",
+  "gallery/states.typ",
+  "gallery/digraph.typ",
+  "gallery/feynman-diagram.typ",
+  "gallery/pushout.typ",
+  "gallery/iso-square.typ",
+  "gallery/category-theory.typ",
+  "gallery/node-groups.typ",
+  "gallery/uml-diagram.typ",
+  "gallery/tree.typ",
+  "gallery/dot-tree.typ",
+  "gallery/algebra-cube.typ",
+)
 
 /* Simple components */
 
@@ -109,6 +128,18 @@
       frame(preview)
     })
   } else {
+    let c = oklch(98%, 2%, 270deg)
+    show: block.with(
+      outset: 0.5em,
+      radius: 0.5em,
+      fill: gradient.linear(
+        dir: ltr,
+        (c, 0%),
+        (c, 50%),
+        (white, 80%),
+        (white, 100%),
+      )
+    )
     grid(
       columns: (1fr, auto),
       align: horizon,
@@ -130,10 +161,10 @@
       width: 100%,
       radius: (top: 10pt),
       stroke: (top: .6pt + gray, rest: 0pt + gray),
-      height: 1cm,
+      height: 10mm,
       sticky: true,
     )
-    v(-16mm)
+    v(-10mm)
     body
   }
 }

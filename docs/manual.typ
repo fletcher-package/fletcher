@@ -18,8 +18,8 @@
   *Version #common.VERSION*
 ]
 
-#v(1fr)
-
+// #v(1fr)
+#v(2cm, weak: true)
 
 #columns(2)[
   #show heading: it => align(center, box(width: 100%, it)) + v(.8em)
@@ -28,7 +28,7 @@
     target: selector(heading).after(<manual>, inclusive: false).before(<func-ref>, inclusive: false),
     depth: 3,
   )
-  #colbreak()
+
   #outline(
     title: [Function Reference],
     target: selector(heading).after(<func-ref>, inclusive: false).before(<end>),
@@ -43,13 +43,28 @@
 
 #show heading: it => {
   let size = (40pt, 25pt, 20pt, 15pt).at(it.level, default: 12pt)
-  text(size, v(1em) + it)
+  text(size, it)
 }
 #show heading.where(level: 1): it => {
   pagebreak(weak: true)
   align(center, text(weight: 200, smallcaps(it)))
   line(length: 100%)
 }
+
+
+#pagebreak()
+
+= Gallery
+
+#emph[
+Each example is a link to its source code at #common.TYPST_TOML.package.homepage.
+]
+
+#align(center + horizon, for gal in common.gallery-files {
+  let url = common.TYPST_TOML.package.homepage + "/" + gal.replace(".typ", ".html")
+  let it = link(url, pad(10pt, scale(80%, reflow: true, include gal)))
+  box(baseline: horizon)[#figure(it) #label(gal)]
+})
 
 #show link: it => underline(strong(it))
 #show ref: common.show-ref

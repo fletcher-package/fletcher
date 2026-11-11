@@ -280,6 +280,8 @@ nav {
       justify-content: center;
       border: 1px solid #eee;
       border-radius: 5px;
+      height: 100%;
+      box-sizing: border-box;
 
       &:hover {
         border-color: #888;

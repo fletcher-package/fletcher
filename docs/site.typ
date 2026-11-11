@@ -159,34 +159,16 @@
 
 // Gallery
 
-#let gals = (
-  "gallery/first-iso-thm.typ",
-  "gallery/commutative.typ",
-  "gallery/block-diagram.typ",
-  "gallery/ml-architecture.typ",
-  // "gallery/io-flowchart.typ",
-  "gallery/states.typ",
-  "gallery/digraph.typ",
-  "gallery/feynman-diagram.typ",
-  "gallery/pushout.typ",
-  "gallery/iso-square.typ",
-  "gallery/category-theory.typ",
-  "gallery/node-groups.typ",
-  "gallery/uml-diagram.typ",
-  "gallery/tree.typ",
-  "gallery/dot-tree.typ",
-  "gallery/algebra-cube.typ",
-)
-
-#for gal in gals [
+#for gal in common.gallery-files [
   #document(gal.replace(".typ", ".html"))[
     #let src = read(gal).replace("\t", "  ").replace("../../src/exports.typ", "@preview/fletcher:" + common.VERSION)
+    #link(<gallery>, `// from fletcher's example gallery`)
     #html.frame(include gal)
     #raw(src, lang: "typ")
   ] #label(gal)
 ]
 
-#document("gallery.html", template[
+#document("gallery/index.html", template[
   = Example Gallery
 
   Here you can find example diagrams made with `fletcher`.
@@ -195,7 +177,7 @@
 
   #show: html.div.with(class: "frame-row")
 
-  #for gal in gals [
+  #for gal in common.gallery-files [
     #html.div(class: "gallery-example", {
       link(label(gal), html.frame(pad(1em, include gal)))
     })
