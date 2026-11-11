@@ -49,7 +49,7 @@
 
 
 /// Add the mandatory mark parameters to a mark dictionary.
-/// 
+///
 /// See `fletcher.marks.MARK_REQUIRED_DEFAULTS`.
 #let add-mark-defaults(mark, defaults: (:)) = {
 	if mark == none { return none }
@@ -73,7 +73,7 @@
 /// ensuring `pos` and `rev` mark parameters are present. The default mark
 /// positions depends on the position of each mark and the number of marks;
 /// the first mark in the array is reversed by default.
-/// 
+///
 /// For example, `("<", (inherit: "solid"))` is transformed into
 /// `((inherit: "head", pos: 0, rev: true, ..), (inherit: "solid", pos: 1, rev: false, ..))`
 #let interpret-marks(marks) = {
@@ -106,7 +106,7 @@
 			mark.at(key) = value(mark)
 		}
 		if key == "size" {
-			// apply scale 
+			// apply scale
 			mark.size *= mark.remove("scale") // remove to prevent mistakenly applying twice
 		}
 	}
@@ -151,7 +151,7 @@
 	anchor: auto,
 	as-tip: auto,
 	/// Debug annotations to draw.
-	/// 
+	///
 	/// If the `mark.dots` debug option is on, the mark is annotated with colored dots indicating its centers:
 	/// #let dot(fill, stroke) = box(height: .5em, align(horizon, line(length: 1.5em, stroke: .6em) +place(center + horizon, circle(radius: .3em, fill: fill, stroke: stroke + .2em))))
 	/// - #dot(red, white) (red dot): the mark's origin point, or where the tip is pointing
@@ -371,9 +371,9 @@
 }
 
 /// Visualise the anatomy of a fletcher mark.
-/// 
+///
 /// This is useful for debugging mark objects.
-/// 
+///
 /// ```example
 /// #fletcher.marks.test(">", bend: 45deg)
 /// ```
@@ -395,7 +395,7 @@
 		"path": 1,
 	))
 
-		
+
 	cetz.canvas(length: t, {
 		import cetz.draw
 
@@ -406,7 +406,7 @@
 			let (bounds,) = cetz.process.many(ctx, mark-obj)
 			let (low, high) = bounds
 			let (w, h, ..) = cetz.vector.sub(high, low)
-			
+
 			let y = calc.max(4, h/2) + 2
 			let length = if length == auto { w + 20 } else { length/t }
 
@@ -497,7 +497,7 @@
 
 				if m.hang != none { ruler(m.hang, (0,-4), `hang`, green) }
 				ruler(m.end, (0,y), `end`, blue)
-				
+
 				draw.circle((0,0), radius: t/4, fill: gray, stroke: none)
 				ruler(0, (0,-2), `zero`, gray) // coordinate origin
 
@@ -528,6 +528,6 @@
 				angle: -bend,
 			))
 
-		})		
+		})
 	})
 }

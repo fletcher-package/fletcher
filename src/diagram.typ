@@ -115,6 +115,6 @@
 		axes: axes,
 		..named,
 	))
-	
+
 	box(canvas, fill: none, stroke: none)
 }
