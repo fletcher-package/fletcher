@@ -56,7 +56,7 @@ The built-in line styles are:
 
 It is possible to rename, redefine, and define your own marks, but the built-in marks are:
 
-#context frame-row(..fletcher.marks.MARKS.get().keys().sorted(key: it => upper(it) != it).map(m => {
+#context frame-row(..fletcher.marks.DEFAULT_MARKS.keys().sorted(key: it => upper(it) != it).map(m => {
   diagram(edge((0mm,0), (20mm,0), stroke: 1pt, marks: (m, m), label: raw(m, lang: none), label-sep: 1em))
 }))
 
@@ -84,9 +84,30 @@ Some marks adapt to the edge's @edge-extrude[extrusion], including `">"`, `"harp
 )
 ```)
 
-#import "/src/parsing.typ": LINE_ALIASES
 
+== Changing the default marks
 
+All built-in marks are defined in the `fletcher.marks.DEFAULT_MARKS` dictionary.
+Some mark names are simply defined as aliases, for example:
+#example(```typ
+#fletcher.marks.DEFAULT_MARKS.at(">")
+```)
+You can change these aliases, or define your own marks, by adding to this dictionary using `cetz.draw.set-style`.
+For example, below `">"` and `"<"` are redefined to be `"cone"` mark in forward and reversed directions, respectively.
+#example(```typ
+#let styles = cetz.draw.set-style(fletcher-marks: (
+  ">": (inherit: "cone", rev: false),
+  "<": (inherit: "cone", rev: true),
+))
+#diagram(
+  styles,
+  edge("->", stroke: 1pt, bend: 30deg),
+)
+#cetz.canvas({
+  styles
+  edge((0,0), "<->", (1,1), stroke: 1pt)
+})
+```)
 
 == Adjusting marks
 
