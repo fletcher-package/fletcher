@@ -52,11 +52,6 @@
 ///
 /// See `fletcher.marks.MARK_REQUIRED_DEFAULTS`.
 #let add-mark-defaults(mark, defaults: (:)) = {
-	if mark == none { return none }
-
-	if type(mark) == str { mark = (inherit: mark) }
-
-	mark = apply-mark-inheritances(mark)
 
 	// be careful to preserve the insertion order of mark
 	// as this defines the evaluation order of mark parameters
@@ -79,10 +74,13 @@
 #let interpret-marks(marks) = {
 	marks.enumerate()
 		.map(((i, mark)) => {
-			add-mark-defaults(mark, defaults: (
+		  // don't fully resolve the mark yet - that requires context so it is done later
+			if mark == none { return }
+		  if type(mark) == str { mark = (inherit: mark) }
+			(
 				pos: i/calc.max(1, marks.len() - 1),
 				rev: i == 0,
-			))
+			) + mark
 		})
 		.filter(mark => mark != none) // drop empty marks
 		.map(mark => {
@@ -96,9 +94,10 @@
 /// Resolve all the parameters of a mark dictionary, evaluating any closures
 /// in insertion order. This also applies mark scale by premultiplying the `size`
 /// parameter.
-#let resolve-mark(mark) = {
-	mark = add-mark-defaults(mark)
-
+#let resolve-mark(mark, defaults: (:)) = {
+  if type(mark) == str { mark = (inherit: mark) }
+  mark = apply-mark-inheritances(mark)
+	mark = add-mark-defaults(mark, defaults: defaults)
 
 	for (key, value) in mark {
     if key == "cap-offset" { continue }
@@ -357,19 +356,6 @@
 
 }
 
-#let with-marks(obj, marks, shrink: true) = {
-  let (marks, options) = parsing.parse-mark-shorthand(marks)
-  let extrude = options.at("extrude", default: (0,))
-  cetz.draw.get-ctx(ctx => {
-		let marks = interpret-marks(marks)
-		if shrink {
-			draw-with-marks-and-extrusion(ctx, obj, marks, extrude: extrude)
-		} else {
-			draw-with-marks(ctx, obj, marks)
-		}
-  })
-}
-
 /// Visualise the anatomy of a fletcher mark.
 ///
 /// This is useful for debugging mark objects.
@@ -384,7 +370,7 @@
 	bend: 0deg,
 	debug: 3,
 ) = {
-	mark = resolve-mark(add-mark-defaults(mark, defaults: (pos: 1, rev: false)))
+	mark = resolve-mark(mark, defaults: (pos: 1, rev: false))
 
 	let t = utils.get-thickness(stroke)
 
