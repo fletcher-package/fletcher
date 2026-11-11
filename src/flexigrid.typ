@@ -1,6 +1,6 @@
 #import "utils.typ"
 #import "deps.typ": cetz
-#import "debug.typ": debug-level, debug-group, DEBUG_STYLES
+#import "debug.typ": DEBUG_STYLES, debug-group, debug-level
 
 
 /* Flexilines and flexigrids */
@@ -58,9 +58,9 @@
   let x = init
   for (i, size) in sizes.enumerate() {
     if i > 0 { x += spacing }
-    x += size/2
+    x += size / 2
     centers.push(x)
-    x += size/2
+    x += size / 2
   }
   let x-max = x
   if flip {
@@ -81,11 +81,11 @@
   let right-center = utils.interp(fl.centers, right-i, spacing: fl.spacing)
   let right-size = utils.interp(fl.sizes, right-i)
 
-  let x-left = left-center - left-size/2
-  let x-right = right-center + right-size/2
+  let x-left = left-center - left-size / 2
+  let x-right = right-center + right-size / 2
 
   (
-    center: (x-left + x-right)/2,
+    center: (x-left + x-right) / 2,
     size: x-right - x-left,
   )
 }
@@ -99,7 +99,7 @@
   u-max += 1
   let n-cells = u-max - u-min + 1
 
-  let sizes = (0.,)*n-cells
+  let sizes = (0.,) * n-cells
   let centers = centers-from-sizes(sizes, spacing, flip, init: -spacing)
   let fl = (
     centers: centers,
@@ -111,7 +111,7 @@
 
   let iteration = 0
   while iteration < max-iters {
-    let sizes = (0.,)*n-cells
+    let sizes = (0.,) * n-cells
 
     for rod in rods {
       let (lo, hi) = rod
@@ -121,14 +121,14 @@
       if flip { (i-left, i-right) = (i-right, i-left) }
 
       let cell = get-interpolated-flexiline-cell(fl, rod.lo, rod.hi)
-      let left-rod-edge = cell.center - rod.size/2
-      let right-rod-edge = cell.center + rod.size/2
+      let left-rod-edge = cell.center - rod.size / 2
+      let right-rod-edge = cell.center + rod.size / 2
 
       let left-cell-center = fl.centers.at(i-left)
       let right-cell-center = fl.centers.at(i-right)
 
-      let left-cell-width = 2*(left-cell-center - left-rod-edge)
-      let right-cell-width = 2*(right-rod-edge - right-cell-center)
+      let left-cell-width = 2 * (left-cell-center - left-rod-edge)
+      let right-cell-width = 2 * (right-rod-edge - right-cell-center)
 
       sizes.at(i-left) = calc.max(sizes.at(i-left), left-cell-width)
       sizes.at(i-right) = calc.max(sizes.at(i-right), right-cell-width)
@@ -160,7 +160,7 @@
     (c-left, c-right) = (c-right, c-left)
     (s-left, s-right) = (s-right, s-left)
   }
-  (c-left - s-left/2, c-right + s-right/2)
+  (c-left - s-left / 2, c-right + s-right / 2)
 }
 
 /* nodes and flexigrids */
@@ -237,21 +237,20 @@
 
   if node.style.at("width", default: none) == "cell" {
     w = cw
-    node.bounds.low.at(0) = -cw/2
-    node.bounds.high.at(0) = +cw/2
+    node.bounds.low.at(0) = -cw / 2
+    node.bounds.high.at(0) = +cw / 2
   }
   if node.style.at("height", default: none) == "cell" {
     h = ch
-    node.bounds.low.at(1) = -ch/2
-    node.bounds.high.at(1) = +ch/2
-
+    node.bounds.low.at(1) = -ch / 2
+    node.bounds.high.at(1) = +ch / 2
   }
 
   let (x-shift, y-shift) = (0, 0)
-  if node.align.x == left   { x-shift = -cw/2 + w/2 }
-  if node.align.x == right  { x-shift = +cw/2 - w/2 }
-  if node.align.y == bottom { y-shift = -ch/2 + h/2 }
-  if node.align.y == top    { y-shift = +ch/2 - h/2 }
+  if node.align.x == left { x-shift = -cw / 2 + w / 2 }
+  if node.align.x == right { x-shift = +cw / 2 - w / 2 }
+  if node.align.y == bottom { y-shift = -ch / 2 + h / 2 }
+  if node.align.y == top { y-shift = +ch / 2 - h / 2 }
 
   node.pos = cetz.vector.add(cell.center, (x-shift, y-shift))
   return node
@@ -299,9 +298,9 @@
           let (x, y) = (grid.x.centers.at(i), grid.y.centers.at(j))
           let (w, h) = (grid.x.sizes.at(i), grid.y.sizes.at(j))
           cetz.draw.rect(
-            (rel: (+t/2, +t/2), to: (x - w/2, y - h/2)),
-            (rel: (-t/2, -t/2), to: (x + w/2, y + h/2)),
-            ..DEBUG_STYLES.grid.cells
+            (rel: (+t / 2, +t / 2), to: (x - w / 2, y - h / 2)),
+            (rel: (-t / 2, -t / 2), to: (x + w / 2, y + h / 2)),
+            ..DEBUG_STYLES.grid.cells,
           )
         }
       }
@@ -328,7 +327,10 @@
         }
         if draw-sizes {
           let w = grid.x.sizes.at(i)
-          cetz.draw.rect((x - w/2, y-min), (to: (x + w/2, y-min), rel: (0, -DEBUG_STYLES.grid.size.stroke.thickness)))
+          cetz.draw.rect((x - w / 2, y-min), (
+            to: (x + w / 2, y-min),
+            rel: (0, -DEBUG_STYLES.grid.size.stroke.thickness),
+          ))
         }
         if draw-lines {
           cetz.draw.line((x, y-min), (x, y-max))
@@ -340,14 +342,16 @@
         }
         if draw-sizes {
           let h = grid.y.sizes.at(i)
-          cetz.draw.rect((x-min, y - h/2), (to: (x-min, y + h/2), rel: (-DEBUG_STYLES.grid.size.stroke.thickness, 0)))
+          cetz.draw.rect((x-min, y - h / 2), (
+            to: (x-min, y + h / 2),
+            rel: (-DEBUG_STYLES.grid.size.stroke.thickness, 0),
+          ))
         }
         if draw-lines {
           cetz.draw.line((x-min, y), (x-max, y))
         }
       }
     })
-
   })
 }
 
@@ -358,7 +362,11 @@
   let tickstyle(x) = text(0.8em, gray, raw(str(x), lang: none))
   debug-group({
     cetz.draw.set-style(content: (padding: 0.25em))
-    cetz.draw.grid((x-floor, y-floor), (x-max, y-max), help-lines: true)
+    cetz.draw.grid(
+      (x-floor, y-floor),
+      (x-max, y-max),
+      help-lines: true,
+    )
     for x in range(x-floor, calc.floor(x-max) + 1) {
       cetz.draw.content((x, y-floor), tickstyle(x), anchor: "north")
     }
@@ -454,17 +462,17 @@
 #let interpret-axes(
   /// Pair of directions specifying the interpretation of $(u, v)$ coordinates.
   /// For example, `(ltr, ttb)` means $u$ goes $arrow.r$ and $v$ goes $arrow.b$.
-  axes
+  axes,
 ) = {
-	let dirs = axes.map(direction.axis)
-	let flip
-	if dirs == ("horizontal", "vertical") {
-		flip = false
-	} else if dirs == ("vertical", "horizontal") {
-		flip = true
-	} else {
-		error("Axes #0 cannot both be in the same direction. Try `axes: (ltr, ttb)`.", axes)
-	}
+  let dirs = axes.map(direction.axis)
+  let flip
+  if dirs == ("horizontal", "vertical") {
+    flip = false
+  } else if dirs == ("vertical", "horizontal") {
+    flip = true
+  } else {
+    error("Axes #0 cannot both be in the same direction. Try `axes: (ltr, ttb)`.", axes)
+  }
   let (u, v) = (rtl in axes, ttb in axes)
   return (u: u, v: v, order: flip)
 }
@@ -571,11 +579,8 @@
   spacing = utils.as-pair(spacing)
   let axis-flips = interpret-axes(axes)
 
-
   cetz.draw.get-ctx(ctx => {
-
     let spacing = spacing.map(g => cetz.util.resolve-number(ctx, g))
-
 
     /* Layout pass */
     // During the layout pass, all fletcher nodes are extracted and measured
@@ -596,7 +601,6 @@
     let uv-nodes = nodes.filter(node => node.uv-pos != none)
     let (fg, iters) = resolve-flexigrid(uv-nodes, spacing, axis-flips, max-iters: max-layout-iterations)
 
-
     /* Node placement pass */
     // After the flexigrid is determined, process all nodes and place them in
     // flexigrid cells. This might involve resolving coordinates with anchors,
@@ -613,23 +617,23 @@
     let placement-pass = process-only-ctx(placement-ctx, objects)
     let nodes = placement-pass.shared-state.fletcher.nodes
 
-
-
     /* Final pass */
     // In this pass, everything is drawn and $u v$ coordinates are resolved with
     // respect to the now-determined flexigrid.
 
     // extra context used by objects
-    (ctx => {
-      ctx = with-coord-resolver(ctx, flexigrid-coord-resolver.with(fg))
-      ctx.shared-state.fletcher = (
-        pass: "final",
-        nodes: nodes, // must contain FINAL node coords
-        current-node: 0,
-        debug: debug,
-      )
-      return (ctx: ctx)
-    },)
+    (
+      ctx => {
+        ctx = with-coord-resolver(ctx, flexigrid-coord-resolver.with(fg))
+        ctx.shared-state.fletcher = (
+          pass: "final",
+          nodes: nodes, // must contain FINAL node coords
+          current-node: 0,
+          debug: debug,
+        )
+        return (ctx: ctx)
+      },
+    )
 
     objects
 
@@ -639,9 +643,11 @@
     }
 
     // remove flexigrid context
-    (ctx => {
-      ctx.shared-state.remove("fletcher")
-      return (ctx: ctx)
-    },)
+    (
+      ctx => {
+        ctx.shared-state.remove("fletcher")
+        return (ctx: ctx)
+      },
+    )
   })
 }

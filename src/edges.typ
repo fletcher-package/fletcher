@@ -83,11 +83,8 @@
     let is-curving = cetz.vector.len(info.accel) > 1e-5
     if is-curving {
       // ...if the edge is curved, label is on the outer side
-      label.side = 0 < (
-        info.accel.at(0) * info.vel.at(1) -
-        info.accel.at(1) * info.vel.at(0)
-       )
-      // formula comes from sign of z-coord of cross product
+      let cross = info.accel.at(0) * info.vel.at(1) - info.accel.at(1) * info.vel.at(0)
+      label.side = 0 < cross
     } else {
       // ...if edge is straight, label is generally north of it
       label.side = top
@@ -294,7 +291,6 @@
     drawables = new-obj(ctx).drawables
   }
 
-
   if crossing-stroke != none {
     let crossing = element.drawables.map(path => {
       path.stroke = utils.stroke-to-dict(crossing-stroke)
@@ -314,7 +310,6 @@
 
 
 #let find-snapping-drawables(ctx, nodes, edge) = {
-
   // TODO: memoise this and store in node itself??
   let node-drawables(node, outset) = {
     if outset == auto { outset = node.style.outset }
@@ -421,7 +416,7 @@
   // CETZ 0.5.3: removed element
   let element = (
     name: edge.name,
-    drawables: drawables
+    drawables: drawables,
   )
 
   if drawables.len() != 1 { utils.error("edge.draw should return a single drawable") }
@@ -531,10 +526,10 @@
   )
 
   // resolve lengths to numbers
-  data.style.outset = utils.as-pair(data.style.outset)
+  data.style.outset = utils
+    .as-pair(data.style.outset)
     .map(x => {
-      if x == auto { x }
-      else { cetz.util.resolve-number(ctx, x) }
+      if x == auto { x } else { cetz.util.resolve-number(ctx, x) }
     })
 
   // resolve extrude to multiples of edge thickness
@@ -547,7 +542,6 @@
       to-float: data.style.stroke.thickness.to-absolute(),
     ))
     .sorted()
-
 
   // resolve marks
   let all-mark-styles = {
@@ -587,7 +581,6 @@
     )
   }
 
-
   // resolve edge shape args
   let spec = EDGE_KINDS.at(data.shape.kind, default: (:))
   if "validate-args" in spec {
@@ -607,7 +600,6 @@
   crossing: false,
   debug: auto,
 ) = {
-
   let data = (
     class: "edge",
     vertices: vertices,
@@ -729,7 +721,6 @@
       named-arg-suggestion = (kind: kind, args: spec.required)
     }
   }
-
 
   if kind != auto {
     let spec = EDGE_KINDS.at(kind)
@@ -1321,7 +1312,7 @@
     decorate: decorate,
     shape: (
       kind: auto, // edge kind
-      args: (:),  // non-vertex arguments specific to edge kind
+      args: (:), // non-vertex arguments specific to edge kind
       draw: none, // accepts (args, vertices) and returns a path
     ),
   )

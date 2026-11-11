@@ -71,18 +71,21 @@
 
   /// Get cubic bezier function coefficients
   let _cubic-coeff(a, b, c, d) = (
-    -a + 3*b - 3*c + d,
-    3*a - 6*b + 3*c,
-    -3*a +3*b,
-    a)
+    -a + 3 * b - 3 * c + d,
+    3 * a - 6 * b + 3 * c,
+    -3 * a + 3 * b,
+    a,
+  )
 
   let x-coeff = _cubic-coeff(s.at(0), c1.at(0), c2.at(0), e.at(0))
   let y-coeff = _cubic-coeff(s.at(1), c1.at(1), c2.at(1), e.at(1))
 
-  let roots = _cubic-roots(a * x-coeff.at(0) + b * y-coeff.at(0),
-                           a * x-coeff.at(1) + b * y-coeff.at(1),
-                           a * x-coeff.at(2) + b * y-coeff.at(2),
-                           a * x-coeff.at(3) + b * y-coeff.at(3) + c)
+  let roots = _cubic-roots(
+    a * x-coeff.at(0) + b * y-coeff.at(0),
+    a * x-coeff.at(1) + b * y-coeff.at(1),
+    a * x-coeff.at(2) + b * y-coeff.at(2),
+    a * x-coeff.at(3) + b * y-coeff.at(3) + c,
+  )
 
   let pts = ()
   for t in roots {
@@ -121,8 +124,7 @@
         }
       } else if kind == "c" {
         let (c1, c2, e) = args
-        pts += line-cubic(la, lb, origin, e, c1, c2)
-          .map(((pt, t)) => (pt, (subpath-i, segment-i, t)))
+        pts += line-cubic(la, lb, origin, e, c1, c2).map(((pt, t)) => (pt, (subpath-i, segment-i, t)))
       }
 
       origin = args.last()
@@ -146,9 +148,9 @@
 #let path-path(a, b, samples: 8) = {
   let pts = ()
 
-  for ((start, closed, segments)) in a.at("segments", default: ()) {
+  for (start, closed, segments) in a.at("segments", default: ()) {
     let origin = start
-    for ((kind, ..args)) in segments {
+    for (kind, ..args) in segments {
       if kind == "l" {
         pts += line-path(origin, args.last(), b)
       } else if kind == "c" {

@@ -3,50 +3,48 @@
 #import "default-marks.typ": *
 #import "parsing.typ"
 #import "paths.typ"
-#import "debug.typ": get-debug, debug-level
+#import "debug.typ": debug-level, get-debug
 
 #let MARK_REQUIRED_DEFAULTS = (
-	rev: false,
-	flip: false,
-	scale: 1,
-	extrude: (0,),
-	edge-extrude: (0,),
-	tip-end: 0,
-	tail-end: 0,
-	tip-hang: none,
-	tail-hang: none,
-	tip-origin: 0,
-	tail-origin: 0,
+  rev: false,
+  flip: false,
+  scale: 1,
+  extrude: (0,),
+  edge-extrude: (0,),
+  tip-end: 0,
+  tail-end: 0,
+  tip-hang: none,
+  tail-hang: none,
+  tip-origin: 0,
+  tail-origin: 0,
 )
 
 
 #let apply-mark-inheritances(mark, all-mark-styles) = {
-	while "inherit" in mark {
-		if mark.inherit.ends-with("'") {
-			mark.flip = not mark.at("flip", default: false)
-			mark.inherit = mark.inherit.slice(0, -1)
-		}
+  while "inherit" in mark {
+    if mark.inherit.ends-with("'") {
+      mark.flip = not mark.at("flip", default: false)
+      mark.inherit = mark.inherit.slice(0, -1)
+    }
 
-		if mark.inherit not in all-mark-styles {
-			let similar = all-mark-styles.keys().filter(m => m.starts-with(mark.inherit) or mark.inherit.starts-with(m))
-			if similar.len() > 0 {
-				utils.error("Unknown mark #0. Try #..1", repr(mark.inherit), similar)
+    if mark.inherit not in all-mark-styles {
+      let similar = all-mark-styles.keys().filter(m => m.starts-with(mark.inherit) or mark.inherit.starts-with(m))
+      if similar.len() > 0 {
+        utils.error("Unknown mark #0. Try #..1", repr(mark.inherit), similar)
+      }
+      utils.error("Unknown mark #0", repr(mark.inherit))
+    }
 
-			}
-			utils.error("Unknown mark #0", repr(mark.inherit))
-		}
+    let parent = all-mark-styles.at(mark.inherit)
 
-		let parent = all-mark-styles.at(mark.inherit)
+    // properties occurring before `inherit` should be inserted before parent's properties
+    // and properties occurring after should update parent's properties
+    let (pre-inherit, post-inherit) = mark.keys().split("inherit").map(keys => keys.map(k => (k, mark.at(k))).to-dict())
 
-		// properties occurring before `inherit` should be inserted before parent's properties
-		// and properties occurring after should update parent's properties
-		let (pre-inherit, post-inherit) = mark.keys().split("inherit")
-			.map(keys => keys.map(k => (k, mark.at(k))).to-dict())
+    mark = pre-inherit + parent + post-inherit
+  }
 
-		mark = pre-inherit + parent + post-inherit
-	}
-
-	return mark
+  return mark
 }
 
 
@@ -54,16 +52,15 @@
 ///
 /// See `fletcher.marks.MARK_REQUIRED_DEFAULTS`.
 #let add-mark-defaults(mark, defaults: (:)) = {
+  // be careful to preserve the insertion order of mark
+  // as this defines the evaluation order of mark parameters
+  for (k, v) in MARK_REQUIRED_DEFAULTS + defaults {
+    if k not in mark {
+      mark.insert(k, v)
+    }
+  }
 
-	// be careful to preserve the insertion order of mark
-	// as this defines the evaluation order of mark parameters
-	for (k, v) in MARK_REQUIRED_DEFAULTS + defaults {
-		if k not in mark {
-			mark.insert(k, v)
-		}
-	}
-
-	return mark
+  return mark
 }
 
 /// Expand an array of mark specifiers into an array of mark dictionaries,
@@ -74,22 +71,24 @@
 /// For example, `("<", (inherit: "solid"))` is transformed into
 /// `((inherit: "head", pos: 0, rev: true, ..), (inherit: "solid", pos: 1, rev: false, ..))`
 #let interpret-marks(marks) = {
-	marks.enumerate()
-		.map(((i, mark)) => {
-		  // don't fully resolve the mark yet - that requires context so it is done later
-			if mark == none { return }
-		  if type(mark) == str { mark = (inherit: mark) }
-			(
-				pos: i/calc.max(1, marks.len() - 1),
-				rev: i == 0,
-			) + mark
-		})
-		.filter(mark => mark != none) // drop empty marks
-		.map(mark => {
-			mark.tip = (mark.pos == 0) == mark.rev
-			if (mark.pos not in (0, 1)) { mark.tip = none }
-			mark
-		})
+  marks
+    .enumerate()
+    .map(((i, mark)) => {
+      // don't fully resolve the mark yet - that requires context so it is done later
+      if mark == none { return }
+      if type(mark) == str { mark = (inherit: mark) }
+      (
+        pos: i / calc.max(1, marks.len() - 1),
+        rev: i == 0,
+      )
+      mark
+    })
+    .filter(mark => mark != none) // drop empty marks
+    .map(mark => {
+      mark.tip = (mark.pos == 0) == mark.rev
+      if (mark.pos not in (0, 1)) { mark.tip = none }
+      mark
+    })
 }
 
 
@@ -99,140 +98,143 @@
 #let resolve-mark(mark, all-mark-styles, defaults: (:)) = {
   if type(mark) == str { mark = (inherit: mark) }
   mark = apply-mark-inheritances(mark, all-mark-styles)
-	mark = add-mark-defaults(mark, defaults: defaults)
+  mark = add-mark-defaults(mark, defaults: defaults)
 
-	for (key, value) in mark {
+  for (key, value) in mark {
     if key == "cap-offset" { continue }
-		if type(value) == function {
-			mark.at(key) = value(mark)
-		}
-		if key == "size" {
-			// apply scale
-			mark.size *= mark.remove("scale") // remove to prevent mistakenly applying twice
-		}
-	}
+    if type(value) == function {
+      mark.at(key) = value(mark)
+    }
+    if key == "size" {
+      // apply scale
+      mark.size *= mark.remove("scale") // remove to prevent mistakenly applying twice
+    }
+  }
 
-	return mark
+  return mark
 }
 
 
 #let tip-or-tail-properties(mark, tip: auto) = {
-	if tip == auto {
-		tip = mark.at("pos", default: 1) != float(mark.rev)
-	}
-	if tip { (
-		is-tip: true,
-		origin: mark.tip-origin,
-		end: mark.tip-end,
-		hang: mark.tip-hang
-	) } else { (
-		is-tip: false,
-		origin: mark.tail-origin,
-		end: mark.tail-end,
-		hang: mark.tail-hang
-	) }
+  if tip == auto {
+    tip = mark.at("pos", default: 1) != float(mark.rev)
+  }
+  if tip {
+    (
+      is-tip: true,
+      origin: mark.tip-origin,
+      end: mark.tip-end,
+      hang: mark.tip-hang,
+    )
+  } else {
+    (
+      is-tip: false,
+      origin: mark.tail-origin,
+      end: mark.tail-end,
+      hang: mark.tail-hang,
+    )
+  }
 }
 
 /// Draw a mark at a given position and angle
 #let draw-mark(
-	/// Mark object to draw. Must contain a `draw` entry.
-	/// -> dictionary
-	mark,
-	/// Default stroke style for the mark. The stroke's paint is used as the default fill style. If the mark itself has `stroke` entry, this takes precedence.
-	/// -> stroke
-	stroke: 1pt,
-	/// Coordinate of the origin in the mark's frame, `(0,0)`.
-	/// -> point
-	origin: (0,0),
-	/// Angle of the mark, `0deg` being $->$, counterclockwise.
-	/// -> angle
-	angle: 0deg,
-	/// Which mark center to use as the origin. The coordinate frame origin is `zero`, and the others correspond to the mark's `tip-` and `tail-` properties, e.g., `tip-origin`, depending on whether the mark is acting as a tip (`pos: 1` and `rev: false` or `pos: 0` and `rev: true`) or a tail (`pos: 0` and `rev: false` or `pos: 1` and `rev: true`).
-	/// -> "zero" | "origin" | "end" | "hang"
-	anchor: auto,
-	as-tip: auto,
-	/// Debug annotations to draw.
-	///
-	/// If the `mark.dots` debug option is on, the mark is annotated with colored dots indicating its centers:
-	/// #let dot(fill, stroke) = box(height: .5em, align(horizon, line(length: 1.5em, stroke: .6em) +place(center + horizon, circle(radius: .3em, fill: fill, stroke: stroke + .2em))))
-	/// - #dot(red, white) (red dot): the mark's origin point, or where the tip is pointing
-	/// - #dot(white, blue) (blue dot): the end point for the paths's stroke
-	/// - #dot(green, white) (green dot): the hang point, which determines how much to rotate marks by for curved paths
-	debug: false,
+  /// Mark object to draw. Must contain a `draw` entry.
+  /// -> dictionary
+  mark,
+  /// Default stroke style for the mark. The stroke's paint is used as the default fill style. If the mark itself has `stroke` entry, this takes precedence.
+  /// -> stroke
+  stroke: 1pt,
+  /// Coordinate of the origin in the mark's frame, `(0,0)`.
+  /// -> point
+  origin: (0, 0),
+  /// Angle of the mark, `0deg` being $->$, counterclockwise.
+  /// -> angle
+  angle: 0deg,
+  /// Which mark center to use as the origin. The coordinate frame origin is `zero`, and the others correspond to the mark's `tip-` and `tail-` properties, e.g., `tip-origin`, depending on whether the mark is acting as a tip (`pos: 1` and `rev: false` or `pos: 0` and `rev: true`) or a tail (`pos: 0` and `rev: false` or `pos: 1` and `rev: true`).
+  /// -> "zero" | "origin" | "end" | "hang"
+  anchor: auto,
+  as-tip: auto,
+  /// Debug annotations to draw.
+  ///
+  /// If the `mark.dots` debug option is on, the mark is annotated with colored dots indicating its centers:
+  /// #let dot(fill, stroke) = box(height: .5em, align(horizon, line(length: 1.5em, stroke: .6em) +place(center + horizon, circle(radius: .3em, fill: fill, stroke: stroke + .2em))))
+  /// - #dot(red, white) (red dot): the mark's origin point, or where the tip is pointing
+  /// - #dot(white, blue) (blue dot): the end point for the paths's stroke
+  /// - #dot(green, white) (green dot): the hang point, which determines how much to rotate marks by for curved paths
+  debug: false,
 ) = {
-	stroke = std.stroke(stroke)
-	let thickness = utils.get-thickness(stroke)
+  stroke = std.stroke(stroke)
+  let thickness = utils.get-thickness(stroke)
 
-	let fill = mark.at("fill", default: auto)
-	if fill == auto { fill = stroke.paint }
-	if fill == auto { fill = black }
+  let fill = mark.at("fill", default: auto)
+  if fill == auto { fill = stroke.paint }
+  if fill == auto { fill = black }
 
-	let stroke = utils.stroke-to-dict(stroke)
-	stroke.dash = none
+  let stroke = utils.stroke-to-dict(stroke)
+  stroke.dash = none
 
-	if as-tip == auto {
-		as-tip = mark.at("pos", default: 1) != float(mark.rev)
-	}
+  if as-tip == auto {
+    as-tip = mark.at("pos", default: 1) != float(mark.rev)
+  }
 
-	if anchor == auto {
-		anchor = if as-tip { "origin" } else { "end" }
-	}
+  if anchor == auto {
+    anchor = if as-tip { "origin" } else { "end" }
+  }
 
-	if "stroke" in mark {
-		if mark.stroke == none { stroke = none }
-		else if mark.stroke == auto { }
-		else { stroke += utils.stroke-to-dict(mark.stroke) }
-	}
+  if "stroke" in mark {
+    if mark.stroke == none { stroke = none } else if mark.stroke == auto {} else {
+      stroke += utils.stroke-to-dict(mark.stroke)
+    }
+  }
 
-	if "draw" not in mark {
-		utils.error("Mark object must contain `draw` or `inherit`; resolved to #0.", mark)
-	}
+  if "draw" not in mark {
+    utils.error("Mark object must contain `draw` or `inherit`; resolved to #0.", mark)
+  }
 
   import cetz.draw
 
-	draw.get-ctx(ctx => {
-		let debug = get-debug(ctx, debug)
+  draw.get-ctx(ctx => {
+    let debug = get-debug(ctx, debug)
 
-		draw.group({
-			draw.set-style(
-				stroke: stroke,
-				fill: fill,
-			)
+    draw.group({
+      draw.set-style(
+        stroke: stroke,
+        fill: fill,
+      )
 
-			let m = tip-or-tail-properties(mark, tip: as-tip)
+      let m = tip-or-tail-properties(mark, tip: as-tip)
 
-			draw.translate(origin)
-			draw.scale(thickness.to-absolute()/ctx.length)
-			draw.rotate(angle)
+      draw.translate(origin)
+      draw.scale(thickness.to-absolute() / ctx.length)
+      draw.rotate(angle)
 
-			if mark.rev { draw.scale(x: -1) }
-			if mark.flip { draw.scale(y: -1) }
+      if mark.rev { draw.scale(x: -1) }
+      if mark.flip { draw.scale(y: -1) }
 
-			if anchor != "zero" {
-				draw.translate(x: -m.at(anchor))
-			}
+      if anchor != "zero" {
+        draw.translate(x: -m.at(anchor))
+      }
 
-			for e in mark.extrude {
-				draw.group({
-					draw.translate(x: e)
-					mark.draw
-				})
-			}
+      for e in mark.extrude {
+        draw.group({
+          draw.translate(x: e)
+          mark.draw
+        })
+      }
 
-			if debug-level(debug, "mark.dots") {
-				draw.on-layer(1, {
-					let dot(x, r, ..args) = draw.circle((x,0), radius: r, stroke: none, ..args)
+      if debug-level(debug, "mark.dots") {
+        draw.on-layer(1, {
+          let dot(x, r, ..args) = draw.circle((x, 0), radius: r, stroke: none, ..args)
 
-					dot(m.origin, 1/2, fill: white) // red origin bg
-					if m.hang != none { dot(m.hang, 1/2, fill: white) } // green hang bg
-					dot(m.end, 3/8, stroke: blue + thickness/4, fill: white) // blue end
-					dot(m.origin, 1/4, fill: red) // red origin fg
-					if m.hang != none { dot(m.hang, 1/4, fill: green) } // green hang fg
-				})
-			}
-		})
-	})
-
+          dot(m.origin, 1 / 2, fill: white) // red origin bg
+          if m.hang != none { dot(m.hang, 1 / 2, fill: white) } // green hang bg
+          dot(m.end, 3 / 8, stroke: blue + thickness / 4, fill: white) // blue end
+          dot(m.origin, 1 / 4, fill: red) // red origin fg
+          if m.hang != none { dot(m.hang, 1 / 4, fill: green) } // green hang fg
+        })
+      }
+    })
+  })
 }
 
 /// Place marks along a path (array of subpaths), returning a dictionary containing
@@ -241,121 +243,116 @@
 /// 	from either end to accommodate terminal marks.
 /// -> dictionary
 #let draw-marks-on-path(
-	ctx,
-	path,
-	marks,
-	stroke: auto,
-	extrude: (0,),
-	debug: false,
+  ctx,
+  path,
+  marks,
+  stroke: auto,
+  extrude: (0,),
+  debug: false,
 ) = {
-	let thickness = utils.get-thickness(stroke).to-absolute()/ctx.length
+  let thickness = utils.get-thickness(stroke).to-absolute() / ctx.length
 
-	let path-len = cetz.path-util.length(path)
+  let path-len = cetz.path-util.length(path)
 
-	let inv-transform = cetz.matrix.inverse(ctx.transform)
-	let inv-origin = cetz.util.apply-transform(inv-transform, (0.,0.,0.))
-	let sample-pt(t, reverse) = {
-		let info = cetz.path-util.point-at(path, t, reverse: reverse)
-		if info == none {
-			// don't crash if path has zero length
-			return (cetz.path-util.first-subpath-start(path), 0deg)
-		}
-		let pt = cetz.util.apply-transform(inv-transform, info.point)
-		let dir = cetz.vector.angle2(cetz.util.apply-transform(inv-transform, info.direction), inv-origin)
-		(pt, dir)
-	}
+  let inv-transform = cetz.matrix.inverse(ctx.transform)
+  let inv-origin = cetz.util.apply-transform(inv-transform, (0., 0., 0.))
+  let sample-pt(t, reverse) = {
+    let info = cetz.path-util.point-at(path, t, reverse: reverse)
+    if info == none {
+      // don't crash if path has zero length
+      return (cetz.path-util.first-subpath-start(path), 0deg)
+    }
+    let pt = cetz.util.apply-transform(inv-transform, info.point)
+    let dir = cetz.vector.angle2(cetz.util.apply-transform(inv-transform, info.direction), inv-origin)
+    (pt, dir)
+  }
 
-	let terminal-mark(mark, at-end) = {
-		if mark == none { return (none, 0) }
+  let terminal-mark(mark, at-end) = {
+    if mark == none { return (none, 0) }
 
-		let m = tip-or-tail-properties(mark)
+    let m = tip-or-tail-properties(mark)
 
-		// tip marks pivot around the path end (tip-origin)
-		// tail marks pivot around the stroke end (tail-end)
-		let pivot = if m.is-tip { 0 } else { m.end - m.origin }
+    // tip marks pivot around the path end (tip-origin)
+    // tail marks pivot around the stroke end (tail-end)
+    let pivot = if m.is-tip { 0 } else { m.end - m.origin }
 
-		// tip marks swing towards the stroke end (tip-end)
-		// tail marks swing towards the path end (tail-origin)
-		// both swing toward the hang point if specified (tip/tail-hang)
-		let swing = if m.hang == none {
-			if m.is-tip { m.end - m.origin } else { 0 }
-		} else { m.hang - m.origin }
+    // tip marks swing towards the stroke end (tip-end)
+    // tail marks swing towards the path end (tail-origin)
+    // both swing toward the hang point if specified (tip/tail-hang)
+    let swing = if m.hang == none {
+      if m.is-tip { m.end - m.origin } else { 0 }
+    } else { m.hang - m.origin }
 
-		swing *= if m.is-tip { -1 } else { +1 }
+    swing *= if m.is-tip { -1 } else { +1 }
 
-		let swing-pt = sample-pt(swing*thickness, at-end).first()
-		let (pivot-pt, dir) = sample-pt(pivot*thickness, at-end)
+    let swing-pt = sample-pt(swing * thickness, at-end).first()
+    let (pivot-pt, dir) = sample-pt(pivot * thickness, at-end)
 
-		let angle = (
-			if pivot == swing { dir }
-			else { cetz.vector.angle2(pivot-pt, swing-pt) }
-		)
+    let angle = (
+      if pivot == swing { dir } else { cetz.vector.angle2(pivot-pt, swing-pt) }
+    )
 
-		if swing <= pivot { angle += 180deg }
-		if at-end { angle += 180deg }
+    if swing <= pivot { angle += 180deg }
+    if at-end { angle += 180deg }
 
-		let drawn = draw-mark(
-			mark,
-			origin: pivot-pt,
-			angle: angle,
-			as-tip: m.is-tip,
-			stroke: stroke,
-			debug: debug
-		)
+    let drawn = draw-mark(
+      mark,
+      origin: pivot-pt,
+      angle: angle,
+      as-tip: m.is-tip,
+      stroke: stroke,
+      debug: debug,
+    )
 
-		let shorten-by = m.end - m.origin
-		if m.is-tip { shorten-by *= -1}
+    let shorten-by = m.end - m.origin
+    if m.is-tip { shorten-by *= -1 }
 
-		shorten-by = extrude.map(e => {
-			let end = if "cap-offset" in (mark) {
-				(mark.cap-offset)(mark, e) + m.end
-			} else {
-				m.end
-			}
-			let s = end - m.origin
-			if m.is-tip { s *= -1 }
-			return s
-		})
+    shorten-by = extrude.map(e => {
+      let end = if "cap-offset" in (mark) {
+        (mark.cap-offset)(mark, e) + m.end
+      } else {
+        m.end
+      }
+      let s = end - m.origin
+      if m.is-tip { s *= -1 }
+      return s
+    })
 
-		return (drawn, shorten-by)
-	}
+    return (drawn, shorten-by)
+  }
 
-	let (shorten-start, shorten-end) = (0, 0)
+  let (shorten-start, shorten-end) = (0, 0)
 
-	let marks-drawn = for mark in marks {
-		if mark.pos == 0 {
-			let (drawn, shorten) = terminal-mark(mark, false)
-			shorten-start = shorten
-			drawn
-		} else if mark.pos == 1 {
-			let (drawn, shorten) = terminal-mark(mark, true)
-			shorten-end = shorten
-			drawn
-		} else {
+  let marks-drawn = for mark in marks {
+    if mark.pos == 0 {
+      let (drawn, shorten) = terminal-mark(mark, false)
+      shorten-start = shorten
+      drawn
+    } else if mark.pos == 1 {
+      let (drawn, shorten) = terminal-mark(mark, true)
+      shorten-end = shorten
+      drawn
+    } else {
+      let tail-len = (mark.tail-end - mark.tail-origin) * thickness
+      let tip-len = (mark.tip-end - mark.tip-origin) * thickness
+      let (a, b) = if mark.rev {
+        (tip-len, tail-len)
+      } else {
+        (tail-len, tip-len)
+      }
+      let dist = utils.lerp(a, path-len - b, mark.pos)
 
-			let tail-len = (mark.tail-end - mark.tail-origin)*thickness
-			let tip-len = (mark.tip-end - mark.tip-origin)*thickness
-			let (a, b) = if mark.rev {
-				(tip-len, tail-len)
-			} else {
-				(tail-len, tip-len)
-			}
-			let dist = utils.lerp(a, path-len - b, mark.pos)
+      let (pt, dir) = sample-pt(dist, false)
+      dir += 180deg // not sure why this is needed
+      draw-mark(mark, origin: pt, angle: dir, stroke: stroke, debug: debug)
+    }
+  }
 
-
-			let (pt, dir) = sample-pt(dist, false)
-			dir += 180deg // not sure why this is needed
-			draw-mark(mark, origin: pt, angle: dir, stroke: stroke, debug: debug)
-		}
-	}
-
-	return (
-		marks: marks-drawn,
-		shorten-start: shorten-start,
-		shorten-end: shorten-end,
-	)
-
-
+  return (
+    marks: marks-drawn,
+    shorten-start: shorten-start,
+    shorten-end: shorten-end,
+  )
 }
 
 /// Visualise the anatomy of a fletcher mark.
@@ -366,156 +363,153 @@
 /// #fletcher.marks.test(">", bend: 45deg)
 /// ```
 #let test(
-	mark,
-	stroke: 4pt,
-	length: auto,
-	bend: 0deg,
-	debug: 3,
+  mark,
+  stroke: 4pt,
+  length: auto,
+  bend: 0deg,
+  debug: 3,
 ) = {
-	mark = resolve-mark(mark, DEFAULT_MARKS, defaults: (pos: 1, rev: false))
+  mark = resolve-mark(mark, DEFAULT_MARKS, defaults: (pos: 1, rev: false))
 
-	let t = utils.get-thickness(stroke)
+  let t = utils.get-thickness(stroke)
 
-	let debug-level = debug-level.with(levels: (
-		"dots": 1,
-		"lines": 2,
-		"labels": 3,
-		"path": 1,
-	))
+  let debug-level = debug-level.with(levels: (
+    "dots": 1,
+    "lines": 2,
+    "labels": 3,
+    "path": 1,
+  ))
 
+  cetz.canvas(length: t, {
+    import cetz.draw
 
-	cetz.canvas(length: t, {
-		import cetz.draw
+    let mark-obj = draw-mark(mark, stroke: stroke)
 
-		let mark-obj = draw-mark(mark, stroke: stroke)
+    draw.get-ctx(ctx => {
+      // get size of mark
+      let (bounds,) = cetz.process.many(ctx, mark-obj)
+      let (low, high) = bounds
+      let (w, h, ..) = cetz.vector.sub(high, low)
 
-		draw.get-ctx(ctx => {
-			// get size of mark
-			let (bounds,) = cetz.process.many(ctx, mark-obj)
-			let (low, high) = bounds
-			let (w, h, ..) = cetz.vector.sub(high, low)
+      let y = calc.max(4, h / 2) + 2
+      let length = if length == auto { w + 20 } else { length / t }
 
-			let y = calc.max(4, h/2) + 2
-			let length = if length == auto { w + 20 } else { length/t }
+      // left side is tail, right side is tip
+      // if a mark is reversed, then just flip sides
+      if mark.rev { draw.scale(x: -1) }
 
-			// left side is tail, right side is tip
-			// if a mark is reversed, then just flip sides
-			if mark.rev { draw.scale(x: -1) }
+      // draw the edge stroke
+      draw.group({
+        let s1 = (thickness: t / 8, paint: blue.transparentize(50%), dash: "dashed")
+        let s2 = (thickness: t, paint: blue.transparentize(30%))
+        if bend == 0deg {
+          // straight line
+          if debug-level(debug, "path") {
+            draw.line((0, 0), (length, 0), stroke: s1)
+          }
+          draw.on-layer(1, draw.line(
+            (mark.tail-end - mark.tail-origin, 0),
+            (length + mark.tip-end - mark.tip-origin, 0),
+            stroke: s2,
+          ))
+        } else {
+          // bent arc
+          let r = length / 2 / calc.sin(bend)
+          if debug-level(debug, "path") {
+            draw.arc(
+              (0, 0),
+              start: 90deg + bend,
+              stop: 90deg - bend,
+              radius: r,
+              stroke: s1,
+            )
+          }
+          let tip-delta = (mark.tip-end - mark.tip-origin) / r * 1rad
+          let tail-delta = (mark.tail-end - mark.tail-origin) / r * 1rad
+          draw.on-layer(1, draw.arc(
+            (length / 2, -length / 2 / calc.tan(bend)),
+            anchor: "origin",
+            start: 90deg + bend - tail-delta,
+            stop: 90deg - bend - tip-delta,
+            radius: r,
+            stroke: s2,
+          ))
+        }
+      })
 
-			// draw the edge stroke
-			draw.group({
-				let s1 = (thickness: t/8, paint: blue.transparentize(50%), dash: "dashed")
-				let s2 = (thickness: t, paint: blue.transparentize(30%))
-				if bend == 0deg {
-					// straight line
-					if debug-level(debug, "path") {
-						draw.line((0,0), (length,0), stroke: s1)
-					}
-					draw.on-layer(1, draw.line(
-						(mark.tail-end - mark.tail-origin,0),
-						(length + mark.tip-end - mark.tip-origin,0),
-						stroke: s2,
-					))
-				} else {
-					// bent arc
-					let r = length/2/calc.sin(bend)
-					if debug-level(debug, "path") {
-						draw.arc(
-							(0,0),
-							start: 90deg + bend,
-							stop: 90deg - bend,
-							radius: r,
-							stroke: s1,
-						)
-					}
-					let tip-delta = (mark.tip-end - mark.tip-origin)/r*1rad
-					let tail-delta = (mark.tail-end - mark.tail-origin)/r*1rad
-					draw.on-layer(1, draw.arc(
-						(length/2,-length/2/calc.tan(bend)),
-						anchor: "origin",
-						start: 90deg + bend - tail-delta,
-						stop: 90deg - bend - tip-delta,
-						radius: r,
-						stroke: s2,
-					))
-				}
-			})
+      // draw tail and tip marks
 
-			// draw tail and tip marks
+      let ruler(x, (y-min, y-max), label, color) = {
+        if debug-level(debug, "lines") {
+          draw.line((x, y-min), (x, y-max), stroke: color + t / 6)
+        }
+        if debug-level(debug, "labels") {
+          let a = if y-max > 0 { "south" } else { "north" }
+          let body = text(color, size: 2 * t, label)
+          draw.content((x, y-max), body, anchor: a, padding: 0.25)
+        }
+      }
 
-			let ruler(x, (y-min, y-max), label, color) = {
-				if debug-level(debug, "lines") {
-					draw.line((x, y-min), (x, y-max), stroke: color + t/6)
-				}
-				if debug-level(debug, "labels") {
-					let a = if y-max > 0 { "south" } else { "north" }
-					let body = text(color, size: 2*t, label)
-					draw.content((x, y-max), body, anchor: a, padding: 0.25)
-				}
-			}
+      let draw-mark-with-annotations(label, m) = draw.group({
+        if bend == 0deg {
+          draw.translate(x: -m.origin)
+        } else {
+          draw.rotate(m.angle)
+          let radius = length / 2 / calc.sin(bend)
+          draw.translate(y: -radius)
+          draw.rotate(1rad * (m.origin - m.end) / radius)
+          draw.translate(y: +radius)
+          draw.translate(x: -m.end)
 
-			let draw-mark-with-annotations(label, m) = draw.group({
-				if bend == 0deg {
-					draw.translate(x: -m.origin)
-				} else {
-					draw.rotate(m.angle)
-					let radius = length/2/calc.sin(bend)
-					draw.translate(y: -radius)
-					draw.rotate(1rad*(m.origin - m.end)/radius)
-					draw.translate(y: +radius)
-					draw.translate(x: -m.end)
+          // apply mark hang/swing angle correction
+          if m.hang != none {
+            let swing = calc.asin((m.end - m.hang) / (2 * radius))
+            draw.rotate(swing, origin: (m.end, 0))
+          }
+        }
 
-					// apply mark hang/swing angle correction
-					if m.hang != none {
-						let swing = calc.asin((m.end - m.hang)/(2*radius))
-						draw.rotate(swing, origin: (m.end, 0))
-					}
-				}
+        ruler(m.origin, (+y, -y), `origin`, red)
 
-				ruler(m.origin, (+y,-y), `origin`, red)
+        draw-mark(
+          mark,
+          stroke: stroke,
+          angle: if mark.rev { 180deg } else { 0deg },
+          as-tip: label == "tip",
+          debug: if debug-level(debug, "dots") { "mark.dots" },
+          anchor: "zero",
+        )
 
-				draw-mark(
-					mark,
-					stroke: stroke,
-					angle: if mark.rev { 180deg } else { 0deg },
-					as-tip: label == "tip",
-					debug: if debug-level(debug, "dots") { "mark.dots" },
-					anchor: "zero",
-				)
+        if m.hang != none { ruler(m.hang, (0, -4), `hang`, green) }
+        ruler(m.end, (0, y), `end`, blue)
 
-				if m.hang != none { ruler(m.hang, (0,-4), `hang`, green) }
-				ruler(m.end, (0,y), `end`, blue)
+        draw.circle((0, 0), radius: t / 4, fill: gray, stroke: none)
+        ruler(0, (0, -2), `zero`, gray) // coordinate origin
+      })
 
-				draw.circle((0,0), radius: t/4, fill: gray, stroke: none)
-				ruler(0, (0,-2), `zero`, gray) // coordinate origin
+      if debug-level(debug, "labels") {
+        let a = if mark.rev { "west" } else { "east" }
+        draw.floating(draw.content((0, 0), text(2 * t, `tail`), anchor: a, padding: 1))
+      }
+      draw-mark-with-annotations("tail", (
+        origin: mark.tail-origin,
+        end: mark.tail-end,
+        hang: mark.tail-hang,
+        angle: +bend,
+      ))
 
-			})
+      draw.translate(x: length)
 
-			if debug-level(debug, "labels") {
-				let a = if mark.rev { "west" } else { "east" }
-				draw.floating(draw.content((0,0), text(2*t, `tail`), anchor: a, padding: 1))
-			}
-			draw-mark-with-annotations("tail", (
-				origin: mark.tail-origin,
-				end: mark.tail-end,
-				hang: mark.tail-hang,
-				angle: +bend,
-			))
+      if debug-level(debug, "labels") {
+        let a = if mark.rev { "east" } else { "west" }
+        draw.floating(draw.content((0, 0), text(2 * t, `tip`), anchor: a, padding: 1))
+      }
 
-			draw.translate(x: length)
-
-			if debug-level(debug, "labels") {
-				let a = if mark.rev { "east" } else { "west" }
-				draw.floating(draw.content((0,0), text(2*t, `tip`), anchor: a, padding: 1))
-			}
-
-			draw-mark-with-annotations("tip", (
-				origin: mark.tip-origin,
-				end: mark.tip-end,
-				hang: mark.tip-hang,
-				angle: -bend,
-			))
-
-		})
-	})
+      draw-mark-with-annotations("tip", (
+        origin: mark.tip-origin,
+        end: mark.tip-end,
+        hang: mark.tip-hang,
+        angle: -bend,
+      ))
+    })
+  })
 }

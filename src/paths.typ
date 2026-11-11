@@ -57,11 +57,11 @@
   vector.add(
     vector.scale(
       vector.add(c2, vector.add(vector.scale(c1, -2), a)),
-      6*(1 - t)
+      6 * (1 - t),
     ),
     vector.scale(
       vector.add(b, vector.add(vector.scale(c2, -2), c1)),
-      6 * t
+      6 * t,
     ),
   )
 }
@@ -156,8 +156,7 @@
   }
 
   let prev-point = (
-    if segment-index > 0 { segments.at(segment-index - 1).last() }
-    else { start }
+    if segment-index > 0 { segments.at(segment-index - 1).last() } else { start }
   )
 
   let (kind, ..pts) = segments.at(segment-index)
@@ -167,7 +166,6 @@
     let x-vel = vector.sub(pts.last(), prev-point)
     let x-accel = (0.0, 0.0, 0.0)
     return (x, x-vel, x-accel)
-
   } else if kind == "c" {
     let (c1, c2, end-pt) = pts
     let x = bezier.cubic-point(prev-point, end-pt, c1, c2, segment-t)
@@ -261,11 +259,10 @@
   }
 
   let target-length = (
-    if type(length) in (int, float) { length }
-    else if type(length) == ratio { total-length*float(length) }
-    else if type(length) == std.length { length.to-absolute()/ctx.length }
-    else if type(length) == relative {
-      total-length*float(length.ratio) + length.length.to-absolute()/ctx.length
+    if type(length) in (int, float) { length } else if type(length) == ratio {
+      total-length * float(length)
+    } else if type(length) == std.length { length.to-absolute() / ctx.length } else if type(length) == relative {
+      total-length * float(length.ratio) + length.length.to-absolute() / ctx.length
     } else { utils.error("invalid path position: #0", length) }
   )
   target-length = calc.clamp(target-length, 0, calc.max(0, total-length - 1e-15))
@@ -276,7 +273,7 @@
   for (subpath-index, subpath) in path.enumerate() {
     for (segment-index, length) in lengths.at(subpath-index).enumerate() {
       if acc-length + length >= target-length {
-        let segment-t = (target-length - acc-length)/length
+        let segment-t = (target-length - acc-length) / length
         return point-on-subpath-segment(subpath, segment-index, segment-t)
       }
       acc-length += length
@@ -316,8 +313,7 @@
     let this-segment = segments.at(segment-i)
 
     let prev-pt = {
-      if segment-i > 0 { segments.at(segment-i - 1).last() }
-      else { start }
+      if segment-i > 0 { segments.at(segment-i - 1).last() } else { start }
     }
 
     let sliced-segment
@@ -327,7 +323,6 @@
       let (_, pt) = this-segment
       let new-pt = cetz.vector.lerp(prev-pt, pt, t)
       sliced-segment = ("l", new-pt)
-
     } else if kind == "c" {
       let s = prev-pt
       let (_, c1, c2, e) = this-segment
@@ -346,13 +341,12 @@
     path.segments = (..prior-subpaths, sliced-subpath)
   }
 
-
   if from != none {
     let (subpath-i, segment-i, t) = from
 
     if to != none and to.slice(0, 2) == (subpath-i, segment-i) {
       // ensure [0, 1] maps onto original segment, even if segment got shortened
-      t = t/to.last()
+      t = t / to.last()
     }
 
     // CETZ NAMING: path.segments are actually subpaths
@@ -364,8 +358,7 @@
     let post-segments = segments.slice(segment-i + 1)
 
     let prev-pt = {
-      if segment-i > 0 { segments.at(segment-i - 1).last() }
-      else { start }
+      if segment-i > 0 { segments.at(segment-i - 1).last() } else { start }
     }
 
     let sliced-segment
@@ -389,14 +382,11 @@
       start = s
     }
 
-
-
     let sliced-subpath = (start, closed, (sliced-segment, ..post-segments))
 
     // CETZ NAMING: path.segments are actually subpaths
     path.segments = (sliced-subpath, ..post-subpaths)
   }
-
 
   path
 }
@@ -404,8 +394,9 @@
 
 #let intersections(path, targets) = {
   if type(targets) != array { targets = (targets,) }
-  (targets.map(target => intersection.path-path(target, path)).join() + ())
-    .sorted(key: ((pt, path-index)) => path-index)
+  (targets.map(target => intersection.path-path(target, path)).join() + ()).sorted(key: ((pt, path-index)) => {
+    path-index
+  })
 }
 
 /// Shorten a path drawable so it starts or ends at an intersection point
@@ -431,7 +422,6 @@
   /// -> int
   index: 0,
 ) = {
-
   let pts = intersections(path, targets)
   if pts.len() == 0 { return path }
 
@@ -463,17 +453,15 @@
   o-angle,
   offset,
 ) = {
-
   let interior-angle = 180deg + o-angle - i-angle
-  let sin = calc.sin(interior-angle/2)
+  let sin = calc.sin(interior-angle / 2)
 
   // give up if corner is too pointy
   if calc.abs(sin) < 0.01 { return vertex }
 
   // distance and angle between vertex and offset vertex
-  let hypot = -offset/sin
-  let angle = (i-angle + o-angle)/2 + 90deg
-
+  let hypot = -offset / sin
+  let angle = (i-angle + o-angle) / 2 + 90deg
 
   let offset = utils.polar(hypot, angle)
   return cetz.vector.add(vertex, offset)
@@ -512,7 +500,7 @@
     return (("l", vertex),)
   }
 
-  let d = radius/calc.tan(interior-angle/2)
+  let d = radius / calc.tan(interior-angle / 2)
 
   let (start, stop) = (i-angle + 90deg, o-angle + 90deg)
   if stop > start { start += 360deg }
@@ -558,25 +546,25 @@
   i-angle,
   o-angle,
   radius,
-  miter-limit: 4.0
+  miter-limit: 4.0,
 ) = {
   let interior-angle = utils.wrap-angle-180(i-angle + 180deg - o-angle)
 
-  let inv-miter-ratio = calc.abs(calc.sin(interior-angle/2))
-  let is-too-sharp = miter-limit == 0 or inv-miter-ratio < 1/miter-limit
+  let inv-miter-ratio = calc.abs(calc.sin(interior-angle / 2))
+  let is-too-sharp = miter-limit == 0 or inv-miter-ratio < 1 / miter-limit
   if not is-too-sharp or inv-miter-ratio < 1e-5 {
     // miter joint
     return (("l", vertex),)
   }
   // too sharp; apply bevel
 
-  let beta = 90deg - interior-angle/2
+  let beta = 90deg - interior-angle / 2
 
   let is-right-turn = utils.wrap-angle-180(o-angle - i-angle) > 0deg
   let s = if is-right-turn {
-    radius*(calc.tan(beta) - calc.tan(beta/2))
+    radius * (calc.tan(beta) - calc.tan(beta / 2))
   } else {
-    radius*(-calc.tan(beta) - 1/calc.tan(beta/2))
+    radius * (-calc.tan(beta) - 1 / calc.tan(beta / 2))
   }
 
   let P = vector.sub(vertex, utils.polar(s, i-angle))
@@ -596,7 +584,6 @@
   miter-limit: 4.0,
   dynamic-radius: true,
 ) = {
-
   let (start, close, segments) = simplify-subpath(subpath)
 
   if close {
@@ -642,19 +629,21 @@
     }
 
     let radius = (
-      if type(corner-radius) == array { corner-radius.at(i, default: 0) }
-      else if type(corner-radius) in (int, float) { corner-radius }
+      if type(corner-radius) == array { corner-radius.at(i, default: 0) } else if type(corner-radius) in (int, float) {
+        corner-radius
+      }
     )
 
     if dynamic-radius {
       // visual adjustment so that tighter bends have smaller radii
       let Δθ = utils.wrap-angle-180(o-angle - i-angle)
-      radius *= 1 - (calc.abs(Δθ) - 90deg)/90deg
+      radius *= 1 - (calc.abs(Δθ) - 90deg) / 90deg
     }
 
     let corner-segments(vertex, ..args) = {
       if join == "miter" {
-        miter-bevel-vertex(vertex, ..args, miter-limit: miter-limit) }
+        miter-bevel-vertex(vertex, ..args, miter-limit: miter-limit)
+      }
       if join == "round" { rounded-vertex(vertex, ..args) }
     }
 
@@ -690,14 +679,10 @@
         new-segments.push(("l", vertex))
       } else {
         let corner = corner-segments(vertex, i-angle, o-angle, r)
-        stops.push(new-segments.len() + (corner.len() + 1)/2)
+        stops.push(new-segments.len() + (corner.len() + 1) / 2)
         new-segments += corner
       }
-
-
-
     } else if segment.first() == "c" {
-
       let (_, c1, c2, end-pt) = segment
       let s = prev-pt
 
@@ -725,8 +710,7 @@
 
       // shorten curve end to make way for a corner effect
       let new-end-pt = if r != none {
-        corner-segments(vertex, i-angle, o-angle, r)
-          .first().last()
+        corner-segments(vertex, i-angle, o-angle, r).first().last()
       } else { vertex }
       let shift = vector.sub(new-end-pt, end-pt)
       let tangent = utils.polar(1, i-angle)
@@ -740,10 +724,12 @@
       // offset the resulting control points as if they were connected by line segments
       // this approximation seems to work very well
       let N = 3
-      let control-points = range(N).map(n => {
-        let (s, c1, c2, e) = clamp-cubic-bezier(s, c1, c2, end-pt, n/N, (n + 1)/N)
-        (c1, c2, e)
-      }).join()
+      let control-points = range(N)
+        .map(n => {
+          let (s, c1, c2, e) = clamp-cubic-bezier(s, c1, c2, end-pt, n / N, (n + 1) / N)
+          (c1, c2, e)
+        })
+        .join()
       let control-segments = control-points.map(pt => ("l", pt))
       let control-subpath = (s, false, control-segments)
       let (offset-subpath, _) = subpath-effect(control-subpath, offset: offset)
@@ -763,14 +749,13 @@
 
       // add corner effect at end of bezier segment
       let corner = corner-segments(vertex, i-angle, o-angle, r).slice(1)
-      stops.push(new-segments.len() + corner.len()/2)
+      stops.push(new-segments.len() + corner.len() / 2)
       new-segments += corner
 
       if shift-end > 0 {
         // add overhang line segment if necessary
         new-segments.push(("l", new-end-pt))
       }
-
     }
 
     prev-pt = segment.last()
@@ -783,7 +768,6 @@
     } else {
       new-segments = new-segments.slice(first-segment-length)
     }
-
   }
   return ((start, close, new-segments), stops)
 }
@@ -814,10 +798,10 @@
   let extrude = utils.one-or-array(extrude, types: (int, float))
 
   if type(shorten-start) != array {
-    shorten-start = (shorten-start,)*extrude.len()
+    shorten-start = (shorten-start,) * extrude.len()
   }
   if type(shorten-end) != array {
-    shorten-end = (shorten-end,)*extrude.len()
+    shorten-end = (shorten-end,) * extrude.len()
   }
 
   // for extruded strokes, `radius: 0` still results in round corners
@@ -835,7 +819,6 @@
     }
   )
 
-
   let anchor-path = none
   let anchor-stops = ()
 
@@ -851,8 +834,7 @@
   let thickness = utils.get-thickness(stroke).to-absolute()
 
   let resolve-thickness-multiples(x) = {
-    if type(x) in (int, float) { x*thickness/ctx.length }
-    else if type(x) == length { x.to-absolute()/ctx.length }
+    if type(x) in (int, float) { x * thickness / ctx.length } else if type(x) == length { x.to-absolute() / ctx.length }
   }
 
   let offsets = extrude.map(resolve-thickness-multiples)
@@ -894,9 +876,7 @@
     })
   }
 
-
   let anchors(it, return-info: false) = {
-
     let anchor = interpret-path-anchor(it)
 
     let sample-subpath(subpath) = {
@@ -916,21 +896,21 @@
     if new-drawables.len() == 1 {
       // path has just one stroke
       derivatives = sample-subpath(new-drawables.first().segments)
-
     } else if new-drawables.len() == 0 {
       // this happens for "invisible" line styles, or `extrude: ()`
       // just use path before effects were applied in this case
       derivatives = sample-subpath(drawable.segments)
-
     } else {
       // path has multi-stroke effect
       // so return the average from sampling each stroke
 
       let samples = new-drawables.map(d => sample-subpath(d.segments))
-      let average = array.zip(..samples).map(vects => {
-        // average of vectors
-        array.zip(..vects).map(c => c.sum()/vects.len())
-      })
+      let average = array
+        .zip(..samples)
+        .map(vects => {
+          // average of vectors
+          array.zip(..vects).map(c => c.sum() / vects.len())
+        })
       derivatives = average
       // also return the points sampled on each stroke
       // in case we want to choose between them (like for edge label placement)
@@ -1070,10 +1050,10 @@
   extrude = utils.one-or-array(extrude, types: (int, float, length))
 
   if type(shorten-start) != array {
-    shorten-start = (shorten-start,)*extrude.len()
+    shorten-start = (shorten-start,) * extrude.len()
   }
   if type(shorten-end) != array {
-    shorten-end = (shorten-end,)*extrude.len()
+    shorten-end = (shorten-end,) * extrude.len()
   }
 
   if join not in ("miter", "round") {
@@ -1091,10 +1071,9 @@
 
     let extrude = extrude.map(e => {
       if type(e) == length {
-        e.to-absolute()/stroke.thickness.to-absolute()
+        e.to-absolute() / stroke.thickness.to-absolute()
       } else { e }
     })
-
 
     let (ctx: new-ctx, drawables) = cetz.process.many(ctx, objs)
 
@@ -1119,7 +1098,7 @@
       if cetz-node != none {
         ctx.nodes.insert(cetz-node.name, (
           ..cetz-node,
-          anchors: anchors
+          anchors: anchors,
         ))
       }
       (ctx_ => (ctx: ctx, drawables: drawables),)

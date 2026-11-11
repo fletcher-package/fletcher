@@ -3,53 +3,53 @@
 
 
 #let EDGE_FLAGS = (
-	"dashed": (dash: "dashed"),
-	"dotted": (dash: "dotted"),
-	"double": (extrude: (-2, +2)),
-	"triple": (extrude: (-4, 0, +4)),
-	"crossing": (crossing: true),
+  "dashed": (dash: "dashed"),
+  "dotted": (dash: "dotted"),
+  "double": (extrude: (-2, +2)),
+  "triple": (extrude: (-4, 0, +4)),
+  "crossing": (crossing: true),
 )
 
 #let LINE_ALIASES = (
-	"-": (:),
-	"=": EDGE_FLAGS.double,
-	"==": EDGE_FLAGS.triple,
-	"- -": (dash: "loosely-dashed"),
-	"--": (dash: "dashed"),
-	"---": (dash: "densely-dashed"),
-	". .": (dash: "loosely-dotted"),
-	"..": (dash: "dotted"),
-	"...": (dash: "densely-dotted"),
-	"~": (decorate: "wave"),
-	" ": (extrude: ()),
+  "-": (:),
+  "=": EDGE_FLAGS.double,
+  "==": EDGE_FLAGS.triple,
+  "- -": (dash: "loosely-dashed"),
+  "--": (dash: "dashed"),
+  "---": (dash: "densely-dashed"),
+  ". .": (dash: "loosely-dotted"),
+  "..": (dash: "dotted"),
+  "...": (dash: "densely-dotted"),
+  "~": (decorate: "wave"),
+  " ": (extrude: ()),
 )
 
 #let MARK_SYMBOL_ALIASES = (
-	(sym.arrow.r): "->",
-	(sym.arrow.l): "<-",
-	(sym.arrow.r.l): "<->",
-	(sym.arrow.long.r): "->",
-	(sym.arrow.long.l): "<-",
-	(sym.arrow.long.r.l): "<->",
-	(sym.arrow.double.r): "=>",
-	(sym.arrow.double.l): "<=",
-	(sym.arrow.double.r.l): "<=>",
-	(sym.arrow.double.long.r): "=>",
-	(sym.arrow.double.long.l): "<=",
-	(sym.arrow.double.long.r.l): "<=>",
-	(sym.arrow.r.tail): ">->",
-	(sym.arrow.l.tail): "<-<",
-	(sym.arrow.twohead): "->>",
-	(sym.arrow.twohead.r): "->>",
-	(sym.arrow.twohead.l): "<<-",
-	(sym.arrow.bar): "|->",
-	(sym.arrow.bar.double): "|=>",
-	(sym.arrow.hook.r): "hook->",
-	(sym.arrow.hook.l): "<-hook'",
-	(sym.arrow.squiggly.r): "~>",
-	(sym.arrow.squiggly.l): "<~",
-	(sym.arrow.long.squiggly.r): "~>",
-	(sym.arrow.long.squiggly.l): "<~",
+  (sym.arrow.r): "->",
+  (sym.arrow.l): "<-",
+  (sym.arrow.r.l): "<->",
+  (sym.arrow.long.r): "->",
+  (sym.arrow.long.l): "<-",
+  (sym.arrow.long.r.l): "<->",
+  (sym.arrow.double.r): "=>",
+  (sym.arrow.double.l): "<=",
+  (sym.arrow.double.r.l): "<=>",
+  (sym.arrow.double.long.r): "=>",
+  (sym.arrow.double.long.l): "<=",
+  (sym.arrow.double.long.r.l): "<=>",
+  (sym.arrow.r.tail): ">->",
+  (sym.arrow.l.tail): "<-<",
+  (sym.arrow.twohead): "->>",
+  (sym.arrow.twohead.r): "->>",
+  (sym.arrow.twohead.l): "<<-",
+  (sym.arrow.bar): "|->",
+  (sym.arrow.bar.double): "|=>",
+  (sym.arrow.hook.r): "hook->",
+  (sym.arrow.hook.l): "<-hook'",
+  (sym.arrow.squiggly.r): "~>",
+  (sym.arrow.squiggly.l): "<~",
+  (sym.arrow.long.squiggly.r): "~>",
+  (sym.arrow.long.squiggly.l): "<~",
 )
 
 
@@ -66,97 +66,96 @@
 ///   - parameters specific to the kind of mark, e.g., `size` or `sharpness`
 /// -> dictionary
 #let parse-mark-shorthand(arg) = {
-	if type(arg) == symbol {
-		if str(arg) in MARK_SYMBOL_ALIASES { arg = MARK_SYMBOL_ALIASES.at(arg) }
-		else { utils.error("Unknown marks symbol #0.", arg) }
-	}
+  if type(arg) == symbol {
+    if str(arg) in MARK_SYMBOL_ALIASES { arg = MARK_SYMBOL_ALIASES.at(arg) } else {
+      utils.error("Unknown marks symbol #0.", arg)
+    }
+  }
 
-	assert(type(arg) == str)
-	let text = arg
+  assert(type(arg) == str)
+  let text = arg
 
-	let mark-name-pattern = regex("^[^-=. ~]+")
-	let line-aliases = LINE_ALIASES.keys().sorted(key: i => -i.len())
+  let mark-name-pattern = regex("^[^-=. ~]+")
+  let line-aliases = LINE_ALIASES.keys().sorted(key: i => -i.len())
 
-	let eat(arg, options) = {
-		if type(options) == regex {
-			let m = arg.match(options)
-			if m != none {
-				return (arg.slice(m.end), m.text)
-			}
-		} else {
-			for option in options {
-				if arg.starts-with(option) {
-					return (arg.slice(option.len()), option)
-				}
-			}
-		}
-		return (arg, none)
-	}
+  let eat(arg, options) = {
+    if type(options) == regex {
+      let m = arg.match(options)
+      if m != none {
+        return (arg.slice(m.end), m.text)
+      }
+    } else {
+      for option in options {
+        if arg.starts-with(option) {
+          return (arg.slice(option.len()), option)
+        }
+      }
+    }
+    return (arg, none)
+  }
 
-	let marks = ()
-	let lines = ()
+  let marks = ()
+  let lines = ()
 
-	let mark
-	let line
-	let flip
+  let mark
+  let line
+  let flip
 
-	// first mark, [<]-x->>
-	(text, mark) = eat(text, mark-name-pattern)
+  // first mark, [<]-x->>
+  (text, mark) = eat(text, mark-name-pattern)
 
-	// flip modifier, hook[']
-	(text, flip) = eat(text, ("'",))
-	if flip != none { mark += flip }
+  // flip modifier, hook[']
+  (text, flip) = eat(text, ("'",))
+  if flip != none { mark += flip }
 
-	marks.push(mark)
+  marks.push(mark)
 
-	let parse-error(suggestion) = utils.error("Invalid marks shorthand #0. Try #1.", repr(arg), repr(suggestion))
+  let parse-error(suggestion) = utils.error("Invalid marks shorthand #0. Try #1.", repr(arg), repr(suggestion))
 
-	while true {
-		// line, <[-]x->>
-		(text, line) = eat(text, line-aliases)
-		if line == none {
-			let suggestion = text.slice(0, -text.len()) + "-" + text
-			parse-error(suggestion)
-		}
-		lines.push(line)
+  while true {
+    // line, <[-]x->>
+    (text, line) = eat(text, line-aliases)
+    if line == none {
+      let suggestion = text.slice(0, -text.len()) + "-" + text
+      parse-error(suggestion)
+    }
+    lines.push(line)
 
-		// subsequent mark, <-[x]->>
-		(text, mark) = eat(text, mark-name-pattern)
+    // subsequent mark, <-[x]->>
+    (text, mark) = eat(text, mark-name-pattern)
 
-		// flip modifier, hook[']
-		(text, flip) = eat(text, ("'",))
-		if flip != none { mark += flip }
+    // flip modifier, hook[']
+    (text, flip) = eat(text, ("'",))
+    if flip != none { mark += flip }
 
-		marks.push(mark)
+    marks.push(mark)
 
-		if text == "" { break }
-		if mark == none {
-			// text remains that was not recognized as mark
-			let suggestion = marks.intersperse(lines.at(0)).join()
-			parse-error(suggestion)
-		}
-	}
+    if text == "" { break }
+    if mark == none {
+      // text remains that was not recognized as mark
+      let suggestion = marks.intersperse(lines.at(0)).join()
+      parse-error(suggestion)
+    }
+  }
 
+  if lines.dedup().len() > 1 {
+    // different line styles were mixed
+    let suggestion = marks.intersperse(lines.at(0)).join()
+    parse-error(suggestion)
+  }
+  let line = lines.at(0)
 
-	if lines.dedup().len() > 1 {
-		// different line styles were mixed
-		let suggestion = marks.intersperse(lines.at(0)).join()
-		parse-error(suggestion)
-	}
-	let line = lines.at(0)
-
-
-	return (
-		marks: marks,
-		options: LINE_ALIASES.at(lines.at(0))
-	)
+  return (
+    marks: marks,
+    options: LINE_ALIASES.at(lines.at(0)),
+  )
 }
 
 
 #let peek(x, ..predicates, end: false) = {
-	let preds = predicates.pos()
-	if end and x.len() != predicates.len() { return false }
-	x.len() >= preds.len() and x.zip(preds).all(((arg, pred)) => pred(arg))
+  let preds = predicates.pos()
+  if end and x.len() != predicates.len() { return false }
+  x.len() >= preds.len() and x.zip(preds).all(((arg, pred)) => pred(arg))
 }
 
 
@@ -174,260 +173,270 @@
 /// <options> = any number of options specified as strings
 /// ```
 #let interpret-edge-positional-args(args, options) = {
+  let new-options = (:)
 
-	let new-options = (:)
+  // predicates to detect the kind of a positional argument
+  let is-coord(arg) = type(arg) in (array, dictionary, label) and not utils.is-cetz(arg) or arg == auto
+  let is-rel-coord-shorthand(arg) = {
+    type(arg) == str and arg.match(regex("^[utdblrnsew,]+$")) != none
+  }
+  let is-any-coord(arg) = is-coord(arg) or is-rel-coord-shorthand(arg)
+  let is-arrow-symbol(arg) = type(arg) == symbol and str(arg) in MARK_SYMBOL_ALIASES
+  let is-edge-flag(arg) = type(arg) == str and arg in EDGE_FLAGS
+  let is-label-side(arg) = type(arg) == alignment
 
-	// predicates to detect the kind of a positional argument
-	let is-coord(arg) = type(arg) in (array, dictionary, label) and not utils.is-cetz(arg) or arg == auto
-	let is-rel-coord-shorthand(arg) = {
-		type(arg) == str and arg.match(regex("^[utdblrnsew,]+$")) != none
-	}
-	let is-any-coord(arg) = is-coord(arg) or is-rel-coord-shorthand(arg)
-	let is-arrow-symbol(arg) = type(arg) == symbol and str(arg) in MARK_SYMBOL_ALIASES
-	let is-edge-flag(arg) = type(arg) == str and arg in EDGE_FLAGS
-	let is-label-side(arg) = type(arg) == alignment
+  let maybe-marks(arg) = type(arg) == str and not is-edge-flag(arg) or is-arrow-symbol(arg)
+  let maybe-label(arg) = type(arg) != str and not is-arrow-symbol(arg) and not is-coord(arg)
 
-	let maybe-marks(arg) = type(arg) == str and not is-edge-flag(arg) or is-arrow-symbol(arg)
-	let maybe-label(arg) = type(arg) != str and not is-arrow-symbol(arg) and not is-coord(arg)
+  let assert-not-set(key, default, ..value) = {
+    if key not in options { return }
+    if options.at(key) == default { return }
+    utils.error(
+      "#0 specified twice with positional argument(s) #..pos and named argument #named.",
+      key,
+      pos: value.pos(),
+      named: repr(options.at(key)),
+    )
+  }
 
-	let assert-not-set(key, default, ..value) = {
-		if key not in options { return }
-		if options.at(key) == default { return }
-		utils.error(
-			"#0 specified twice with positional argument(s) #..pos and named argument #named.",
-			key, pos: value.pos(), named: repr(options.at(key)),
-		)
-	}
+  let coords = ()
+  let has-first-coord = false
+  let has-tail-coords = false
+  let has-cetz-obj = false
 
-	let coords = ()
-	let has-first-coord = false
-	let has-tail-coords = false
-	let has-cetz-obj = false
+  // First argument is a cetz object
+  if peek(args, utils.is-cetz) {
+    let obj = args.remove(0)
+    new-options.shape = (
+      kind: "cetz",
+      args: (:),
+      draw: (_, _) => obj,
+    )
+    has-cetz-obj = true
+  }
 
-	// First argument is a cetz object
-	if peek(args, utils.is-cetz) {
-		let obj = args.remove(0)
-		new-options.shape = (
-			kind: "cetz",
-			args: (:),
-			draw: (_, _) => obj
-		)
-		has-cetz-obj = true
-	}
+  // First argument(s) are coordinates
+  // (<coord>, <rel-coord>*) => (<coord>, <rel-coord>*)
+  // (<rel-coord>*) => (auto, <rel-coord>*)
+  if peek(args, is-coord) {
+    coords.push(args.remove(0))
+    has-first-coord = true
+  }
+  while peek(args, is-any-coord) {
+    if type(args.at(0)) == str {
+      coords += args.remove(0).split(",").filter(a => a != "")
+    } else {
+      coords.push(args.remove(0))
+    }
+    has-tail-coords = true
+  }
 
-	// First argument(s) are coordinates
-	// (<coord>, <rel-coord>*) => (<coord>, <rel-coord>*)
-	// (<rel-coord>*) => (auto, <rel-coord>*)
-	if peek(args, is-coord) {
-		coords.push(args.remove(0))
-		has-first-coord = true
-	}
-	while peek(args, is-any-coord) {
-		if type(args.at(0)) == str {
-			coords += args.remove(0).split(",").filter(a => a != "")
-		} else {
-			coords.push(args.remove(0))
-		}
-		has-tail-coords = true
-	}
+  if has-cetz-obj and (has-first-coord or has-tail-coords) {
+    utils.error("Edges wrapping CeTZ objects cannot also have vertex arguments; found #..0", coords)
+  }
 
-	if has-cetz-obj and (has-first-coord or has-tail-coords) {
-		utils.error("Edges wrapping CeTZ objects cannot also have vertex arguments; found #..0", coords)
-	}
+  // Allow marks argument to be in between two coordinates
+  // (<coord>, <marks>, <rel-coord>)
+  // (<marks>, <rel-coord>) => (auto, <marks>, <rel-coord>)
+  if not has-tail-coords and peek(args, maybe-marks, is-any-coord) {
+    new-options.marks = args.remove(0)
+    assert-not-set("marks", (), new-options.marks)
 
-	// Allow marks argument to be in between two coordinates
-	// (<coord>, <marks>, <rel-coord>)
-	// (<marks>, <rel-coord>) => (auto, <marks>, <rel-coord>)
-	if not has-tail-coords and peek(args, maybe-marks, is-any-coord) {
-		new-options.marks = args.remove(0)
-		assert-not-set("marks", (), new-options.marks)
+    coords.push(args.remove(0))
+    has-tail-coords = true
 
-		coords.push(args.remove(0))
-		has-tail-coords = true
+    if peek(args, is-any-coord) {
+      utils.error("Marks argument #0 must appear after edge vertices (or between them if there are only two).", repr(
+        new-options.marks,
+      ))
+    }
+  }
 
-		if peek(args, is-any-coord) {
-			utils.error("Marks argument #0 must appear after edge vertices (or between them if there are only two).", repr(new-options.marks))
-		}
-	}
+  let interpret-coord-str(coord) = {
+    let (u, v) = (0, 0)
+    let dirs = (
+      "t": (0, +1),
+      "n": (0, +1),
+      "u": (0, +1),
+      "b": (0, -1),
+      "s": (0, -1),
+      "d": (0, -1),
+      "l": (-1, 0),
+      "w": (-1, 0),
+      "r": (+1, 0),
+      "e": (+1, 0),
+    )
+    for char in coord.clusters() {
+      let (du, dv) = dirs.at(char)
+      u += du
+      v += dv
+    }
+    return (rel: (u, v), no-flip: true)
+  }
 
-	let interpret-coord-str(coord) = {
-		let (u, v) = (0, 0)
-		let dirs = (
-			"t": ( 0,+1), "n": ( 0,+1), "u": ( 0,+1),
-			"b": ( 0,-1), "s": ( 0,-1), "d": ( 0,-1),
-			"l": (-1, 0), "w": (-1, 0),
-			"r": (+1, 0), "e": (+1, 0),
-		)
-		for char in coord.clusters() {
-			let (du, dv) = dirs.at(char)
-			u += du
-			v += dv
-		}
-		return (rel: (u, v), no-flip: true)
-	}
+  if coords.len() > 0 {
+    assert-not-set("vertices", (), ..coords)
+    if not has-first-coord { coords = (auto, ..coords) }
+    if not has-tail-coords { coords = (..coords, auto) }
 
-	if coords.len() > 0 {
-		assert-not-set("vertices", (), ..coords)
-		if not has-first-coord { coords = (auto, ..coords) }
-		if not has-tail-coords { coords = (..coords, auto) }
+    new-options.vertices = coords.map(coord => {
+      // fletcher allows names as labels for disambiguating positional arguments
+      // but cetz names must be strings
+      if type(coord) == label { str(coord) } else if is-rel-coord-shorthand(coord) {
+        interpret-coord-str(coord)
+      } else { coord }
+    })
+  } else if options.vertices.len() == 0 {
+    // no vertices from named nor positional args
+    new-options.vertices = (auto, auto)
+  }
 
-		new-options.vertices = coords.map(coord => {
-			// fletcher allows names as labels for disambiguating positional arguments
-			// but cetz names must be strings
-			if type(coord) == label { str(coord) }
-			else if is-rel-coord-shorthand(coord) {
-				interpret-coord-str(coord)
-			} else { coord }
-		})
+  // Allow label side argument anywhere after coordinates
+  let i = args.position(is-label-side)
+  if i != none {
+    new-options.label-side = args.remove(i)
+    assert-not-set("label-side", auto, new-options.label-side)
+  }
 
-	} else if options.vertices.len() == 0 {
-		// no vertices from named nor positional args
-		new-options.vertices = (auto, auto)
-	}
+  // Accept marks and labels after vertices
+  // (.., <marks>, <label>)
+  // (.., <label>, <marks>)
+  let marks
+  let label
+  if peek(args, maybe-marks, maybe-label) {
+    marks = args.remove(0)
+    label = args.remove(0)
+  } else if peek(args, maybe-label, maybe-marks) {
+    label = args.remove(0)
+    marks = args.remove(0)
+  } else if peek(args, maybe-label) {
+    label = args.remove(0)
+  } else if peek(args, maybe-marks) {
+    marks = args.remove(0)
+  }
 
+  if marks != none {
+    if "marks" in new-options {
+      utils.error("Marks argument passed to `edge()` twice; found #0 and #1.", repr(new-options.marks), repr(marks))
+    }
+    assert-not-set("marks", (), marks)
+    new-options.marks = marks
+  }
+  if label != none {
+    assert-not-set("label", none, label)
+    new-options.label = label
+  }
 
-	// Allow label side argument anywhere after coordinates
-	let i = args.position(is-label-side)
-	if i != none {
-		new-options.label-side = args.remove(i)
-		assert-not-set("label-side", auto, new-options.label-side)
-	}
+  // Accept any trailing positional strings as option shorthands
+  while peek(args, is-edge-flag) {
+    new-options += EDGE_FLAGS.at(args.remove(0))
+  }
 
+  if args.len() > 0 {
+    utils.error(
+      "Couldn't interpret `edge()` arguments #..0. Try using named arguments. Interpreted previous arguments as #1",
+      args,
+      new-options,
+    )
+  }
 
-	// Accept marks and labels after vertices
-	// (.., <marks>, <label>)
-	// (.., <label>, <marks>)
-	let marks
-	let label
-	if peek(args, maybe-marks, maybe-label) {
-		marks = args.remove(0)
-		label = args.remove(0)
-	} else if peek(args, maybe-label, maybe-marks) {
-		label = args.remove(0)
-		marks = args.remove(0)
-	} else if peek(args, maybe-label) {
-		label = args.remove(0)
-	} else if peek(args, maybe-marks) {
-		marks = args.remove(0)
-	}
-
-	if marks != none {
-		if "marks" in new-options {
-			utils.error("Marks argument passed to `edge()` twice; found #0 and #1.", repr(new-options.marks), repr(marks))
-		}
-		assert-not-set("marks", (), marks)
-		new-options.marks = marks
-	}
-	if label != none {
-		assert-not-set("label", none, label)
-		new-options.label = label
-	}
-
-	// Accept any trailing positional strings as option shorthands
-	while peek(args, is-edge-flag) {
-		new-options += EDGE_FLAGS.at(args.remove(0))
-	}
-
-	if args.len() > 0 {
-		utils.error("Couldn't interpret `edge()` arguments #..0. Try using named arguments. Interpreted previous arguments as #1", args, new-options)
-	}
-
-	new-options
+  new-options
 }
 
 #let interpret-node-positional-args(args, options) = {
+  let is-any(x) = true
+  let is-label(x) = type(x) == label
+  let maybe-body(x) = type(x) in (content, symbol)
+  let maybe-position(x) = not is-label(x) and not maybe-body(x)
 
-	let is-any(x) = true
-	let is-label(x) = type(x) == label
-	let maybe-body(x) = type(x) in (content, symbol)
-	let maybe-position(x) = not is-label(x) and not maybe-body(x)
+  // node(<position>, ..) unless an enclose node
+  if options.enclose == none {
+    if peek(args, maybe-position) {
+      options.position = args.remove(0)
+    }
+  } else {
+    // enclose nodes may have no position
+    options.position = auto
+  }
 
-	// node(<position>, ..) unless an enclose node
-	if options.enclose == none {
-		if peek(args, maybe-position) {
-			options.position = args.remove(0)
-		}
-	} else {
-		// enclose nodes may have no position
-		options.position = auto
-	}
+  if args.len() == 0 {
+    // no more positional arguments
+  } else if peek(args, is-label, is-any) {
+    options.name = args.remove(0)
+    options.body = args.remove(0)
+  } else if peek(args, is-label) {
+    options.name = args.remove(0)
+  } else if peek(args, is-any, is-label) {
+    options.body = args.remove(0)
+    options.name = args.remove(0)
+  } else if peek(args, is-any) {
+    options.body = args.remove(0)
+  } else {
+    utils.error("invalid positional arguments in node: #..0", args)
+  }
 
-	if args.len() == 0 {
-		// no more positional arguments
-	} else if peek(args, is-label, is-any) {
-		options.name = args.remove(0)
-		options.body = args.remove(0)
-	} else if peek(args, is-label) {
-		options.name = args.remove(0)
-	} else if peek(args, is-any, is-label) {
-		options.body = args.remove(0)
-		options.name = args.remove(0)
-	} else if peek(args, is-any) {
-		options.body = args.remove(0)
-	} else {
-		utils.error("invalid positional arguments in node: #..0", args)
-	}
+  if args.len() > 0 {
+    utils.error(
+      "Unexpected `node()` positional argument: #..0. Try using named arguments. Other arguments were: #1 ",
+      args,
+      options,
+    )
+  }
 
-	if args.len() > 0 {
-		utils.error("Unexpected `node()` positional argument: #..0. Try using named arguments. Other arguments were: #1 ", args, options)
-	}
-
-	return options
+  return options
 }
 
 
 #let split-style-argument(arg) = {
-	let compounds = (
-		"corner-radius",
-		"snap-method",
-		"crossing-thickness",
-		"crossing-fill",
-	)
+  let compounds = (
+    "corner-radius",
+    "snap-method",
+    "crossing-thickness",
+    "crossing-fill",
+  )
 
-	let path = ()
-	while arg.len() > 0 {
-		let c = compounds.find(c => arg.starts-with(c))
-		if c != none {
-			path.push(c)
-			arg = arg.slice(c.len())
-			continue
-		}
-		let i = arg.position("-")
-		if i == none {
-			path.push(arg)
-			break
-		}
-		path.push(arg.slice(0, i))
-		arg = arg.slice(i + 1)
-	}
-	return path
+  let path = ()
+  while arg.len() > 0 {
+    let c = compounds.find(c => arg.starts-with(c))
+    if c != none {
+      path.push(c)
+      arg = arg.slice(c.len())
+      continue
+    }
+    let i = arg.position("-")
+    if i == none {
+      path.push(arg)
+      break
+    }
+    path.push(arg.slice(0, i))
+    arg = arg.slice(i + 1)
+  }
+  return path
 }
 
 /// Convert named arguments such as `node-fill: yellow` into
 /// corresponding calls to `cetz.draw.set-style(node: (fill: yellow))`.
 #let interpret-style-arguments(args) = {
-	import "deps.typ": cetz.draw.set-style
+  import "deps.typ": cetz.draw.set-style
 
-	let styles = ()
-	for (arg, value) in args {
+  let styles = ()
+  for (arg, value) in args {
+    // special cases
+    if arg == "mark-scale" {
+      styles += set-style(edge: (mark-scale: args.remove(arg)))
+    }
 
-		// special cases
-		if arg == "mark-scale" {
-			styles += set-style(edge: (mark-scale: args.remove(arg)))
-		}
-
-
-		// attempt to parse other arguments
-		let path = split-style-argument(arg)
-		if path.first() in ("node", "edge") {
-			// node-foo-bar: .. -> node: (foo: (bar: ..))
-			let tree = value
-			for p in path.rev() { tree = ((p): tree) }
-			styles += set-style(..tree)
-			let _ = args.remove(arg)
-		}
-	}
-	return (args, styles)
+    // attempt to parse other arguments
+    let path = split-style-argument(arg)
+    if path.first() in ("node", "edge") {
+      // node-foo-bar: .. -> node: (foo: (bar: ..))
+      let tree = value
+      for p in path.rev() { tree = ((p): tree) }
+      styles += set-style(..tree)
+      let _ = args.remove(arg)
+    }
+  }
+  return (args, styles)
 }
 
 
@@ -449,7 +458,6 @@
       )
     }
 
-
     // by length
     for (suffix, unit) in (
       "pc": 1%,
@@ -462,38 +470,36 @@
     ) {
       if it.ends-with(suffix) {
         return (
-          length: calc.abs(float(it.slice(0, -suffix.len()))*unit),
+          length: calc.abs(float(it.slice(0, -suffix.len())) * unit),
           rev: it.starts-with("-"),
         )
       }
     }
-
   }
 
   if type(it) in (int, float) {
     // by segment
     return (
-       segment: calc.floor(calc.abs(it)),
-       t: float(calc.fract(calc.abs(it))),
-       rev: it < 0, // remember 0 (start) and -0 (end) are distinct
-     )
-	}
+      segment: calc.floor(calc.abs(it)),
+      t: float(calc.fract(calc.abs(it))),
+      rev: it < 0, // remember 0 (start) and -0 (end) are distinct
+    )
+  }
 
-	if type(it) in (length, ratio) {
-	  // by length
-  	return (
-    	length: calc.abs(it),
-      rev: it < 0*it,
-  	)
-	}
+  if type(it) in (length, ratio) {
+    // by length
+    return (
+      length: calc.abs(it),
+      rev: it < 0 * it,
+    )
+  }
 
-	if type(it) == relative {
-	  return (
-			length: it,
-			rev: false,
-		)
-	}
+  if type(it) == relative {
+    return (
+      length: it,
+      rev: false,
+    )
+  }
 
-	utils.error("invalid path anchor #0 (#1).", repr(it), type(it))
-
+  utils.error("invalid path anchor #0 (#1).", repr(it), type(it))
 }

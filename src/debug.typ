@@ -42,7 +42,7 @@
       stroke: (
         thickness: 0.25pt,
         paint: red,
-      )
+      ),
     ),
     lines: (
       stroke: (
@@ -56,7 +56,7 @@
         paint: red,
         thickness: 0.75pt,
         dash: "dotted",
-      )
+      ),
     ),
     iters: (
       size: 0.6em,

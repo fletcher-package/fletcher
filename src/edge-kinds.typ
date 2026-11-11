@@ -3,7 +3,7 @@
 
 #let EDGE_KINDS = (
   line: (
-    draw: (_, vertices) => cetz.draw.line(..vertices)
+    draw: (_, vertices) => cetz.draw.line(..vertices),
   ),
   arc: (
     required: ("bend",),
@@ -73,7 +73,7 @@
     validate-args: (ctx, (loop, size, fit)) => {
       (
         loop: utils.thing-to-angle(loop),
-        size: cetz.util.resolve-number(ctx, size)/2,
+        size: cetz.util.resolve-number(ctx, size) / 2,
         fit: fit,
       )
     },
@@ -83,10 +83,10 @@
       let (w, h, ..) = cetz.vector.sub(bounds.high, bounds.low)
 
       let (loop: θ, size, fit) = edge.shape.args
-      let v = (w/2*calc.cos(θ), h/2*calc.sin(θ))
+      let v = (w / 2 * calc.cos(θ), h / 2 * calc.sin(θ))
       // distance from node center to loop center
       let d = cetz.vector.len((cetz.vector.len(v), size))
-      let s = d*fit - size
+      let s = d * fit - size
       let shift = cetz.vector.scale(cetz.vector.norm(v), s)
       edge.vertices = edge.vertices.map(pt => cetz.vector.add(pt, shift))
       return edge
@@ -113,18 +113,18 @@
       let (w, h, ..) = cetz.vector.sub(bounds.high, bounds.low)
 
       let (bow: θ, size, fit) = edge.shape.args
-      let v = (w/2*calc.cos(θ), h/2*calc.sin(θ))
+      let v = (w / 2 * calc.cos(θ), h / 2 * calc.sin(θ))
       let d = cetz.vector.len(v)
-      let s = d*fit - calc.min(d, size/4) // make about a quarter of the bow overlap the node
+      let s = d * fit - calc.min(d, size / 4) // make about a quarter of the bow overlap the node
       let shift = cetz.vector.scale(cetz.vector.norm(v), s)
       edge.vertices = edge.vertices.map(pt => cetz.vector.add(pt, shift))
       return edge
     },
     draw: ((bow, size, angle), (a, _)) => {
-      let c1 = (to: a, rel: (bow + angle/2, size*2))
-      let c2 = (to: a, rel: (bow - angle/2, size*2))
+      let c1 = (to: a, rel: (bow + angle / 2, size * 2))
+      let c2 = (to: a, rel: (bow - angle / 2, size * 2))
       cetz.draw.bezier(a, a, c1, c2)
-    }
+    },
   ),
   corner: (
     required: ("corner",),

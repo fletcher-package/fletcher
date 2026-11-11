@@ -3,267 +3,262 @@
 #import "utils.typ": interp, interp-inv
 
 #let DEFAULT_MARKS = (
-	// all numbers are interpreted as multiples of stroke thickness
+  // all numbers are interpreted as multiples of stroke thickness
 
-	head: (
+  head: (
+    size: 7, // radius of curvature
+    sharpness: 24.7deg, // angle at vertex between central line and arrow's edge
+    delta: 53.5deg, // angle spanned by arc of curved arrow edge
 
-		size: 7, // radius of curvature
-		sharpness: 24.7deg, // angle at vertex between central line and arrow's edge
-		delta: 53.5deg, // angle spanned by arc of curved arrow edge
+    tip-origin: mark => 0.5,
+    tail-end: mark => calc.min(..mark.extrude),
+    tail-origin: mark => {
+      let a = calc.sin(mark.sharpness + mark.delta) - calc.sin(mark.sharpness)
+      mark.tail-end - mark.size * a - 0.5
+    },
+    tip-hang: mark => mark.tail-origin * 0.6,
+    tail-hang: 0,
 
-		tip-origin: mark => 0.5,
-		tail-end: mark => calc.min(..mark.extrude),
-		tail-origin: mark => {
-			let a = calc.sin(mark.sharpness + mark.delta) - calc.sin(mark.sharpness)
-			mark.tail-end - mark.size*a - 0.5
-		},
-		tip-hang: mark => mark.tail-origin*0.6,
-		tail-hang: 0,
+    stroke: (cap: "round"),
 
-		stroke: (cap: "round"),
+    draw: mark => {
+      for flip in (+1, -1) {
+        draw.arc(
+          (0, 0),
+          radius: mark.size,
+          start: flip * (90deg + mark.sharpness),
+          delta: flip * mark.delta,
+          fill: none,
+        )
+      }
+    },
 
-		draw: mark => {
-			for flip in (+1, -1) {
-				draw.arc(
-					(0, 0),
-					radius: mark.size,
-					start: flip*(90deg + mark.sharpness),
-					delta: flip*mark.delta,
-					fill: none,
-				)
-			}
-		},
+    cap-offset: (mark, y) => {
+      import calc: abs, cos, max, pow, sin, sqrt
+      let r = mark.size
+      let θ = mark.sharpness
+      r * (sin(θ) - sqrt(max(0, 1 - pow(cos(θ) - abs(y) / r, 2))))
+    },
+  ),
 
-		cap-offset: (mark, y) => {
-			import calc: sin, sqrt, pow, cos, abs, max
-			let r = mark.size
-			let θ = mark.sharpness
-			r*(sin(θ) - sqrt(max(0, 1 - pow(cos(θ) - abs(y)/r, 2))))
-		},
+  // like 'head' but grows in response to edge extrusion.
+  // adjusted to match default math font
+  flexihead: (
+    flex: mark => calc.max(0, ..mark.edge-extrude.map(calc.abs)) / 2,
+    inherit: "head",
+    size: mark => interp((7., 10.56, 13.5), mark.flex, spacing: 2),
+    sharpness: mark => interp((24.7deg, 19.4deg, 25.5deg), mark.flex, spacing: 3deg),
+    delta: mark => interp((53.5deg, 43.5deg, 42.6deg), mark.flex, spacing: 0deg),
+  ),
 
-	),
+  harpoon: (
+    inherit: "head",
+    cap-offset: (mark, y) => 0,
+    draw: mark => {
+      let y = if mark.flip {
+        mark.edge-extrude.last()
+      } else {
+        -mark.edge-extrude.first()
+      }
+      draw.arc(
+        (0, y),
+        radius: mark.size,
+        start: -(90deg + mark.sharpness),
+        delta: -mark.delta,
+        fill: none,
+      )
+    },
+  ),
 
-	// like 'head' but grows in response to edge extrusion.
-	// adjusted to match default math font
-	flexihead: (
-		flex: mark => calc.max(0, ..mark.edge-extrude.map(calc.abs))/2,
-		inherit: "head",
-		size: mark => interp((7., 10.56, 13.5), mark.flex, spacing: 2),
-		sharpness: mark => interp((24.7deg, 19.4deg, 25.5deg), mark.flex, spacing: 3deg),
-		delta: mark => interp((53.5deg, 43.5deg, 42.6deg), mark.flex, spacing: 0deg),
-	),
+  harpoons: (
+    inherit: "harpoon",
+    draw: mark => {
+      for flip in (-1, +1) {
+        let y = if flip > 0 {
+          mark.edge-extrude.first()
+        } else {
+          mark.edge-extrude.last()
+        }
+        draw.arc(
+          (0, -y),
+          radius: mark.size,
+          start: -flip * (90deg + mark.sharpness),
+          delta: -flip * mark.delta,
+          fill: none,
+        )
+      }
+    },
+  ),
 
-	harpoon: (
-		inherit: "head",
-		cap-offset: (mark, y) => 0,
-		draw: mark => {
-			let y = if mark.flip {
-				mark.edge-extrude.last()
-			} else {
-				-mark.edge-extrude.first()
-			}
-			draw.arc(
-				(0, y),
-				radius: mark.size,
-				start: -(90deg + mark.sharpness),
-				delta: -mark.delta,
-				fill: none,
-			)
-		},
-	),
+  straight: (
+    size: 10,
+    sharpness: 20deg,
 
-	harpoons: (
-		inherit: "harpoon",
-		draw: mark => {
-			for flip in (-1, +1) {
-				let y = if flip > 0 {
-					mark.edge-extrude.first()
-				} else {
-					mark.edge-extrude.last()
-				}
-				draw.arc(
-					(0, -y),
-					radius: mark.size,
-					start: -flip*(90deg + mark.sharpness),
-					delta: -flip*mark.delta,
-					fill: none,
-				)
-			}
-		},
-	),
+    tip-end: mark => -0.25 / calc.sin(mark.sharpness),
+    tip-origin: mark => 0.5 / calc.sin(mark.sharpness),
+    tail-origin: mark => -mark.size * calc.cos(mark.sharpness),
+    tip-hang: mark => mark.tail-origin * 0.8,
+    tail-hang: -4,
 
-	straight: (
-		size: 10,
-		sharpness: 20deg,
+    fill: none,
 
-		tip-end: mark => -0.25/calc.sin(mark.sharpness),
-		tip-origin: mark => 0.5/calc.sin(mark.sharpness),
-		tail-origin: mark => -mark.size*calc.cos(mark.sharpness),
-		tip-hang: mark => mark.tail-origin*0.8,
-		tail-hang: -4,
+    draw: mark => {
+      draw.line(
+        (180deg + mark.sharpness, mark.size),
+        (0, 0),
+        (180deg - mark.sharpness, mark.size),
+      )
+    },
 
-		fill: none,
+    cap-offset: (mark, y) => calc.tan(mark.sharpness + 90deg) * calc.abs(y),
+  ),
 
-		draw: mark => {
-			draw.line(
-				(180deg + mark.sharpness, mark.size),
-				(0, 0),
-				(180deg - mark.sharpness, mark.size),
-			)
-		},
+  corner: (
+    // a right-angle corner which auto-rotates to be straight
+    // intended to be used for pushouts in category theory
+    size: 10,
+    fill: none,
+    tip-origin: mark => mark.size,
+    draw: mark => draw.get-ctx(ctx => {
+      // snap angle to nearest 45deg
+      let (cos, sin) = ctx.transform.at(0).slice(0, 2)
+      let θ = calc.atan2(cos, sin)
+      let θ-snapped = calc.round(θ / 45deg) * 45deg
+      draw.rotate(θ - θ-snapped)
+      draw.line(
+        (-45deg, mark.size),
+        (0, 0),
+        (45deg, mark.size),
+      )
+    }),
+  ),
 
-		cap-offset: (mark, y) => calc.tan(mark.sharpness + 90deg)*calc.abs(y),
-	),
+  solid: (
+    inherit: "straight",
 
-	corner: (
-		// a right-angle corner which auto-rotates to be straight
-		// intended to be used for pushouts in category theory
-		size: 10,
-		fill: none,
-		tip-origin: mark => mark.size,
-		draw: mark => draw.get-ctx(ctx => {
-			// snap angle to nearest 45deg
-			let (cos, sin) = ctx.transform.at(0).slice(0, 2)
-			let θ = calc.atan2(cos, sin)
-			let θ-snapped = calc.round(θ/45deg)*45deg
-			draw.rotate(θ - θ-snapped)
-			draw.line(
-				(-45deg, mark.size),
-				(0, 0),
-				(45deg, mark.size),
-			)
-		})
+    tip-origin: 0,
+    tip-end: mark => -1 / calc.sin(mark.sharpness),
+    tail-end: mark => -0.5 / calc.sin(mark.sharpness),
 
-	),
+    stroke: none,
+    fill: auto,
+  ),
 
-	solid: (
-		inherit: "straight",
+  stealth: (
+    size: 6,
+    stealth: 0.3,
+    angle: 25deg,
+    rear-angle: mark => calc.atan2(mark.stealth, calc.tan(mark.angle)),
 
-		tip-origin: 0,
-		tip-end: mark => -1/calc.sin(mark.sharpness),
-		tail-end: mark => -0.5/calc.sin(mark.sharpness),
+    tip-origin: mark => 0.5 / calc.sin(mark.angle),
+    tip-end: mark => mark.size * (mark.stealth - 1) * calc.cos(mark.angle),
+    tail-origin: mark => {
+      if mark.stealth > 0 {
+        let wing-angle = (mark.rear-angle - mark.angle) / 2
 
-		stroke: none,
-		fill: auto,
-	),
+        let miter-limit = if mark.stroke == none { 0 } else { stroke(mark.stroke).miter-limit }
 
-	stealth: (
-		size: 6,
-		stealth: 0.3,
-		angle: 25deg,
-		rear-angle: mark => calc.atan2(mark.stealth, calc.tan(mark.angle)),
+        let miter-length = 1 / calc.sin(wing-angle)
+        // stealth arrows with sharp wings look bigger due to long miter lengths
+        let extra-size = if miter-length < miter-limit {
+          // so account for extra apparent size
+          0.4 * miter-length
+        } else {
+          // unless over miter limit, since wings get clipped
+          0
+        }
 
-		tip-origin: mark => 0.5/calc.sin(mark.angle),
-		tip-end: mark => mark.size*(mark.stealth - 1)*calc.cos(mark.angle),
-		tail-origin: mark => {
-			if mark.stealth > 0 {
-				let wing-angle = (mark.rear-angle - mark.angle)/2
+        -(mark.size + extra-size) * calc.cos(mark.angle)
+      } else {
+        // negative stealth looks like a diamond
+        mark.tip-end - 0.5 / calc.sin(mark.rear-angle)
+      }
+    },
 
-				let miter-limit = if mark.stroke == none { 0 }
-					else { stroke(mark.stroke).miter-limit }
+    stroke: (miter-limit: 20),
 
-				let miter-length = 1/calc.sin(wing-angle)
-				// stealth arrows with sharp wings look bigger due to long miter lengths
-				let extra-size = if miter-length < miter-limit {
-					// so account for extra apparent size
-					0.4*miter-length
-				} else {
-					// unless over miter limit, since wings get clipped
-					0
-				}
+    draw: mark => {
+      draw.line(
+        (0, 0),
+        (180deg + mark.angle, mark.size),
+        (mark.tip-end, 0),
+        (180deg - mark.angle, mark.size),
+        close: true,
+      )
+    },
 
-				-(mark.size + extra-size)*calc.cos(mark.angle)
-			} else {
-				// negative stealth looks like a diamond
-				mark.tip-end - 0.5/calc.sin(mark.rear-angle)
-			}
-		},
+    cap-offset: (mark, y) => if mark.tip {
+      -mark.stealth / calc.tan(mark.angle) * calc.abs(y)
+    } else {
+      calc.tan(mark.angle + 90deg) * calc.abs(y)
+    },
+  ),
 
-		stroke: (miter-limit: 20),
+  latex: (
+    size: 23, // radius of curvature
+    sharpness: 10deg, // angle at vertex between central line and arrow's edge
+    delta: 20deg, // angle spanned by arc of curved arrow edge
 
-		draw: mark => {
-			draw.line(
-				(0,0),
-				(180deg + mark.angle, mark.size),
-				(mark.tip-end, 0),
-				(180deg - mark.angle, mark.size),
-				close: true,
-			)
-		},
+    tip-end: mark => mark.size * (calc.sin(mark.sharpness) - calc.sin(mark.sharpness + mark.delta)),
+    tail-end: mark => mark.tip-end / 2,
+    tail-origin: mark => mark.tip-end,
+    tail-hang: mark => mark.tail-end / 2,
 
-		cap-offset: (mark, y) => if mark.tip {
-			-mark.stealth/calc.tan(mark.angle)*calc.abs(y)
-		} else {
-			calc.tan(mark.angle + 90deg)*calc.abs(y)
-		},
-	),
+    fill: auto,
+    stroke: none,
+    draw: mark => {
+      for flip in (+1, -1) {
+        draw.merge-path({
+          draw.arc(
+            (0, 0),
+            radius: mark.size,
+            start: flip * (90deg + mark.sharpness),
+            delta: flip * mark.delta,
+            fill: none,
+          )
+          draw.line((), ((), "|-", (0, flip * 1e-1)))
+        })
+      }
+    },
+  ),
 
-	latex: (
-		size: 23, // radius of curvature
-		sharpness: 10deg, // angle at vertex between central line and arrow's edge
-		delta: 20deg, // angle spanned by arc of curved arrow edge
+  cone: (
+    size: 8,
+    radius: 6,
+    angle: 30deg,
 
-		tip-end: mark => mark.size*(calc.sin(mark.sharpness) - calc.sin(mark.sharpness + mark.delta)),
-		tail-end: mark => mark.tip-end/2,
-		tail-origin: mark => mark.tip-end,
-		tail-hang: mark => mark.tail-end/2,
+    tip-end: mark => -mark.size,
+    tail-end: mark => mark.tip-end / 2,
+    tail-origin: mark => mark.tip-end,
+    tail-hang: mark => mark.tail-end / 2,
 
-		fill: auto,
-		stroke: none,
-		draw: mark => {
-			for flip in (+1, -1) {
-				draw.merge-path({
-					draw.arc(
-						(0, 0),
-						radius: mark.size,
-						start: flip*(90deg + mark.sharpness),
-						delta: flip*mark.delta,
-						fill: none,
-					)
-					draw.line((), ((), "|-", (0, flip*1e-1)))
-				})
-			}
-		}
-	),
+    stroke: none,
+    draw: mark => {
+      for flip in (+1, -1) {
+        draw.merge-path({
+          draw.arc(
+            (-mark.size, -flip * 1e-1),
+            radius: mark.radius,
+            start: 0deg,
+            stop: flip * mark.angle,
+          )
+          draw.line((), (0, 0))
+        })
+      }
+    },
+  ),
 
-	cone: (
-		size: 8,
-		radius: 6,
-		angle: 30deg,
-
-		tip-end: mark => -mark.size,
-		tail-end: mark => mark.tip-end/2,
-		tail-origin: mark => mark.tip-end,
-		tail-hang: mark => mark.tail-end/2,
-
-
-		stroke: none,
-		draw: mark => {
-			for flip in (+1, -1) {
-				draw.merge-path({
-					draw.arc(
-						(-mark.size, -flip*1e-1),
-						radius: mark.radius,
-						start: 0deg,
-						stop: flip*mark.angle,
-					)
-					draw.line((), (0, 0))
-				})
-			}
-		}
-	),
-
-	hollow: (
-  	flex: mark => calc.max(0, ..mark.edge-extrude.map(calc.abs))/2,
-  	size: mark => interp((5, 10, 15), mark.flex, spacing: 2),
+  hollow: (
+    flex: mark => calc.max(0, ..mark.edge-extrude.map(calc.abs)) / 2,
+    size: mark => interp((5, 10, 15), mark.flex, spacing: 2),
     sharpness: 50deg,
     fill: none,
-    tip-origin: mark => 0.5/calc.sin(mark.sharpness),
+    tip-origin: mark => 0.5 / calc.sin(mark.sharpness),
     tip-end: mark => -mark.size,
     tail-origin: mark => -mark.size - 0.5,
     stroke: (cap: "square"),
     draw: mark => {
-      let h = mark.size*calc.tan(mark.sharpness/2)
+      let h = mark.size * calc.tan(mark.sharpness / 2)
       let (y-min, y-max) = (calc.min(..mark.edge-extrude), calc.max(..mark.edge-extrude))
       draw.line(
         (-mark.size, y-max),
@@ -273,263 +268,260 @@
         (-mark.size, y-min),
       )
     },
- 	),
+  ),
 
-	circle: (
-		size: 2,
+  circle: (
+    size: 2,
 
-		tip-end: mark => -mark.size,
-		tail-end: mark => mark.size,
-		tip-origin: mark => mark.size + 0.5,
-		tail-origin: mark => -(mark.size + 0.5),
+    tip-end: mark => -mark.size,
+    tail-end: mark => mark.size,
+    tip-origin: mark => mark.size + 0.5,
+    tail-origin: mark => -(mark.size + 0.5),
 
-		fill: none,
+    fill: none,
 
-		draw: mark => draw.circle((0,0), radius: mark.size, fill: mark.fill),
+    draw: mark => draw.circle((0, 0), radius: mark.size, fill: mark.fill),
 
-		cap-offset: (mark, y) => {
-			let r = mark.size
-			let o = r - calc.sqrt(calc.max(0, r*r - y*y))
-			if not mark.tip { o *= -1 }
-			o
-		},
-	),
+    cap-offset: (mark, y) => {
+      let r = mark.size
+      let o = r - calc.sqrt(calc.max(0, r * r - y * y))
+      if not mark.tip { o *= -1 }
+      o
+    },
+  ),
 
-	square: (
-		size: 2,
-		angle: 0deg,
-		fill: none,
-		tip-origin: mark => +(mark.size + 0.5)/calc.cos(mark.angle),
-		tail-origin: mark => -(mark.size + 0.5)/calc.cos(mark.angle),
-		tip-end: mark => -mark.size/calc.cos(mark.angle),
-		tail-end: mark => +mark.size/calc.cos(mark.angle),
-		draw: mark => {
-			let x = mark.size
-			draw.rotate(mark.angle)
-			draw.rect(
-				(-x, -x), (+x, +x),
-			)
-		}
-	),
+  square: (
+    size: 2,
+    angle: 0deg,
+    fill: none,
+    tip-origin: mark => +(mark.size + 0.5) / calc.cos(mark.angle),
+    tail-origin: mark => -(mark.size + 0.5) / calc.cos(mark.angle),
+    tip-end: mark => -mark.size / calc.cos(mark.angle),
+    tail-end: mark => +mark.size / calc.cos(mark.angle),
+    draw: mark => {
+      let x = mark.size
+      draw.rotate(mark.angle)
+      draw.rect(
+        (-x, -x),
+        (+x, +x),
+      )
+    },
+  ),
 
-	diamond: (
-		inherit: "stealth",
-		size: 4,
-		angle: 45deg,
-		stealth: -1,
-		fill: none,
-	),
+  diamond: (
+    inherit: "stealth",
+    size: 4,
+    angle: 45deg,
+    stealth: -1,
+    fill: none,
+  ),
 
-	bar: (
-		size: 5,
-		angle: 90deg,
+  bar: (
+    size: 5,
+    angle: 90deg,
 
-		tail-origin: mark => calc.min(..mark.extrude),
-		tip-hang: mark => mark.tail-origin,
+    tail-origin: mark => calc.min(..mark.extrude),
+    tip-hang: mark => mark.tail-origin,
 
-		draw: mark => draw.line(
-			(mark.angle, -mark.size),
-			(mark.angle, +mark.size),
-		),
-		cap-offset: (mark, y) => {
-			let o = y*calc.tan(mark.angle - 90deg)
-			// if mark.tip { o *= -1 }
-			-o
-		},
-	),
+    draw: mark => draw.line(
+      (mark.angle, -mark.size),
+      (mark.angle, +mark.size),
+    ),
+    cap-offset: (mark, y) => {
+      let o = y * calc.tan(mark.angle - 90deg)
+      // if mark.tip { o *= -1 }
+      -o
+    },
+  ),
 
-	cross: (
-		size: 4,
-		angle: 45deg,
-		draw: mark => {
-			draw.line((+mark.angle, -mark.size), (+mark.angle, +mark.size))
-			draw.line((-mark.angle, -mark.size), (-mark.angle, +mark.size))
-		},
+  cross: (
+    size: 4,
+    angle: 45deg,
+    draw: mark => {
+      draw.line((+mark.angle, -mark.size), (+mark.angle, +mark.size))
+      draw.line((-mark.angle, -mark.size), (-mark.angle, +mark.size))
+    },
 
-		cap-offset: (mark, y) => calc.tan(mark.angle + 90deg)*calc.abs(y),
-	),
+    cap-offset: (mark, y) => calc.tan(mark.angle + 90deg) * calc.abs(y),
+  ),
 
-	bracket: (
-		size: 5,
-		depth: 2,
-		draw: mark => draw.line(
-			(-mark.depth, mark.size),
-			(0, mark.size),
-			(0, -mark.size),
-			(-mark.depth, -mark.size),
-			fill: none,
-		),
-		tail-origin: mark => -mark.depth,
-	),
+  bracket: (
+    size: 5,
+    depth: 2,
+    draw: mark => draw.line(
+      (-mark.depth, mark.size),
+      (0, mark.size),
+      (0, -mark.size),
+      (-mark.depth, -mark.size),
+      fill: none,
+    ),
+    tail-origin: mark => -mark.depth,
+  ),
 
-	parenthesis: (
-		size: 8,
-		angle: 50deg,
-		draw: mark => draw.arc(
-			(0, 0),
-			start: -mark.angle,
-			stop: mark.angle,
-			radius: mark.size,
-			anchor: "origin",
-			fill: none,
-		),
-		tail-end: mark => mark.size,
-		tip-end: mark => mark.size,
-		tip-origin: mark => mark.size,
-		tail-origin: mark => mark.size*calc.cos(mark.angle),
-		cap-offset: (mark, y) => mark.size*(calc.sqrt(1 - calc.pow(y/mark.size, 2)) - 1),
-	),
+  parenthesis: (
+    size: 8,
+    angle: 50deg,
+    draw: mark => draw.arc(
+      (0, 0),
+      start: -mark.angle,
+      stop: mark.angle,
+      radius: mark.size,
+      anchor: "origin",
+      fill: none,
+    ),
+    tail-end: mark => mark.size,
+    tip-end: mark => mark.size,
+    tip-origin: mark => mark.size,
+    tail-origin: mark => mark.size * calc.cos(mark.angle),
+    cap-offset: (mark, y) => mark.size * (calc.sqrt(1 - calc.pow(y / mark.size, 2)) - 1),
+  ),
 
-	hook: (
-		size: 2.88,
-		rim: 0.85,
+  hook: (
+    size: 2.88,
+    rim: 0.85,
 
-		tip-origin: mark => mark.size + 0.5,
+    tip-origin: mark => mark.size + 0.5,
 
-		stroke: (cap: "round"),
+    stroke: (cap: "round"),
 
-		draw: mark => {
-			let y = if mark.flip {
-				mark.edge-extrude.last()
-			} else {
-				-mark.edge-extrude.first()
-			}
-			draw.arc(
-				(0, y),
-				start: -90deg,
-				stop: +90deg,
-				radius: mark.size,
-				fill: none,
-			)
-			draw.line((), (rel: (-mark.rim, 0)))
-		},
-	),
+    draw: mark => {
+      let y = if mark.flip {
+        mark.edge-extrude.last()
+      } else {
+        -mark.edge-extrude.first()
+      }
+      draw.arc(
+        (0, y),
+        start: -90deg,
+        stop: +90deg,
+        radius: mark.size,
+        fill: none,
+      )
+      draw.line((), (rel: (-mark.rim, 0)))
+    },
+  ),
 
-	hooks: (
-		inherit: "hook",
-		draw: mark => {
-			for flip in (-1, +1) {
-				let y = if flip > 0 {
-					mark.edge-extrude.first()
-				} else {
-					mark.edge-extrude.last()
-				}
-				draw.arc(
-					(0, -y),
-					start: -flip*90deg,
-					stop: +flip*90deg,
-					radius: mark.size,
-					fill: none,
-				)
-			}
-		},
-	),
+  hooks: (
+    inherit: "hook",
+    draw: mark => {
+      for flip in (-1, +1) {
+        let y = if flip > 0 {
+          mark.edge-extrude.first()
+        } else {
+          mark.edge-extrude.last()
+        }
+        draw.arc(
+          (0, -y),
+          start: -flip * 90deg,
+          stop: +flip * 90deg,
+          radius: mark.size,
+          fill: none,
+        )
+      }
+    },
+  ),
 
-	loop: (
-		size: 3,
-		bar: 1.75,
-		tip-origin: mark => mark.size + 0.5,
-		tail-end: mark => -mark.size,
-		draw: mark => {
-			draw.arc((0,0), radius: mark.size, start: 90deg, delta: -270deg, fill: none)
-			draw.line((), (-mark.size, mark.size*mark.bar))
-		},
-	),
+  loop: (
+    size: 3,
+    bar: 1.75,
+    tip-origin: mark => mark.size + 0.5,
+    tail-end: mark => -mark.size,
+    draw: mark => {
+      draw.arc((0, 0), radius: mark.size, start: 90deg, delta: -270deg, fill: none)
+      draw.line((), (-mark.size, mark.size * mark.bar))
+    },
+  ),
 
-	">": (inherit: "flexihead", rev: false),
-	"<": (inherit: "flexihead", rev: true),
+  ">": (inherit: "flexihead", rev: false),
+  "<": (inherit: "flexihead", rev: true),
 
-	">>": (inherit: "flexihead", extrude: (-2.88, 0), rev: false),
-	"<<": (inherit: "flexihead", extrude: (-2.88, 0), rev: true),
+  ">>": (inherit: "flexihead", extrude: (-2.88, 0), rev: false),
+  "<<": (inherit: "flexihead", extrude: (-2.88, 0), rev: true),
 
-	">>>": (inherit: "flexihead", extrude: (-6, -3, 0), rev: false),
-	"<<<": (inherit: "flexihead", extrude: (-6, -3, 0), rev: true),
+  ">>>": (inherit: "flexihead", extrude: (-6, -3, 0), rev: false),
+  "<<<": (inherit: "flexihead", extrude: (-6, -3, 0), rev: true),
 
-	"|>": (inherit: "solid", rev: false),
-	"<|": (inherit: "solid", rev: true),
+  "|>": (inherit: "solid", rev: false),
+  "<|": (inherit: "solid", rev: true),
 
-	"}>": (inherit: "stealth", rev: false),
-	"<{": (inherit: "stealth", rev: true),
+  "}>": (inherit: "stealth", rev: false),
+  "<{": (inherit: "stealth", rev: true),
 
-	"|": (inherit: "bar", rev: true),
-	"||": (inherit: "bar", extrude: (-3, 0)),
-	"|||": (inherit: "bar", extrude: (-6, -3, 0)),
+  "|": (inherit: "bar", rev: true),
+  "||": (inherit: "bar", extrude: (-3, 0)),
+  "|||": (inherit: "bar", extrude: (-6, -3, 0)),
 
-	"/": (inherit: "bar", angle: +60deg, rev: false),
-	"\\": (inherit: "bar", angle: -60deg, rev: false),
+  "/": (inherit: "bar", angle: +60deg, rev: false),
+  "\\": (inherit: "bar", angle: -60deg, rev: false),
 
-	"x": (inherit: "cross"),
-	"X": (inherit: "cross", size: 7),
+  "x": (inherit: "cross"),
+  "X": (inherit: "cross", size: 7),
 
-	"o": (inherit: "circle"),
-	"O": (inherit: "circle", size: 4),
-	"*": (inherit: "circle", fill: auto),
-	"@": (inherit: "circle", size: 4, fill: auto),
+  "o": (inherit: "circle"),
+  "O": (inherit: "circle", size: 4),
+  "*": (inherit: "circle", fill: auto),
+  "@": (inherit: "circle", size: 4, fill: auto),
 
-	"[]": (inherit: "square"),
-	"<>": (inherit: "diamond"),
+  "[]": (inherit: "square"),
+  "<>": (inherit: "diamond"),
 
-	"]": (inherit: "bracket", rev: false),
-	"[": (inherit: "bracket", rev: true),
+  "]": (inherit: "bracket", rev: false),
+  "[": (inherit: "bracket", rev: true),
 
-	")": (inherit: "parenthesis", rev: false),
-	"(": (inherit: "parenthesis", rev: true),
+  ")": (inherit: "parenthesis", rev: false),
+  "(": (inherit: "parenthesis", rev: true),
 
+  // crow's foot notation
+  crowfoot: (
+    size: 1,
+    many-width: mark => 5 * mark.size,
+    many-length: mark => 8 * mark.size,
+    one-width: mark => 5 * mark.size,
+    zero-width: mark => 3.5 * mark.size,
+    gap: mark => 3 * mark.size,
+    first-gap: mark => 5 * mark.size,
+    many: true,
+    one: true,
+    zero: true,
+    zero-fill: white,
+    fill: none,
+    draw: mark => {
+      let x = 0
+      if mark.many {
+        draw.line((0, mark.many-width), (-mark.many-length - .5, 0), (0, -mark.many-width))
+        x -= mark.many-length
+      }
+      if mark.one {
+        x -= mark.gap
+        x = calc.min(x, -mark.first-gap)
+        draw.line((x, mark.one-width), (x, -mark.one-width))
+      }
+      if mark.zero {
+        x -= mark.gap
+        draw.circle((x - mark.zero-width, 0), radius: mark.zero-width, fill: mark.zero-fill)
+      }
+    },
+  ),
+  "n": (inherit: "crowfoot", zero: false, one: false, many: true),
+  "n!": (inherit: "crowfoot", zero: false, one: true, many: true),
+  "n?": (inherit: "crowfoot", zero: true, one: false, many: true),
+  "1": (inherit: "crowfoot", zero: false, one: true, many: false),
+  "1!": (inherit: "crowfoot", zero: false, one: true, many: false, extrude: mark => (0, -calc.max(4, mark.gap))),
+  "1?": (inherit: "crowfoot", zero: true, one: true, many: false),
 
+  // draws content beside the edge, like a label with label-angle: auto
+  glyph: (
+    sep: 0.2em,
+    content: "A",
+    draw: mark => draw.get-ctx(ctx => {
+      let (cos, sin) = ctx.transform.at(0).slice(0, 2)
+      let θ = calc.atan2(cos, sin)
+      if mark.flip { θ = 180deg - θ }
+      let e = if mark.flip { calc.max(..mark.edge-extrude) } else { -calc.min(..mark.edge-extrude) }
+      draw.content((0, e), mark.content, angle: -θ, anchor: "south", padding: mark.sep)
+    }),
+  ),
 
-	// crow's foot notation
-	crowfoot: (
-		size: 1,
-		many-width: mark => 5*mark.size,
-		many-length: mark => 8*mark.size,
-		one-width: mark => 5*mark.size,
-		zero-width: mark => 3.5*mark.size,
-		gap: mark => 3*mark.size,
-		first-gap: mark => 5*mark.size,
-		many: true,
-		one: true,
-		zero: true,
-		zero-fill: white,
-		fill: none,
-		draw: mark => {
-			let x = 0
-			if mark.many {
-				draw.line((0, mark.many-width), (-mark.many-length - .5, 0), (0, -mark.many-width))
-				x -= mark.many-length
-			}
-			if mark.one {
-				x -= mark.gap
-				x = calc.min(x, -mark.first-gap)
-				draw.line((x, mark.one-width), (x, -mark.one-width))
-			}
-			if mark.zero {
-				x -= mark.gap
-				draw.circle((x - mark.zero-width, 0), radius: mark.zero-width, fill: mark.zero-fill)
-			}
-		}
-	),
-	"n": (inherit: "crowfoot", zero: false, one: false, many: true),
-	"n!": (inherit: "crowfoot", zero: false, one: true, many: true),
-	"n?": (inherit: "crowfoot", zero: true, one: false, many: true),
-	"1": (inherit: "crowfoot", zero: false, one: true, many: false),
-	"1!": (inherit: "crowfoot", zero: false, one: true, many: false, extrude: mark => (0, -calc.max(4, mark.gap))),
-	"1?": (inherit: "crowfoot", zero: true, one: true, many: false),
-
-
-	// draws content beside the edge, like a label with label-angle: auto
-	glyph: (
-	  sep: 0.2em,
-		content: "A",
-  	draw: mark => draw.get-ctx(ctx => {
-			let (cos, sin) = ctx.transform.at(0).slice(0, 2)
-			let θ = calc.atan2(cos, sin)
-			if mark.flip { θ = 180deg - θ }
-			let e = if mark.flip { calc.max(..mark.edge-extrude) } else { -calc.min(..mark.edge-extrude) }
-    	draw.content((0,e), mark.content, angle: -θ, anchor: "south", padding: mark.sep)
-  	}),
-	),
-
-	// intended for isomorphism arrows
-	tilde: (inherit: "glyph", content: $ ~ $),
-
+  // intended for isomorphism arrows
+  tilde: (inherit: "glyph", content: $ ~ $),
 )
