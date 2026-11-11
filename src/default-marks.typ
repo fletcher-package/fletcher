@@ -533,5 +533,3 @@
 	tilde: (inherit: "glyph", content: $ ~ $),
 
 )
-
-#let MARKS = state("fletcher-marks", DEFAULT_MARKS)

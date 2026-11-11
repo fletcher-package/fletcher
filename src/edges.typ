@@ -548,11 +548,17 @@
     ))
     .sorted()
 
+
   // resolve marks
+  let all-mark-styles = {
+    // Marks.MARKS.get()
+    Marks.DEFAULT_MARKS
+    ctx.style.at("fletcher-marks", default: (:))
+  }
   data.style.marks = data.style.marks.map(mark => {
     mark.scale = mark.at("scale", default: 1) * float(data.style.mark-scale)
     mark.edge-extrude = data.style.extrude
-    Marks.resolve-mark(mark)
+    Marks.resolve-mark(mark, all-mark-styles)
   })
 
   // validate some styles
@@ -694,7 +700,7 @@
     let (marks, options) = parsing.parse-mark-shorthand(marks)
     (marks: Marks.interpret-marks(marks), ..options)
   } else {
-    utils.error("could not interpret marks argument: #0", marks)
+    utils.error("Could not interpret marks argument: #0", marks)
   }
 }
 

@@ -20,21 +20,23 @@
 )
 
 
-#let apply-mark-inheritances(mark) = {
-	// let marks = MARKS.get()
-	let marks = DEFAULT_MARKS
-
+#let apply-mark-inheritances(mark, all-mark-styles) = {
 	while "inherit" in mark {
 		if mark.inherit.ends-with("'") {
 			mark.flip = not mark.at("flip", default: false)
 			mark.inherit = mark.inherit.slice(0, -1)
 		}
 
-		if mark.inherit not in marks {
-			utils.error("Mark inherits from #0 which is not defined.", repr(mark.inherit))
+		if mark.inherit not in all-mark-styles {
+			let similar = all-mark-styles.keys().filter(m => m.starts-with(mark.inherit) or mark.inherit.starts-with(m))
+			if similar.len() > 0 {
+				utils.error("Unknown mark #0. Try #..1", repr(mark.inherit), similar)
+
+			}
+			utils.error("Unknown mark #0", repr(mark.inherit))
 		}
 
-		let parent = marks.at(mark.inherit)
+		let parent = all-mark-styles.at(mark.inherit)
 
 		// properties occurring before `inherit` should be inserted before parent's properties
 		// and properties occurring after should update parent's properties
@@ -94,9 +96,9 @@
 /// Resolve all the parameters of a mark dictionary, evaluating any closures
 /// in insertion order. This also applies mark scale by premultiplying the `size`
 /// parameter.
-#let resolve-mark(mark, defaults: (:)) = {
+#let resolve-mark(mark, all-mark-styles, defaults: (:)) = {
   if type(mark) == str { mark = (inherit: mark) }
-  mark = apply-mark-inheritances(mark)
+  mark = apply-mark-inheritances(mark, all-mark-styles)
 	mark = add-mark-defaults(mark, defaults: defaults)
 
 	for (key, value) in mark {
@@ -370,7 +372,7 @@
 	bend: 0deg,
 	debug: 3,
 ) = {
-	mark = resolve-mark(mark, defaults: (pos: 1, rev: false))
+	mark = resolve-mark(mark, DEFAULT_MARKS, defaults: (pos: 1, rev: false))
 
 	let t = utils.get-thickness(stroke)
 
