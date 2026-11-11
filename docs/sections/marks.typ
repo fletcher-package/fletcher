@@ -67,7 +67,7 @@ Normal #diagram(edge("hook-harpoon", stroke: 1pt))
 and flipped #diagram(edge("hook'-harpoon'", stroke: 1pt))
 ```)
 
-Some marks adapt to the edge's @edge-extrude[extrusion], including `">"`, `"harpoon"`, `"harpoons"`, `"hook"` and `"hooks"`:
+Some marks adapt to the edge's @edge-extrude[extrusion], including `">"`, `"harpoon"`, `"harpoons"`, `"hook"`, `"hooks"` and `"hollow"`:
 
 #example(```typ
 #diagram(
@@ -78,6 +78,9 @@ Some marks adapt to the edge's @edge-extrude[extrusion], including `">"`, `"harp
 	edge((2,0), (3,0), "harpoon'-harpoon"),
 	edge((2,1), (3,1), "harpoon'=harpoon"),
 	edge((2,2), (3,2), "harpoon'==harpoon"),
+	edge((4,0), (5,0), "-hollow"),
+	edge((4,1), (5,1), "=hollow"),
+	edge((4,2), (5,2), "==hollow"),
 )
 ```)
 

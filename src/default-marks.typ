@@ -253,6 +253,28 @@
 		}
 	),
 
+	hollow: (
+  	flex: mark => calc.max(0, ..mark.edge-extrude.map(calc.abs))/2,
+  	size: mark => interp((5, 10, 15), mark.flex, spacing: 2),
+    sharpness: 50deg,
+    fill: none,
+    tip-origin: mark => 0.5/calc.sin(mark.sharpness),
+    tip-end: mark => -mark.size,
+    tail-origin: mark => -mark.size - 0.5,
+    stroke: (cap: "square"),
+    draw: mark => {
+      let h = mark.size*calc.tan(mark.sharpness/2)
+      let (y-min, y-max) = (calc.min(..mark.edge-extrude), calc.max(..mark.edge-extrude))
+      draw.line(
+        (-mark.size, y-max),
+        (-mark.size, h),
+        (0, 0),
+        (-mark.size, -h),
+        (-mark.size, y-min),
+      )
+    },
+ 	),
+
 	circle: (
 		size: 2,
 
