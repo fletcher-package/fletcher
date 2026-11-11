@@ -973,7 +973,7 @@
   fill: auto,
   /// Trim the beginning of the path by a given length.
   ///
-  /// For multi-stroke effect when @path-effect.extrude is an array,
+  /// For multi-stroke effect when @path-effect-extrude is an array,
   /// this may also be an array of the same length, specifying the length
   /// to shorten each offset path individually.
   /// This is useful for placing marks on multi-stroke lines correctly.
@@ -983,7 +983,7 @@
   shorten-start: 0,
   /// Trim the end of the path by a specific length.
   ///
-  /// Works just like @path-effect.shorten-start.
+  /// Works just like @path-effect-shorten-start.
   /// -> number | length | array
   shorten-end: 0,
   /// Lengths to offset path by. An array of different offsets results in
@@ -1008,9 +1008,9 @@
   /// How to form corners of an offset path.
   ///
   /// If `"round"`, corners become rounded joints with a (minimum) corner radius
-  /// specified by @path-effect.corner-radius.
+  /// specified by @path-effect-corner-radius.
   /// If `"miter"`, corners become miter joints or, if they are sharp enough, bevelled
-  /// joints, as controlled by @path-effect.miter-limit.
+  /// joints, as controlled by @path-effect-miter-limit.
   ///
   /// ```example
   /// #import fletcher.paths: path-effect

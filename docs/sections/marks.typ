@@ -5,7 +5,7 @@
 
 = Marks and Arrows
 
-Arrow marks may be specified like `edge(from, "->", to)` or `edge(..pts, "->")` or with the @edge.marks option.
+Arrow marks may be specified like `edge(from, "->", to)` or `edge(..pts, "->")` or with the @edge-marks option.
 Some mathematical arrow heads are supported which match the symbols $arrow$, $arrow.double$, $arrow.triple$, $arrow.bar$, $arrow.twohead$, and $arrow.hook$ in the default font.
 
 
@@ -67,7 +67,7 @@ Normal #diagram(edge("hook-harpoon", stroke: 1pt))
 and flipped #diagram(edge("hook'-harpoon'", stroke: 1pt))
 ```)
 
-Some marks adapt to the edge's @edge.extrude[extrusion], including `">"`, `"harpoon"`, `"harpoons"`, `"hook"` and `"hooks"`:
+Some marks adapt to the edge's @edge-extrude[extrusion], including `">"`, `"harpoon"`, `"harpoons"`, `"hook"` and `"hooks"`:
 
 #example(```typ
 #diagram(
@@ -94,7 +94,7 @@ This expansion is done by @parse-mark-shorthand:
 #fletcher.parsing.parse-mark-shorthand("--|>")
 ```)
 
-For more control, you can use the full form and pass an array of marks to the @edge.marks argument.
+For more control, you can use the full form and pass an array of marks to the @edge-marks argument.
 This lets you pass @mark-objects[_mark objects_] instead of mark names, which are dictionaries of mark parameters which you can customise.
 For example, here is a tulip made of arrows:
 
@@ -264,7 +264,7 @@ A mark object may contain arbitrary properties, but the following have special f
 
 		`scale`,
 		[
-			Overall scaling factor. See also @edge.mark-scale.
+			Overall scaling factor. See also @edge-mark-scale.
 		],
 		`100%`,
 
@@ -294,7 +294,7 @@ A mark object may contain arbitrary properties, but the following have special f
 		`cap-offset`,
 		[
 			A function `(mark, y) => x` returning the $x$ coordinate at which the edge's stroke terminates relative to `tip-end` or `tail-end`, as a function of the $y$ coordinate.
-			This is relevant for @edge.extrude[extruded] edges.
+			This is relevant for @edge-extrude[extruded] edges.
 			See `cap-offset()`.
 		],
 		none,

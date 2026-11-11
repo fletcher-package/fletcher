@@ -865,10 +865,10 @@
 /// Draw a path with arrow marks, labels, and automatic snapping to nodes.
 #let edge(
   /// An edge's positional arguments may specify:
-  /// - the edge's @edge.vertices, each given as a CeTZ coordinate;
+  /// - the edge's @edge-vertices, each given as a CeTZ coordinate;
   /// - the CeTZ path to apply edge marks, styles, and labels to;
-  /// - the edge's @edge.marks, e.g., `"->"` or `"solid=/=solid"`;
-  /// - the body content of an edge @edge.label, e.g., `$f$`; or
+  /// - the edge's @edge-marks, e.g., `"->"` or `"solid=/=solid"`;
+  /// - the body content of an edge @edge-label, e.g., `$f$`; or
   /// - some other style flags (#fletcher.edges.parsing.EDGE_FLAGS.keys().map(raw).join[, ]).
   ///
   /// Vertex coordinates come first but are optional:
@@ -891,7 +891,7 @@
   /// edge(cetz.draw.bezier(..), "<->") // add marks to a cetz path
   /// ```
   ///
-  /// If given as positional arguments, an edge's @edge.marks and @edge.label
+  /// If given as positional arguments, an edge's @edge-marks and @edge-label
   /// are disambiguated based on their types.
   /// For example, the following are equivalent:
   /// ```typc
@@ -920,7 +920,7 @@
   stroke: auto,
   /// Set the dash property of the current stroke style.
   ///
-  /// You can also set the dash style using @edge.stroke; this is simply an alias.
+  /// You can also set the dash style using @edge-stroke; this is simply an alias.
   dash: auto,
   /// Draw a separate stroke for each extrusion offset to
   /// obtain a multi-stroke effect. Offsets may be numbers
@@ -959,7 +959,7 @@
   ///
   /// This length specifies the corner radius for right-angled bends.
   /// The actual radius is smaller for acute angles and larger for obtuse angles to balance things visually.
-  /// See @path-effect.corner-radius for details.
+  /// See @path-effect-corner-radius for details.
   /// -> length | number | none
   corner-radius: auto,
   /// Marks or arrows to draw along the edge.
@@ -1009,11 +1009,11 @@
   /// ```
   /// Possible label options are:
   /// - `body`: the content to draw
-  /// - `angle`: orientation of the label body (see @edge.label-angle)
-  /// - `pos`: the label's position along the edge path (see @edge.label-pos)
-  /// - `sep`: padding between the label's body and the path (see @edge.label-sep)
-  /// - `side`: which side of the edge to place the body (see @edge.label-side)
-  /// - `anchor`: the CeTZ anchor to use for label body (see @edge.label-anchor)
+  /// - `angle`: orientation of the label body (see @edge-label-angle)
+  /// - `pos`: the label's position along the edge path (see @edge-label-pos)
+  /// - `sep`: padding between the label's body and the path (see @edge-label-sep)
+  /// - `side`: which side of the edge to place the body (see @edge-label-side)
+  /// - `anchor`: the CeTZ anchor to use for label body (see @edge-label-anchor)
   ///
   /// Multiple labels can be specified with an array:
   /// ```typc
@@ -1043,7 +1043,7 @@
   /// })
   /// ```
   ///
-  /// This can be given as an _edge argument_ like `edge(.., $f$, label-pos: 50%)` or as a @edge.label option like `edge(.., label: (body: $f$, pos: 50%))`.
+  /// This can be given as an _edge argument_ like `edge(.., $f$, label-pos: 50%)` or as a @edge-label option like `edge(.., label: (body: $f$, pos: 50%))`.
   ///
   /// -> ratio | number | length
   label-pos: 50%,
@@ -1073,13 +1073,13 @@
   /// )))
   /// ```
   ///
-  /// This can be given as an _edge argument_ like `edge(.., $f$, label-side: top)` or as a @edge.label option like `edge(.., label: (body: $f$, side: top))`.
+  /// This can be given as an _edge argument_ like `edge(.., $f$, label-side: top)` or as a @edge-label option like `edge(.., label: (body: $f$, side: top))`.
   ///
   /// -> auto | center | top | bottom | left | right | start | end | bool
   label-side: auto,
   /// Separation between label body and the edge.
   ///
-  /// This can be given as an _edge argument_ like `edge(.., $f$, label-sep: 3pt)` or as a @edge.label option like `edge(.., label: (body: $f$, sep: 3pt))`.
+  /// This can be given as an _edge argument_ like `edge(.., $f$, label-sep: 3pt)` or as a @edge-label option like `edge(.., label: (body: $f$, sep: 3pt))`.
   /// -> length
   label-sep: 3pt,
   label-fill: auto,
@@ -1098,13 +1098,13 @@
   ///   diagram(edge((0,1), (2,0), "->", [#angle], label-angle: angle))
   /// }).map(align.with(bottom)))
   ///
-  /// This can be given as an _edge argument_ like `edge(.., $f$, label-angle: auto)` or as a @edge.label option like `edge(.., label: (body: $f$, angle: auto))`.
+  /// This can be given as an _edge argument_ like `edge(.., $f$, label-angle: auto)` or as a @edge-label option like `edge(.., label: (body: $f$, angle: auto))`.
   ///
   /// -> angle | auto | top | bottom | left | right
   label-angle: 0deg,
   /// The CeTZ anchor to use for the label content.
   ///
-  /// If `auto`, the anchor is automatically chosen depending on @edge.label-side and the edge's angle.
+  /// If `auto`, the anchor is automatically chosen depending on @edge-label-side and the edge's angle.
   /// This must be `auto` if the `side` option is set.
   ///
   /// -> anchor
@@ -1142,7 +1142,7 @@
   snap-method: auto,
   /// Gap between the end of the edge and connected nodes.
   ///
-  /// Similar to @node.outset, but specific to the edge instead of
+  /// Similar to @node-outset, but specific to the edge instead of
   /// the target node.
   /// Can be a single length or a pair of lengths `(from, to)` to control the
   /// outset at either end.
@@ -1157,7 +1157,7 @@
   /// )
   /// ```
   ///
-  /// See also @edge.shorten.
+  /// See also @edge-shorten.
   /// -> length | pair
   outset: auto,
   /// Distance to shorten the edge at either end.
@@ -1166,7 +1166,7 @@
   /// A pair of lengths `(start, end)` controls shortening at either end
   /// of the edge independently.
   ///
-  /// See also @edge.outset.
+  /// See also @edge-outset.
   /// -> length | number | array
   shorten: 0,
   /// Name of the edge for use with coordinate anchors.
@@ -1216,14 +1216,14 @@
   ///   })
   /// }))
   ///
-  /// See also @node.layer, which is `1` by default.
+  /// See also @node-layer, which is `1` by default.
   ///
   /// -> number
   layer: auto,
 
   /// Draw a backdrop under the edge to give the illusion of it crossing over other lines.
   ///
-  /// If `true`, draws a backdrop of color @edge.crossing-fill with a thickness @edge.crossing-thickness,
+  /// If `true`, draws a backdrop of color @edge-crossing-fill with a thickness @edge-crossing-thickness,
   /// which are both styles that can be set at the diagram level.
   ///
   /// ```example
@@ -1237,10 +1237,10 @@
   /// ```
   ///
   /// To make sure crossing lines are drawn above other lines,
-  /// order them later in the diagram or use @edge.layer.
+  /// order them later in the diagram or use @edge-layer.
   /// -> bool
   crossing: false,
-  /// Color of the "crossing" backdrop  (drawn when @edge.crossing is enabled).
+  /// Color of the "crossing" backdrop  (drawn when @edge-crossing is enabled).
   /// This should match the background of the figure to give the illusion of breaking lines below it.
   ///
   /// #frame-row(..(white, gray, yellow).map(it => {
@@ -1253,7 +1253,7 @@
   /// }))
   /// -> color
   crossing-fill: auto,
-  /// Width of the "crossing" backdrop (drawn when @edge.crossing is enabled) as a length or a multiple of the stroke's thickness.
+  /// Width of the "crossing" backdrop (drawn when @edge-crossing is enabled) as a length or a multiple of the stroke's thickness.
   ///
   /// #frame-row(..(3, 5, 5pt).map(it => {
   ///   diagram(
@@ -1280,7 +1280,7 @@
   /// #diagram($x hom(|=>) & f(x)$)
   /// ```
   ///
-  /// See also @node.in-math.
+  /// See also @node-in-math.
   /// -> bool
   in-math: false,
   /// Enable debug annotations for only this edge.

@@ -443,7 +443,7 @@
 /* argument parsing */
 
 
-/// Interpret the @flexigrid.axes option.
+/// Interpret the @flexigrid-axes option.
 ///
 /// Returns a dictionary with:
 /// - `u`: Whether $u$ is reversed

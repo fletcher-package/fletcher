@@ -67,15 +67,15 @@ Debug arguments accept the following options:
 		This point is used as the default anchor for the node.
 	],
   "node.inset": [
-		Show bounding box around the node's body content _before_ @node.inset is applied.
+		Show bounding box around the node's body content _before_ @node-inset is applied.
 	],
 	"node.body": [
-	  Show bounding box around a node's body, including any @node.inset.
+	  Show bounding box around a node's body, including any @node-inset.
 	],
   "node.outset": [
 		Show the snapping target for edges connecting to this node.
 
-    The snapping target is the node's outline extruded by the distance @node.outset.
+    The snapping target is the node's outline extruded by the distance @node-outset.
 	],
 	"node.bounds": [
 		Show bounding boxes of node shapes.
@@ -83,8 +83,8 @@ Debug arguments accept the following options:
   "node.cell": [
     Show the flexigrid cell inhabited by the node.
 
-    Unlike @debug.grid.cells, this makes the node's @node.colspan[column] and @node.rowspan[row spans] visible.
-    This node's cell is the region in which @node.align has effect.
+    Unlike @debug.grid.cells, this makes the node's @node-colspan[column] and @node-rowspan[row spans] visible.
+    This node's cell is the region in which @node-align has effect.
 	],
 
 	edge: [

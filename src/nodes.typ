@@ -11,7 +11,7 @@
 // - enclosed by a shape
 // - (if in a flexigrid) placed/aligned inside a cell
 //
-// Content is given a padding controlled by @node.inset.
+// Content is given a padding controlled by @node-inset.
 // The `width` and `height` options control the body size.
 // The node shape encloses the body by default
 
@@ -521,9 +521,9 @@
   /// Content to draw in the node.
   ///
   /// This content is measured to automatically determine the size of the node.
-  /// The @debug.node.body debug option shows the body's bounding box after @node.inset is applied.
+  /// The @debug.node.body debug option shows the body's bounding box after @node-inset is applied.
   ///
-  /// For nodes without a body, note that @node.inset[inset] is applied if the body is empty content (`[]`),
+  /// For nodes without a body, note that @node-inset[inset] is applied if the body is empty content (`[]`),
   /// but not if the body is `none`.
   /// -> content
   body: none,
@@ -539,7 +539,7 @@
 
   /// Fill style of the node.
   ///
-  /// The fill is drawn within the outline defined by the first @node.extrude value. For example:
+  /// The fill is drawn within the outline defined by the first @node-extrude value. For example:
   ///
   /// #example(```typ
   /// #diagram(
@@ -589,12 +589,12 @@
   ///
   /// _This option is a @node-styles[node style]._
   ///
-  /// See also @edge.outset, which controls how closely individual edges connect to nodes.
+  /// See also @edge-outset, which controls how closely individual edges connect to nodes.
   /// -> length
   outset: auto,
   /// Draw strokes around the node at the given offsets to
   /// obtain a multi-stroke effect.
-  /// Offsets can be numbers specifying multiples of the @node.stroke's thickness or lengths.
+  /// Offsets can be numbers specifying multiples of the @node-stroke's thickness or lengths.
   ///
   /// The node's fill is drawn within the boundary defined by the first offset in
   /// the array.
@@ -604,7 +604,7 @@
   extrude: auto,
   /// Canvas layer to draw node on.
   ///
-  /// The default layer for nodes is `0`, which is above edges (on layer `-1` by default; see @edge.layer).
+  /// The default layer for nodes is `0`, which is above edges (on layer `-1` by default; see @edge-layer).
   /// Enclose nodes are drawn on layer `-2` by default, under nodes and edges.
   /// Nodes with equal layer are drawn in the order they are inserted.
   ///
@@ -689,12 +689,12 @@
   /// )
   /// ```)
   ///
-  /// See also @node.rowspan and @node.enclose.
+  /// See also @node-rowspan and @node-enclose.
   /// -> number | none
   colspan: none,
   /// Row span of the node's @node-cells[flexigrid cell].
   ///
-  /// Analogous to @node.colspan.
+  /// Analogous to @node-colspan.
   /// -> number
   rowspan: none,
 
@@ -711,7 +711,7 @@
   /// #diagram($x hom(|->) & obj(pi(x), stroke: #yellow)$)
   /// ```
   ///
-  /// See also @edge.in-math.
+  /// See also @edge-in-math.
   /// -> bool
   in-math: false,
 

@@ -55,7 +55,7 @@ Nodes and edges can be given names and participate in CeTZ's anchoring system.
 == Applying edge effects to CeTZ paths
 
 You can wrap a CeTZ path in @edge to apply edge effects to it (see @cetz-edge).
-Using @edge in this way is a convenient wrapper to the path modification functions offered by fletcher, which includes @path-effect for applying corner rounding (for @edge.corner-radius) and offsetting (for @edge.extrude) to CeTZ paths, and @apply-edge-effects for placing marks and labels.
+Using @edge in this way is a convenient wrapper to the path modification functions offered by fletcher, which includes @path-effect for applying corner rounding (for @edge-corner-radius) and offsetting (for @edge-extrude) to CeTZ paths, and @apply-edge-effects for placing marks and labels.
 
 #example(```typ
 #cetz.canvas({
@@ -73,7 +73,7 @@ Using @edge in this way is a convenient wrapper to the path modification functio
 == Snapping edges to CeTZ objects <cetz-snapping>
 
 You can use @edge to enable path snapping.
-You can make edges snap to nodes or plain CeTZ objects using the @edge.snap-to option and providing a name.
+You can make edges snap to nodes or plain CeTZ objects using the @edge-snap-to option and providing a name.
 You can also make plain CeTZ paths snap to objects by wrapping them in @edge.
 
 #example(```typ

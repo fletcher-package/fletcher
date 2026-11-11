@@ -7,12 +7,12 @@
 @edge[`edge(..vertices, marks, labels, ..)`]
 
 Use the @edge function inside a @diagram, `cetz.canvas()` or @flexigrid to draw lines or paths with various _edge effects_, including:
-- @edge.snap-to[automatic snapping] to nodes or CeTZ objects
-- @edge.marks[marks and arrows]
+- @edge-snap-to[automatic snapping] to nodes or CeTZ objects
+- @edge-marks[marks and arrows]
 - @edge-labels[label placement]
-- @edge.corner-radius[corner rounding]
-- @edge.extrude[multi-stroke effects]
-- CeTZ path @edge.decorate[decorations]
+- @edge-corner-radius[corner rounding]
+- @edge-extrude[multi-stroke effects]
+- CeTZ path @edge-decorate[decorations]
 
 You can specify an edge with a sequence of vertex coordinates, similar to `cetz.draw.line(..)`.
 There are a few built-in @edge-kinds[edge kinds] which accept extra named arguments (such as `bend: 30deg` for arc edges or `corner: "|-"` for right-angled corners).
@@ -21,12 +21,12 @@ Edge effects can also be applied to any CeTZ path by @cetz-edge[wrapping] it in 
 
 == Specifying vertices
 
-Vertices should be the first arguments, unless there are two vertices, in which case you may put the @edge.marks[marks argument] in between:
+Vertices should be the first arguments, unless there are two vertices, in which case you may put the @edge-marks[marks argument] in between:
 ```typc
 edge((0,0), (1,0), (2,1), "->")
 edge(<from>, "->", <to>)
 ```
-Alternatively, an array of vertices may be supplied to the @edge.vertices argument.
+Alternatively, an array of vertices may be supplied to the @edge-vertices argument.
 
 === Automatic vertices <auto-vertices>
 
@@ -63,7 +63,7 @@ The first letters of
 #strong[r]ight/#strong[e]ast
 are allowed.
 
-Commas can be used to separate multiple coordinates, so `"r,d"` is understood as `"r", "d"` which is `(rel: (1, 0)), (rel: (0, 1))`, assuming @flexigrid.axes is set so $(u, v)$ goes $(arrow.r, arrow.b)$.
+Commas can be used to separate multiple coordinates, so `"r,d"` is understood as `"r", "d"` which is `(rel: (1, 0)), (rel: (0, 1))`, assuming @flexigrid-axes is set so $(u, v)$ goes $(arrow.r, arrow.b)$.
 
 #example(```typ
 #diagram(
@@ -90,14 +90,14 @@ Any markup or math content passed to @edge after vertices is interpreted a label
 )
 ```)
 The following edge options set properties of the edge's label(s):
-- @edge.label[`label`]: the body content
-- @edge.label-pos[`label-pos`]: a @path-anchors[path anchor] specifying the label's position
-- @edge.label-side[`label-side`]: which side of the edge to place the body
-- @edge.label-angle[`label-angle`]: rotation/orientation of the body
-- @edge.label-sep[`label-sep`]: separation between edge and body
-- @edge.label-anchor[`label-anchor`]: the CeTZ anchor to use for label body
+- @edge-label[`label`]: the body content
+- @edge-label-pos[`label-pos`]: a @path-anchors[path anchor] specifying the label's position
+- @edge-label-side[`label-side`]: which side of the edge to place the body
+- @edge-label-angle[`label-angle`]: rotation/orientation of the body
+- @edge-label-sep[`label-sep`]: separation between edge and body
+- @edge-label-anchor[`label-anchor`]: the CeTZ anchor to use for label body
 
-To specify multiple labels, pass an array of dictionaries to @edge.label, where each contains properties without the `label-` prefix:
+To specify multiple labels, pass an array of dictionaries to @edge-label, where each contains properties without the `label-` prefix:
 ```typc
 label: (
   (body: [First label], pos: .., side: ..),
@@ -166,7 +166,7 @@ To make it easy to achieve common edge shapes, like arcs, loops or right-angled 
   === Polyline
 
   By default, edges are displayed as straight paths between two or more vertices.
-  As with all edge kinds, they can have @edge.corner-radius[rounded corners].
+  As with all edge kinds, they can have @edge-corner-radius[rounded corners].
 ]
 
 #bordered-section[
@@ -333,7 +333,7 @@ For example, below we draw a composite CeTZ path using lines and a cubic Bézier
 Edges support _path anchors_, like most CeTZ elements.
 This allows you to refer to points along an edge.
 // In addition to CeTZ path anchors like `50%` or `1cm`, fletcher defines _segment indices_, which refer to the vertices of an edge
-In particular, the @edge.label-pos[label position] is a path anchor, and if the edge has a @edge.name, you can place other elements using the coordinates `<name.anchor>`, `"name.anchor"` or `(name: "name", anchor: "anchor")`.
+In particular, the @edge-label-pos[label position] is a path anchor, and if the edge has a @edge-name, you can place other elements using the coordinates `<name.anchor>`, `"name.anchor"` or `(name: "name", anchor: "anchor")`.
 
 #table(
   columns: 2,

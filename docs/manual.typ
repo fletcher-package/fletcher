@@ -108,7 +108,7 @@ Each example is a link to its source code at #common.TYPST_TOML.package.homepage
 
 == The `shapes` module
 
-These are the built in @node-shapes[node shapes], usable with the @node.shape option.
+These are the built in @node-shapes[node shapes], usable with the @node-shape option.
 
 #common.shapes-gallery
 

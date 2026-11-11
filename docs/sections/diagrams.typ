@@ -54,7 +54,7 @@ Nodes can also be specified using equations with alignment points `&` separating
 )
 ```)
 
-*Important:* To use @node and @edge inside equations, the @edge.in-math[`in-math`] option must be enabled.
+*Important:* To use @node and @edge inside equations, the @edge-in-math[`in-math`] option must be enabled.
 It can be convenient to define an alias such as
 ```
 #let hom = edge.with(in-math: true)
@@ -102,7 +102,7 @@ This behaviour guarantees that a small nudge in a node's position only results i
 
 === Alignment within cells <node-alignment>
 
-If a node's cell is larger than its bounding box (visible with @debug.node.bounds), you can align the node within the cell using @node.align.
+If a node's cell is larger than its bounding box (visible with @debug.node.bounds), you can align the node within the cell using @node-align.
 By default, nodes are placed in the center of their cell.
 
 #example(```typ
@@ -118,7 +118,7 @@ To @align-in-node[align content within a node], use the `align()` element.
 
 === Making nodes fill their cell
 
-By default, the width and height of a node is determined by its @node.body[body content], plus an @node.inset[inset].
+By default, the width and height of a node is determined by its @node-body[body content], plus an @node-inset[inset].
 You can force a node to fill its cell by using the special values `width: "cell"` or `height: "cell"`.
 Similarly, you can force a node to fit to its body with `width: "body"` or `height: "body"`.
 
@@ -150,7 +150,7 @@ This can be useful to ensure the edges of nodes are aligned.
 
 == Row and column span <sec-node-cellspan>
 
-A node's cell can span multiple flexigrid rows or columns using @node.rowspan and @node.colspan.
+A node's cell can span multiple flexigrid rows or columns using @node-rowspan and @node-colspan.
 
 #example(```typ
 #diagram(
@@ -165,7 +165,7 @@ A node's cell can span multiple flexigrid rows or columns using @node.rowspan an
 )
 ```)
 
-Note that @node.rowspan[`rowspan`] and @node.colspan[`colspan`] affect the size of the node's flexigrid cell, not the size of the node itself.
+Note that @node-rowspan[`rowspan`] and @node-colspan[`colspan`] affect the size of the node's flexigrid cell, not the size of the node itself.
 However, if the row or column span is not `none`, the node's height or width defaults to `"cell"`, causing the node to fill the rows or columns it spans.
 But you can still place a node across multiple cells while giving it a custom size, which is useful if you want to align a node within a group of cells.
 In particular, the special width or height value `"body"` forces the node to fit to its body, rather than its flexigrid cell.
@@ -198,4 +198,4 @@ To render a diagram, fletcher first collects the row/column positions (or $u v$ 
 After the final flexigrid is determined, all nodes, edges and other objects are drawn in a context where both $u v$ coordinates and normal $x y$ coordinates can be used.
 
 If nodes have fractional $u v$ coordinates, an iterative algorithm is used to calculate the minimum row and column sizes which accommodate the nodes.
-This usually requires only a few steps (see the @flexigrid.max-layout-iterations option for details).
+This usually requires only a few steps (see the @flexigrid-max-layout-iterations option for details).

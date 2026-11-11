@@ -6,10 +6,10 @@
 @node[`node(position, body, ..)`]
 
 Nodes are content centered at a coordinate.
-By default, nodes fit to their content (with an @node.inset[inset]), but can also be given a specific size and @node-shapes[shape].
-Nodes can be given various styles including @node.stroke[stroke] and @node.fill[fill].
+By default, nodes fit to their content (with an @node-inset[inset]), but can also be given a specific size and @node-shapes[shape].
+Nodes can be given various styles including @node-stroke[stroke] and @node-fill[fill].
 
-Edges automatically snap to nodes (with an @node.outset[outset]) and the positions and sizes of nodes @manual-diagrams[affects diagram layout] (unlike edges or plain CeTZ objects).
+Edges automatically snap to nodes (with an @node-outset[outset]) and the positions and sizes of nodes @manual-diagrams[affects diagram layout] (unlike edges or plain CeTZ objects).
 
 #example(```typ
 #diagram(
@@ -35,13 +35,13 @@ Edges automatically snap to nodes (with an @node.outset[outset]) and the positio
 
 Available node styles:
 
-- @node.fill
-- @node.stroke
-- @node.extrude
-- @node.inset
-- @node.outset
-- @node.shape
-- @node.layer
+- @node-fill
+- @node-stroke
+- @node-extrude
+- @node-inset
+- @node-outset
+- @node-shape
+- @node-layer
 - Any other styles specific to the @node-shapes[node shape]:
   - `width`, `height`, `corner-radius` for @rect nodes
   - `radius` for @circle nodes
@@ -75,7 +75,7 @@ Like CeTZ styles, `cetz.draw.set-style()` is scoped to the current `cetz.draw.gr
 == Node shapes <node-shapes>
 
 By default, nodes are circular if the body is small and roughly as wide as it is tall, and rectangular otherwise.
-The @node.shape[shape] option can be set to any of the following built-in shapes.
+The @node-shape[shape] option can be set to any of the following built-in shapes.
 
 #shapes-gallery
 
@@ -106,12 +106,12 @@ For example, you can write `node(.., radius: 3cm)` instead of `node(.., shape: "
 
 === Making shapes fit better <node-fit>
 
-All shapes have a `fit` parameter, which adjusts how tightly the shape fits in the @node.body[body].
+All shapes have a `fit` parameter, which adjusts how tightly the shape fits in the @node-body[body].
 - `fit: 0` makes the shape small enough to fit inside the body
 - `fit: 1` makes the shape large enough so the node body fits inside
 
 The default is usually in between, striking a balance.
-If a node looks too cramped inside a shape, you can usually adjust the `fit` instead of tweaking the @node.inset.
+If a node looks too cramped inside a shape, you can usually adjust the `fit` instead of tweaking the @node-inset.
 
 You can see the bounding box of the node body with the @debug.node.body debug option.
 
@@ -147,7 +147,7 @@ This only matters for the layout of a surrounding @flexigrid or @diagram; the `f
 == Enclose nodes <enclose-nodes>
 
 Enclose nodes are a special type of node that are positioned around other nodes, which is useful for diagrams with nested layouts.
-Nodes with the @node.enclose option automatically wrap around the specified nodes.
+Nodes with the @node-enclose option automatically wrap around the specified nodes.
 
 #example(```typ
 #diagram(
@@ -208,7 +208,7 @@ If a node is larger than its body content, you can align the content inside the 
 )
 ```)
 
-Note that the @node.align option aligns the node itself relative to the @node-cells[parent cell], as described in @node-alignment.
+Note that the @node-align option aligns the node itself relative to the @node-cells[parent cell], as described in @node-alignment.
 
 
 == Anatomy of a node
@@ -223,11 +223,11 @@ The different components of a node can be displayed using @debug.node[node debug
 
   - @debug.node.inset[`"node.inset"`], bounds of node body: #minirect(..DEBUG_STYLES.node.inset)
 
-  - @debug.node.body[`"node.body"`], bounds of node body, including @node.inset[inset]: #minirect(..DEBUG_STYLES.node.body)
+  - @debug.node.body[`"node.body"`], bounds of node body, including @node-inset[inset]: #minirect(..DEBUG_STYLES.node.body)
 
   - @debug.node.bounds[`"node.bounds"`], bounds of node shape: #minirect(..DEBUG_STYLES.node.bounds)
 
-  - @debug.node.outset[`"node.outset"`], snapping outline, including @node.outset[outset]: #minirect(..DEBUG_STYLES.node.outset)
+  - @debug.node.outset[`"node.outset"`], snapping outline, including @node-outset[outset]: #minirect(..DEBUG_STYLES.node.outset)
 
   - @debug.node.cell[`"node.cell"`], node's enclosing @node-cells[flexigrid cell]: #minirect(..DEBUG_STYLES.node.cell)
 

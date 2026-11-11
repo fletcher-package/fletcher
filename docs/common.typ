@@ -351,7 +351,7 @@
         if state("current-function").get() == info.function {
           raw(info.argument)
         } else {
-          raw(info.function + "." + info.argument)
+          raw(info.function + "-" + info.argument)
         }
       } else {
         panic("unknown ref element", it.element)
@@ -418,7 +418,7 @@
         arg-name
       } else {
         // arg-name
-        link(label(fn.name + "." + arg-name), arg-name)
+        link(label(fn.name + "-" + arg-name), arg-name)
       }
 
       if "types" in info and info.types != ("",) {
@@ -439,7 +439,7 @@
 
 #let show-function-argument(fn, arg, info, level: 3) = {
   rich-ref(
-    fn.name + "." + arg,
+    fn.name + "-" + arg,
     entity: "argument",
     function: fn.name,
     argument: arg,

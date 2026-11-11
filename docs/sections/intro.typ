@@ -20,7 +20,7 @@
 == Diagrams
 
 Diagrams contain #[@node]s and #[@edge]s.
-Nodes contain content and can have various @node-shapes[shapes] and @node-styles[styles], while edges snap to nodes and can be given @edge.marks[marks] and @edge.label[labels].
+Nodes contain content and can have various @node-shapes[shapes] and @node-styles[styles], while edges snap to nodes and can be given @edge-marks[marks] and @edge-label[labels].
 Nodes and edges can be placed in a @diagram or @draw-in-cetz[directly into a CeTZ canvas].
 Objects in a @diagram are arranged on a @flexigrids[flexible coordinate grid].
 
@@ -83,7 +83,7 @@ Nodes can @enclose-nodes[enclose] other nodes and, when inside a flexigrid, @sec
 )
 ```)
 
-Overlapping nodes can be ordered with @node.layer, and @node.extrude can be used to offset shapes so that rounded corners stay concentric.
+Overlapping nodes can be ordered with @node-layer, and @node-extrude can be used to offset shapes so that rounded corners stay concentric.
 
 
 == CeTZ integration
