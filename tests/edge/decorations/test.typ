@@ -34,7 +34,7 @@ Style inheritance
   for a in (5, 10, 20) {
     set-style(edge: (decorate: (amplitude: a)))
     translate(x: 1)
-    edge("wave")
+    edge("~")
   }
 })
 
@@ -62,4 +62,3 @@ Style inheritance
   edge("dd,rr,u", decorate: (kind: "zigzag", smooth: (3,0), shorten: (0, 5pt))),
   node((2,1), [B], <B>),
 )
-

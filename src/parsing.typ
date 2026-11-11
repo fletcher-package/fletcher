@@ -1,4 +1,4 @@
-#import "default-marks.typ": MARKS, DEFAULT_MARKS
+#import "default-marks.typ": DEFAULT_MARKS
 #import "utils.typ"
 
 
@@ -21,13 +21,6 @@
 	"..": (dash: "dotted"),
 	"...": (dash: "densely-dotted"),
 	"~": (decorate: "wave"),
-	"wave": (decorate: "wave"),
-	"zigzag": (decorate: "zigzag"),
-	"coil": (decorate: (
-		kind: "coil",
-		wavelength: 8,
-		amplitude: 8,
-	)),
 	" ": (extrude: ()),
 )
 
@@ -71,24 +64,30 @@
 ///   - `pos` the position along the edge to place the mark, from 0 to 1
 ///   - `rev` whether to reverse the direction
 ///   - parameters specific to the kind of mark, e.g., `size` or `sharpness`
-/// -> dictiony
+/// -> dictionary
 #let parse-mark-shorthand(arg) = {
 	if type(arg) == symbol {
 		if str(arg) in MARK_SYMBOL_ALIASES { arg = MARK_SYMBOL_ALIASES.at(arg) }
-		else { utils.error("Unrecognised marks symbol #0.", arg) }
+		else { utils.error("Unknown marks symbol #0.", arg) }
 	}
 
 	assert(type(arg) == str)
 	let text = arg
 
-	// let mark-names = MARKS.get().keys().sorted(key: i => -i.len())
-	let mark-names = DEFAULT_MARKS.keys().sorted(key: i => -i.len())
-	let LINES = LINE_ALIASES.keys().sorted(key: i => -i.len())
+	let mark-name-pattern = regex("^[^-=. ~]+")
+	let line-aliases = LINE_ALIASES.keys().sorted(key: i => -i.len())
 
 	let eat(arg, options) = {
-		for option in options {
-			if arg.starts-with(option) {
-				return (arg.slice(option.len()), option)
+		if type(options) == regex {
+			let m = arg.match(options)
+			if m != none {
+				return (arg.slice(m.end), m.text)
+			}
+		} else {
+			for option in options {
+				if arg.starts-with(option) {
+					return (arg.slice(option.len()), option)
+				}
 			}
 		}
 		return (arg, none)
@@ -102,7 +101,7 @@
 	let flip
 
 	// first mark, [<]-x->>
-	(text, mark) = eat(text, mark-names)
+	(text, mark) = eat(text, mark-name-pattern)
 
 	// flip modifier, hook[']
 	(text, flip) = eat(text, ("'",))
@@ -110,11 +109,11 @@
 
 	marks.push(mark)
 
-	let parse-error(suggestion) = utils.error("Invalid marks shorthand #0. Try #1.", arg, suggestion)
+	let parse-error(suggestion) = utils.error("Invalid marks shorthand #0. Try #1.", repr(arg), repr(suggestion))
 
 	while true {
 		// line, <[-]x->>
-		(text, line) = eat(text, LINES)
+		(text, line) = eat(text, line-aliases)
 		if line == none {
 			let suggestion = text.slice(0, -text.len()) + "-" + text
 			parse-error(suggestion)
@@ -122,7 +121,7 @@
 		lines.push(line)
 
 		// subsequent mark, <-[x]->>
-		(text, mark) = eat(text, mark-names)
+		(text, mark) = eat(text, mark-name-pattern)
 
 		// flip modifier, hook[']
 		(text, flip) = eat(text, ("'",))
@@ -132,7 +131,7 @@
 
 		if text == "" { break }
 		if mark == none {
-			// text remains that was not recognised as mark
+			// text remains that was not recognized as mark
 			let suggestion = marks.intersperse(lines.at(0)).join()
 			parse-error(suggestion)
 		}
