@@ -13,3 +13,12 @@ Nodes should render directly to a CeTZ canvas.
   edge((0,0), "<->", (2,0))
   edge((2,0), (2,-1), (1,-1), "==")
 })
+
+#pagebreak()
+
+CeTZ shapes that depend on node anchors
+
+#diagram(
+  node((0,0), [Foo], name: <foo>),
+  cetz.draw.rect("foo.north-west", "foo.south-east"),
+)

@@ -451,7 +451,7 @@
         // do not draw anything in layout pass
         // but do register dummy anchors so coordinates depending on this node don't panic
         ctx.shared-state.fletcher.nodes.push(data)
-        return (ctx: ctx, name: data.name, anchors: _ => utils.nans)
+        return (ctx: ctx, name: data.name, anchors: _ => (0., 0., 0.))
       } else if fletcher-ctx.pass == "placement" {
         // In the node placement pass, node positions and sizes are resolved.
         // This happens after the flexigrid is determined but before edges are processed.
