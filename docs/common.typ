@@ -351,7 +351,7 @@
         if state("current-function").get() == info.function {
           raw(info.argument)
         } else {
-          raw(info.function + "-" + info.argument)
+          raw(info.function + "." + info.argument)
         }
       } else {
         panic("unknown ref element", it.element)
