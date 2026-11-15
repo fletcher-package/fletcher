@@ -38,17 +38,21 @@
       let objs = {
         translate-to-origin
 
-        for (i, extrude) in node.style.extrude.enumerate() {
-          cetz.draw.set-style(..node.style, fill: if i == 0 { node.style.fill })
-          (node.style.draw)((
-            size: node.body-size,
-            style: node.style,
-            unit-length: ctx.length,
-            extrude: extrude,
-            cell: node.cell,
-          ))
-          cetz.draw.content(..utils.rect-lo-hi(size: node.body-size), node.body)
+        // don't draw when shape has no fill/stroke so that inline equations have correct baseline
+        let shape-is-visible = node.style.fill != none or node.style.stroke != none
+        if shape-is-visible {
+          for (i, extrude) in node.style.extrude.enumerate() {
+            cetz.draw.set-style(..node.style, fill: if i == 0 { node.style.fill })
+            (node.style.draw)((
+              size: node.body-size,
+              style: node.style,
+              unit-length: ctx.length,
+              extrude: extrude,
+              cell: node.cell,
+            ))
+          }
         }
+        cetz.draw.content(..utils.rect-lo-hi(size: node.body-size), node.body, padding: -node.style.inset)
       }
 
       if node.style.layer != 0 {
