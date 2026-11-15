@@ -54,10 +54,21 @@
       if node.style.layer != 0 {
         objs = cetz.draw.on-layer(node.style.layer, objs)
       }
-      let group = cetz.draw.group(objs, name: node.name)
-      return group.first()(ctx)
+
+      let group = cetz.draw.group(objs, name: node.name).first()(ctx)
+
+      group
+
+      // handle anchors if named
+      if node.name != none and "node" in (group.anchors)(()) {
+        // redirect anchors to the cetz-node named "node" within the group
+        let calc-anchors(k) = (group.anchors)(("node", k).flatten())
+        (anchors: calc-anchors)
+      }
+
     },
   )
+
 
   debug-group(layer: 10, {
     if node.cell != none and debug-level(debug, "node.cell") {

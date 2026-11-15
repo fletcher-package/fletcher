@@ -60,7 +60,7 @@
       })
       .to-dict()
   }
-  draw.rect((-x, -y), (+x, +y), radius: radii)
+  draw.rect((-x, -y), (+x, +y), radius: radii, name: "node")
 }
 #NODE_SHAPES.insert("rect", (
   width: auto,
@@ -101,7 +101,7 @@
   let f = 1 + node.style.fit * (calc.sqrt(2) - 1)
   let rx = f * w / 2 + node.extrude
   let ry = f * h / 2 + node.extrude
-  draw.circle((0, 0), radius: (rx, ry))
+  draw.circle((0, 0), radius: (rx, ry), name: "node")
 }
 #NODE_SHAPES.insert("ellipse", (
   width: auto,
@@ -173,7 +173,7 @@
 
   if flip { verts = verts.map(((i, j)) => (j, i)) }
 
-  draw.line(..verts, close: true)
+  draw.line(..verts, close: true, name: "node")
 }
 #NODE_SHAPES.insert("parallelogram", (
   width: auto,
@@ -229,7 +229,7 @@
   if flip { verts = verts.map(((i, j)) => (j, i)) }
   if rotate { verts = verts.map(((i, j)) => (-i, -j)) }
 
-  draw.line(..verts, close: true)
+  draw.line(..verts, close: true, name: "node")
 }
 #NODE_SHAPES.insert("keystone", (
   width: auto,
@@ -258,6 +258,7 @@
     (+x, 0),
     (0, +y),
     close: true,
+    name: "node",
   )
 }
 #NODE_SHAPES.insert("diamond", (
@@ -311,7 +312,7 @@
   if flip { verts = verts.map(((i, j)) => (j, i)) }
   if rotate { verts = verts.map(((i, j)) => (-i, -j)) }
 
-  draw.line(..verts, close: true)
+  draw.line(..verts, close: true, name: "node")
 }
 #NODE_SHAPES.insert("triangle", (
   width: auto,
@@ -364,7 +365,7 @@
   if flip { verts = verts.map(((i, j)) => (j, i)) }
   if rotate { verts = verts.map(((i, j)) => (-i, -j)) }
 
-  draw.line(..verts, close: true)
+  draw.line(..verts, close: true, name: "node")
 }
 #NODE_SHAPES.insert("house", (
   width: auto,
@@ -418,7 +419,7 @@
   if flip { verts = verts.map(((i, j)) => (j, i)) }
   if rotate { verts = verts.map(((i, j)) => (-i, -j)) }
 
-  draw.line(..verts, close: true)
+  draw.line(..verts, close: true, name: "node")
 }
 #NODE_SHAPES.insert("chevron", (
   width: auto,
@@ -464,7 +465,7 @@
 
   if flip { verts = verts.map(((x, y)) => (y, x)) }
 
-  draw.line(..verts, close: true)
+  draw.line(..verts, close: true, name: "node")
 }
 #NODE_SHAPES.insert("hexagon", (
   width: auto,
@@ -503,6 +504,7 @@
     (+x, -y + d),
     (+x - d, -y),
     close: true,
+    name: "node",
   )
 }
 #NODE_SHAPES.insert("octagon", (
