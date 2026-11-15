@@ -945,9 +945,23 @@
   /// Some line styles can also be used as a shortcut:
   /// - `edge("=")` produces #fletcher.parsing.LINE_ALIASES.at("=")
   /// - `edge("==")` produces #fletcher.parsing.LINE_ALIASES.at("==")
+  ///
+  /// See also @edge-shift.
   /// -> number | length | array
   extrude: auto,
-  /// Distance to shift the edge in the perpendicular direction.
+  /// Distance to shift the edge perpendicularly.
+  ///
+  /// #example(```typ
+  /// #diagram(
+  ///  edge-stroke: 1pt,
+  ///  node((0, 0), $A$),
+  ///  edge("->", shift: +4pt),
+  ///  edge("<-", shift: -4pt),
+  ///  node((1, 0), $B$),
+  /// )
+  /// ```)
+  ///
+  /// This offsets the edge similarly to @edge-extrude, but also affects marks and labels.
   /// -> length
   shift: 0,
   /// Radius of curvature for rounded corners.
