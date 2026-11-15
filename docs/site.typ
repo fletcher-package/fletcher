@@ -3,6 +3,8 @@
 
 #let URL_ROOT = sys.inputs.at("url-root", default: "")
 
+#let WIP_NOTICE = false
+
 #asset("/styles.css", read("assets/styles.css"))
 #asset("/manual.pdf", read("manual.pdf", encoding: none)) <manual-pdf>
 
@@ -135,7 +137,7 @@
       #menu-hamburger-button
       #page-nav
     ]
-    html.div(id: "wip-banner")
+    if WIP_NOTICE { html.div(id: "wip-banner") }
   })
   footer
   common.nav-expander-script()
@@ -147,12 +149,14 @@
 #document("index.html", template[
   #show: html.div.with(style: "text-align: center")
 
-  #html.div(style: "margin: 7vw 0;")[
+  #html.div(style: "margin: 7vh 0;")[
     #box(common.logo)
 
     #common.package-summary
 
-    *Version #common.VERSION #highlight[(unreleased)]*
+    #html.img(src: "https://img.shields.io/badge/Version-" + common.VERSION + "-green")
+    #link("https://typst.app/universe/package/fletcher/", html.img(src: "https://img.shields.io/badge/Typst-Universe-239dad"))
+    #link(common.TYPST_TOML.package.repository, html.img(src: "https://img.shields.io/github/stars/fletcher-package/fletcher"))
   ]
 
   #html.div(class: "large-links", {
