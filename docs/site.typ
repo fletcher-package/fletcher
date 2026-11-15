@@ -6,6 +6,13 @@
 #asset("/styles.css", read("assets/styles.css"))
 #asset("/manual.pdf", read("manual.pdf", encoding: none)) <manual-pdf>
 
+#document("/favicon.png")[
+  #set page(width: 1cm, height: 1cm, margin: 0pt)
+  #set align(center + horizon)
+  #set text(28pt)
+  $ f $
+]
+
 #let manual-pages = (
   ("intro.html", "sections/intro.typ", <manual-intro>),
   ("nodes.html", "sections/nodes.typ", <manual-nodes>),
@@ -117,7 +124,8 @@
 })
 
 #let template(body) = {
-  html.link(href: URL_ROOT + "/styles.css", rel: "stylesheet")
+  html.link(rel: "icon", type: "image/png", href: "/favicon.png")
+  html.link(rel: "stylesheet", href: URL_ROOT + "/styles.css")
   html.main({ // wrap in main so inputs aren't wrapped in <p>
     html.input(type: "checkbox", id: "menu-control") // must immediately precede label
     html.label(..("for": "menu-control"), class: "menu-overlay")
