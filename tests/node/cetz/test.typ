@@ -19,6 +19,6 @@ Nodes should render directly to a CeTZ canvas.
 CeTZ shapes that depend on node anchors
 
 #diagram(
-  node((0,0), [Foo], name: <foo>),
+  node((0,0), [Foo], name: <foo>, fill: yellow),
   cetz.draw.rect("foo.north-west", "foo.south-east"),
 )

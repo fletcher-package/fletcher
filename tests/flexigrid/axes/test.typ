@@ -18,6 +18,7 @@
     #diagram(
       debug: "grid",
       axes: axes,
+      node-stroke: 1pt,
       node((0,0), $(0,0)$),
       edge("->"),
       node((1,0), $(1,0)$),

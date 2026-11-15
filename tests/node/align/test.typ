@@ -21,6 +21,7 @@ for (i, a) in (
 #diagram(
   debug: "grid.cells",
   spacing: 1mm,
+  node-stroke: 1pt,
   node((0,1), width: 2)[X],
   node((1,0), height: 1)[Y],
   aligned-nodes((0,0))
@@ -29,6 +30,7 @@ for (i, a) in (
 #diagram(
   debug: "grid.cells",
   spacing: 1mm,
+  node-stroke: 1pt,
   axes: (btt, rtl),
   node((0,1), width: 2)[X],
   node((1,0), height: 1)[Y],
@@ -37,6 +39,7 @@ for (i, a) in (
 
 #diagram(
   debug: "grid.cells",
+  node-stroke: 1pt,
   spacing: 1mm,
   node((0,1), width: 2)[X],
   node((1,0), height: 1)[Y],
@@ -46,6 +49,7 @@ for (i, a) in (
 
 #diagram(
   debug: "grid.cells",
+  node-stroke: 1pt,
   spacing: 1mm,
   node((0,1), width: 2)[X],
   node((-1,0), height: 1)[Y],
