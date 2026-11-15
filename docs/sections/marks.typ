@@ -170,7 +170,7 @@ For example, here is a smaller, pointerer version of the `">"` mark:
 
 
 
-== Mark objects <mark-objects>
+== Custom marks <mark-objects>
 
 A _mark object_ is a dictionary of parameters, which must include a `draw` entry or an `inherit` entry which points to another mark object.
 The `draw` entry eventually contains CeTZ objects which are translated and scaled to fit the edge; the mark should be centered at `(0, 0)` and pointing right, and the stroke's thickness is defined as the unit length.
@@ -197,7 +197,8 @@ For example, our mark object from above could also be written as:
 ```typ
 #let my-mark = (
 	size: 2,
-	draw: mark => draw.circle((0,0), radius: mark.size, fill: none)
+	draw: mark => draw.circle((0,0), radius: mark.size, fill: none),
+	tip-end: mark => mark.size,
 )
 ```
 The `size` parameter makes it easy to adjust out new mark:
@@ -206,7 +207,7 @@ The `size` parameter makes it easy to adjust out new mark:
 #import cetz.draw
 #let my-mark = (
 	size: 2,
-	draw: mark => draw.circle((0,0), radius: mark.size, fill: none)
+	draw: mark => draw.circle((0,0), radius: mark.size, fill: none),
 )
 ```, ```typ
 #diagram(edge(marks: (my-mark + (size: 3), my-mark), stroke: 3pt))
@@ -226,6 +227,7 @@ Lastly, mark objects may _inherit_ properties from other marks in `fletcher.MARK
 ```)
 
 Internally, marks are passed to `resolve-mark()`, which resolves all entries to their final values.
+
 
 === Special mark properties <special-mark-props>
 
@@ -304,14 +306,14 @@ A mark object may contain arbitrary properties, but the following have special f
 		[`tip-origin`\ `tail-origin`],
 		[
 			These two properties control the $x$ coordinate of the point of the mark, relative to $(0, 0)$. If the mark is acting as a tip (#little-edge("->") or #little-edge("<-")) then `tip-origin` applies, and `tail-origin` applies when the mark is a tail (#little-edge("-<") or #little-edge(">-")).
-			See `mark-debug()`.
+			See @test.
 		],
 		`0`,
 
 		[`tip-end`\ `tail-end`],
 		[
 			These control the $x$ coordinate at which the edge's stroke terminates, relative to $(0, 0)$.
-			See `mark-debug()`.
+			See @test.
 		],
 		`0`,
 
@@ -330,5 +332,23 @@ The last few properties control the fine behaviours of how marks connect to the 
 Briefly, a mark has four possibly-distinct center points.
 It is easier to show than to tell:
 
+#example(```typ
+#fletcher.marks.test(">")
 
-See `mark-debug()` and `cap-offset()` for details.
+#fletcher.marks.test("hollow")
+```)
+
+Notice how the `end`, both in the `tip` and `tail` versions of the mark, defines where the stroke ends, and the `origin` defines where the point of the arrow lies, both relative to the `zero` coordinate.
+The units for each of these metrics is always multiples of the stroke thickness.
+
+The `hang` parameter controls how the angle of the mark responds to curvature in the edge.
+#table(
+  columns: 2,
+  frame(fletcher.marks.test((inherit: ">>>",
+    tail-hang: mark => mark.tail-end,
+    tip-hang: mark => mark.tip-end,
+  ), bend: 50deg)),
+  frame(fletcher.marks.test((inherit: ">>>"), bend: 50deg)),
+  [No hang correction],
+  [With hang correction],
+)

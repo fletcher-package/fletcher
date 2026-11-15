@@ -25,6 +25,7 @@
 
 
 
+/// [internal]
 /// Simplify a subpath by deleting trivial/zero-length
 /// line segments (which end where they begin).
 #let simplify-subpath(subpath) = {
@@ -44,6 +45,7 @@
 }
 
 
+/// [internal]
 /// Get the second derivative (d²x/dt²) of a cubic bezier at position `t`.
 ///
 /// - a (vector): Start point
@@ -68,6 +70,7 @@
 
 
 
+/// [internal]
 /// Approximate a circular arc with a cubic Bézier segment.
 ///
 /// This similar to `cetz.drawable.arc()` except that it never
@@ -112,6 +115,7 @@
 }
 
 
+/// [internal]
 /// Return the cubic Bézier obtained by clamping the
 /// parameter value $t$ to an interval $[t_0, t_1]$.
 #let clamp-cubic-bezier(s, c1, c2, e, t0, t1) = {
@@ -132,6 +136,7 @@
 
 
 
+/// [internal]
 /// Return the position, velocity and acceleration vectors of a point
 /// at parameter value $t in [0, 1]$ along
 /// the $i$th segment of a subpath.
@@ -175,6 +180,7 @@
   }
 }
 
+/// [internal]
 /// Given a path and an array of stops (segment indices) along the path,
 /// return the segment index of a point at a fractional stop.
 ///
@@ -197,6 +203,7 @@
   return segment-index
 }
 
+/// [internal]
 /// Return the position, velocity and acceleration vectors of a point
 /// on a path at a particular segment index.
 #let point-on-path-by-segment(
@@ -237,6 +244,7 @@
   return point-on-subpath-segment(path.at(subpath-index), segment-index, calc.fract(index))
 }
 
+/// [internal]
 /// Return the position, velocity and acceleration vectors of a point
 /// a specified length from the start or end of a path.
 #let point-on-path-by-length(
@@ -285,6 +293,7 @@
 
 
 
+/// [internal]
 /// Shorten a path from either end by subpath/segment index and $t$-parameter
 /// (not by path length, see `cetz.path-util.shorten-to` for that).
 #let trim-path(
@@ -399,6 +408,7 @@
   })
 }
 
+/// [internal]
 /// Shorten a path drawable so it starts or ends at an intersection point
 /// with another drawable.
 ///
@@ -435,6 +445,7 @@
 }
 
 
+/// [internal]
 /// Offset a vertex to make a miter joint, given the
 /// angles of the incoming and outgoing legs.
 ///
@@ -468,6 +479,7 @@
 }
 
 
+/// [internal]
 /// Incoming leg and circular segments of a rounded corner.
 ///
 /// Returns the line segment to point `P` and a single cubic
@@ -515,7 +527,9 @@
   return (("l", P), ("c", c1, c2, Q))
 }
 
+/// [internal]
 /// Segments of a miter or bevelled corner.
+// / Segments of a miter or beveled corner.
 ///
 /// The bevel is specified by a radius, which defines
 /// the circle that is tangent to the bevelled face at
@@ -942,6 +956,25 @@
 
 /// Apply path effects (extrusion and shortening) to a CeTZ object, returning
 /// a CeTZ object.
+///
+/// #example(```typ
+/// #cetz.canvas({
+///   import cetz.draw: *
+///   let obj = merge-path({
+///     line((1,2), (2,2), (2,3), (3,2), (3.5,2))
+///     arc-through((4,3), (4,5), (5,4))
+///     line((4.5,4), (4.5,2))
+///     bezier((5,1), (1,1), (4,0), (3,2))
+///   }, close: true, stroke: gray)
+///   obj
+///   paths.path-effect(obj,
+///     stroke: blue,
+///     join: "round",
+///     corner-radius: 0.1,
+///     extrude: (+4, 0, -4),
+///   )
+/// })
+/// ```)
 #let path-effect(
   /// CeTZ objects to apply the path effect to.
   ///

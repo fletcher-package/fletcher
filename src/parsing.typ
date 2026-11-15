@@ -162,6 +162,7 @@
 }
 
 
+/// [internal]
 /// Interpret the positional arguments given to an `edge()`
 ///
 /// Tries to intelligently distinguish the `from`, `to`, `marks`, and `label`
@@ -417,6 +418,7 @@
   return path
 }
 
+/// [internal]
 /// Convert named arguments such as `node-fill: yellow` into
 /// corresponding calls to `cetz.draw.set-style(node: (fill: yellow))`.
 #let interpret-style-arguments(args) = {

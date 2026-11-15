@@ -218,6 +218,9 @@
 #let fn-doc(module, name, ..args) =  {
   let url = "reference/" + module + "/" + name + ".html"
   let doc-label = label("ref-" + name)
+  if "[internal]" in common.DOCSTRINGS.at(name).description {
+    return // internal function
+  }
   let doc = document(url, {
     state("current-document").update(doc-label)
     state("current-fn-page").update(_ => (module, name))
@@ -239,18 +242,14 @@
 #fn-doc("main", exports.remove("edge"), weight: 3)
 #fn-doc("main", exports.remove("flexigrid"), weight: 4)
 
-#fn-doc("marks", exports.marks.remove("test"))
-
-#fn-doc("path", exports.edges.remove("apply-edge-effects"))
-#fn-doc("path", exports.paths.remove("path-effect"))
-#fn-doc("path", exports.paths.remove("trim-path"))
-#fn-doc("path", exports.paths.remove("trim-to-intersection"))
-#for name in exports.paths.keys() {
-  fn-doc("path", exports.paths.remove(name))
-}
-
 #for name in exports.shapes.keys() {
   fn-doc("shapes", exports.shapes.remove(name))
+}
+
+#fn-doc("marks", exports.marks.remove("test"))
+
+#for name in exports.paths.keys() {
+  fn-doc("path", exports.paths.remove(name))
 }
 
 #for name in exports.parsing.keys() {

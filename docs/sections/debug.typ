@@ -141,7 +141,7 @@ Debug arguments accept the following options:
 
 == Debugging arrow marks
 
-To make properly implementing custom marks easier, the @test is provided which shows more detailed debug annotations on marks.
+To make properly implementing custom marks easier, @test[`fletcher.mark.test()`] shows a marks metrics, as described in @special-mark-props.
 
 #example(```typ
 #show: scale.with(150%, reflow: true)

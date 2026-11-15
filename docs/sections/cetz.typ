@@ -55,7 +55,7 @@ Nodes and edges can be given names and participate in CeTZ's anchoring system.
 == Applying edge effects to CeTZ paths
 
 You can wrap a CeTZ path in @edge to apply edge effects to it (see @cetz-edge).
-Using @edge in this way is a convenient wrapper to the path modification functions offered by fletcher, which includes @path-effect for applying corner rounding (for @edge-corner-radius) and offsetting (for @edge-extrude) to CeTZ paths, and @apply-edge-effects for placing marks and labels.
+Using @edge in this way is a convenient wrapper to the path modification functions offered by fletcher, which includes @path-effect for applying corner rounding (for @edge-corner-radius) and offsetting (for @edge-extrude) to CeTZ paths.
 
 #example(```typ
 #cetz.canvas({

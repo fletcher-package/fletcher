@@ -228,6 +228,7 @@
 /// These effects include path extrusion and shortening,
 /// mark and label placement, and edge snapping (cutting
 /// the path at its intersections with target drawables).
+/// [internal]
 #let apply-edge-effects(
   ctx,
   element,
