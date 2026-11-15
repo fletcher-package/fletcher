@@ -1,21 +1,22 @@
-[![Typst Universe](https://img.shields.io/badge/Typst-Universe-239dad)](https://typst.app/universe/package/fletcher/)
-[![Documentation site](https://img.shields.io/badge/Documentation-orange)](https://fletcher-package.github.io)
-![Version](https://img.shields.io/badge/version-{VERSION}-green)
 
 # fletcher
 
-_**fletcher** (noun) a maker of arrows_
 
-A [Typst](https://typst.app/) package for drawing diagrams with arrows,
-built on top of [CeTZ](https://github.com/johannes-wolf/cetz).
-
-See the [documentation](https://fletcher-package.github.io) or ask the community for help.
-
+[![Homepage](https://img.shields.io/badge/Docs-Homepage-orange)](https://fletcher-package.github.io)
+[![Manual PDF](https://img.shields.io/badge/PDF-orange)](https://fletcher-package.github.io/manual.pdf)
+[![Typst Universe](https://img.shields.io/badge/Typst-Universe-239dad)](https://typst.app/universe/package/fletcher/)
 [![Ask on Discord](https://img.shields.io/badge/ask-on%20Typst%20forum-239dad
 )](https://forum.typst.app)
 [![Ask on Discord](https://img.shields.io/badge/ask-on%20Discord-2a4d7e
 )](https://discord.com/channels/1054443721975922748/1260973351900414102)
 
+**fletcher** _(noun) a maker of arrows_
+
+A [Typst](https://typst.app/) package for drawing diagrams with arrows,
+built on top of [CeTZ](https://github.com/johannes-wolf/cetz).
+
+See the [documentation](https://fletcher-package.github.io) or [ask the community](https://forum.typst.app) for help.
+To get started, import fletcher with:
 
 ```typ
 #import "@preview/fletcher:{VERSION}" as fletcher: diagram, node, edge
@@ -29,13 +30,30 @@ See the [documentation](https://fletcher-package.github.io) or ask the community
 ### 0.6.0
 
 - *Complete rewrite;* there are many breaking changes.
-- Nodes and edges can now appear directly in a CeTZ canvas and use the normal coordinate system. The elastic coordinate system used in `diagram()` can also be achieved by using `flexigrid()` inside a CeTZ canvas.
-- Nodes and edges can be styled with `cetz.draw.set-style()`, like other CeTZ elements.
-- Row and column sizes of flexigrids can be set with an interface similar to `std.grid()`.
-- Edges can be named and support path anchors.
-- The `debug` option of `diagram()` has been added to `node()` and `edge()`, and allows more granular control with string arguments (e.g., `debug: "grid.cells"` or `debug: "node edge.snap"`).
-- Mark objects no longer use a `scale` property; instead the `mark-scale` style/option applies a multiplier to the `size` mark property, which is now required.
-- Content in nodes is `center + horizon` aligned by default.
+- New [documentation website](https://fletcher-package.github.io/)!
+- Update `cetz` to `0.5.3`.
+- Nodes and edges can now appear directly in a [CeTZ canvas](https://fletcher-package.github.io/manual/cetz.html#draw-in-cetz). Use `flexigrid()` inside a canvas for the elastic coordinate system used by `diagram()`.
+- Allow [styling](https://fletcher-package.github.io/manual/nodes.html#node-styles) nodes and edges with `cetz.draw.set-style()`.
+- *Breaking:* Nodes and edges must have the `in-math` option set to `true` to be used in [math mode diagrams](https://fletcher-package.github.io/manual/diagrams.html#math-mode-diagrams).
+- Nodes
+  - Add node [`colspan` and `rowspan`](https://fletcher-package.github.io/manual/diagrams.html#sec-node-cellspan) options, including negative and fractional spans.
+  - Allow [aligning nodes](https://fletcher-package.github.io/manual/diagrams.html#node-alignment) within their cells.
+  - [Custom node shapes](https://fletcher-package.github.io/manual/nodes.html#custom-node-shapes).
+  - Add `"body"` and `"cell"` values for node `width` and `height` to size nodes around their content or [fill their cells](https://fletcher-package.github.io/manual/diagrams.html#node-sizing).
+  - Add node [`fit` and `fit-cell`](https://fletcher-package.github.io/manual/nodes.html#node-fit) styles for nodes and fix sizing for enclose nodes (#174).
+  - Node bodies are center aligned by default.
+- Edges
+  - Allow naming edges and using [path anchors](https://fletcher-package.github.io/manual/edges.html#path-anchors) and segment anchors.
+  - Support [multiple labels](https://fletcher-package.github.io/manual/edges.html#edge-labels) per edge.
+  - Add new [`loop` and `bow`](https://fletcher-package.github.io/manual/edges.html#edge-kinds) edge kinds, with options to control their placement and fit (#168).
+  - [Custom edge kinds](https://fletcher-package.github.io/manual/edges.html#custom-edge) (#173).
+  - Support automatic [edge snapping](https://fletcher-package.github.io/manual/cetz.html#cetz-snapping) to CeTZ objects. Add `snap-method` to choose between trimming the path and moving its end points.
+  - Add [`shorten`](https://fletcher-package.github.io/reference/main/edge.html#edge-shorten) option.
+  - Support bevel and miter joins as well as rounded corners.
+- Add `loop`, `corner`, `hollow`, `glyph` and `tilde` [marks](https://fletcher-package.github.io/manual/marks.html#all-marks) (#158, #155, #147).
+- Replace the `scale` property of mark objects with a `mark-scale` edge style.
+- Add more granular [`debug` options](https://fletcher-package.github.io/manual/debug.html) to nodes and edges.
+
 
 ### 0.5.8
 

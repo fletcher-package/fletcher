@@ -116,7 +116,7 @@ By default, nodes are placed in the center of their cell.
 
 To @align-in-node[align content within a node], use the `align()` element.
 
-=== Making nodes fill their cell
+=== Making nodes fill their cell <node-sizing>
 
 By default, the width and height of a node is determined by its @node-body[body content], plus an @node-inset[inset].
 You can force a node to fill its cell by using the special values `width: "cell"` or `height: "cell"`.

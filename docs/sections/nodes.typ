@@ -211,7 +211,7 @@ This only matters for the layout of a surrounding @flexigrid or @diagram; the `f
 ```)
 
 
-=== Custom node shapes
+=== Custom node shapes <custom-node-shapes>
 
 You can define custom node shapes which can be reused throughout a diagram by setting a new entry of the node style, like so:
 ```typc
