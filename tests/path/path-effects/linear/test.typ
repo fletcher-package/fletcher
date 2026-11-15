@@ -56,15 +56,15 @@
   (
     arguments(join: "round", corner-radius: 0.1),
     arguments(extrude: (+2, 0, -2)),
-    arguments(join: "round", corner-radius: 0.0, extrude: (+2, 0)),
     arguments(join: "round", corner-radius: 0.0, extrude: (-2, 0)),
+    arguments(join: "round", corner-radius: 0.0, extrude: (+2, 0)),
     arguments(join: "round", corner-radius: .1, extrude: (2, 0, -2)),
     arguments(join: "round", corner-radius: -.15, extrude: (2, 0, -2)),
-    arguments(join: "miter", extrude: (2, 0), miter-limit: 2),
-    arguments(join: "miter", extrude: (0, -2), miter-limit: 2),
+    arguments(join: "miter", extrude: (-2, 0), miter-limit: 2),
+    arguments(join: "miter", extrude: (0, +2), miter-limit: 2),
   ).map(args => {
     paths.path-effect(obj, stroke: teal + 2pt, ..args)
     obj
     translate(y: -2)
-  }).join()  
+  }).join()
 })

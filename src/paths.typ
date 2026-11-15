@@ -654,9 +654,9 @@
     let is-right-turn = utils.wrap-angle-180(o-angle - i-angle) > 0deg
     let r = (
       if is-right-turn {
-        radius - min-offset + offset
-      } else {
         radius + max-offset - offset
+      } else {
+        radius - min-offset + offset
       }
     )
     r = calc.max(0, r)
@@ -668,10 +668,10 @@
       if offset != 0 {
         if i == 0 {
           // update start point
-          let normal = utils.polar(offset, i-angle - 90deg)
+          let normal = utils.polar(offset, i-angle + 90deg)
           start = vector.add(start, normal)
         }
-        vertex = offset-vertex(vertex, i-angle, o-angle, offset)
+        vertex = offset-vertex(vertex, i-angle, o-angle, -offset)
       }
 
       if r == 0 {
@@ -701,11 +701,11 @@
       if offset != 0 {
         if i == 0 {
           // update start point
-          let normal = utils.polar(offset, prev-o-angle - 90deg)
+          let normal = utils.polar(offset, prev-o-angle + 90deg)
           start = vector.add(start, normal)
         }
 
-        vertex = offset-vertex(vertex, o-angle, i-angle, offset)
+        vertex = offset-vertex(vertex, o-angle, i-angle, -offset)
       }
 
       // shorten curve end to make way for a corner effect

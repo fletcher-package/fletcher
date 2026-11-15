@@ -56,9 +56,9 @@
     cap-offset: (mark, y) => 0,
     draw: mark => {
       let y = if mark.flip {
-        mark.edge-extrude.last()
-      } else {
         -mark.edge-extrude.first()
+      } else {
+        mark.edge-extrude.last()
       }
       draw.arc(
         (0, y),
@@ -75,9 +75,9 @@
     draw: mark => {
       for flip in (-1, +1) {
         let y = if flip > 0 {
-          mark.edge-extrude.first()
+          -mark.edge-extrude.last()
         } else {
-          mark.edge-extrude.last()
+          -mark.edge-extrude.first()
         }
         draw.arc(
           (0, -y),
@@ -386,9 +386,9 @@
 
     draw: mark => {
       let y = if mark.flip {
-        mark.edge-extrude.last()
-      } else {
         -mark.edge-extrude.first()
+      } else {
+        mark.edge-extrude.last()
       }
       draw.arc(
         (0, y),
@@ -406,12 +406,12 @@
     draw: mark => {
       for flip in (-1, +1) {
         let y = if flip > 0 {
-          mark.edge-extrude.first()
-        } else {
           mark.edge-extrude.last()
+        } else {
+          mark.edge-extrude.first()
         }
         draw.arc(
-          (0, -y),
+          (0, y),
           start: -flip * 90deg,
           stop: +flip * 90deg,
           radius: mark.size,
