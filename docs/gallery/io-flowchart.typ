@@ -1,27 +1,33 @@
-#import "../../src/exports.typ" as fletcher: diagram, node, edge
+#import "../../src/exports.typ" as fletcher: cetz, diagram, edge, node
 #set text(white, font: "New Computer Modern")
 #let colors = (maroon, olive, eastern)
 
+#let stealth-marks-as-default = cetz.draw.set-style(fletcher-marks: (
+  ">": (inherit: "stealth", rev: false),
+  "<": (inherit: "stealth", rev: true),
+))
+
 #diagram(
-	edge-stroke: 1pt,
-	node-corner-radius: 5pt,
-	edge-corner-radius: 8pt,
-	mark-scale: 80%,
+  edge-stroke: 1pt,
+  node-corner-radius: 5pt,
+  edge-corner-radius: 8pt,
+  mark-scale: 80%,
+  stealth-marks-as-default,
 
-	node((0,0), [input], fill: colors.at(0)),
-	node((2,+1), [memory unit (MU)], fill: colors.at(1)),
-	node((2, 0), align(center)[arithmetic & logic \ unit (ALU)], fill: colors.at(1)),
-	node((2,-1), [control unit (CU)], fill: colors.at(1)),
-	node((4,0), [output], fill: colors.at(2), shape: fletcher.shapes.hexagon),
+  node((0, 0), [input], fill: colors.at(0)),
+  node((2, +1), [memory unit (MU)], fill: colors.at(1)),
+  node((2, 0), align(center)[arithmetic & logic \ unit (ALU)], fill: colors.at(1)),
+  node((2, -1), [control unit (CU)], fill: colors.at(1)),
+  node((4, 0), [output], fill: colors.at(2), shape: "hexagon"),
 
-	edge((0,0), "r,u,r", "-}>"),
-	edge((2,-1), "r,d,r", "-}>"),
-	edge((2,-1), "r,dd,l", "--}>"),
-	edge((2,1), "l", (1,-.5), marks: ((inherit: "}>", pos: 0.65, rev: false),)),
+  edge((0, 0), "r,u,r", marks: ((inherit: ">", pos: 0.1), ">")),
+  edge((2, -1), "r,d,r", "->"),
+  edge((2, -1), "r,dd,l", "-->"),
+  edge((2, 1), "l", (1, -.5), marks: ((inherit: ">", pos: 0.65, rev: false),)),
 
-	for i in range(-1, 2) {
-		edge((2,0), (2,1), "<{-}>", shift: i*5mm, bend: i*20deg)
-	},
+  for i in range(-1, 2) {
+    edge((2, 0), (2, 1), "<->", shift: i * 2mm, bend: i * 20deg)
+  },
 
-	edge((2,-1), (2,0), "<{-}>"),
+  edge((2, -1), (2, 0), "<->"),
 )

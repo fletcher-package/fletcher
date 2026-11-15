@@ -50,7 +50,7 @@
   "gallery/commutative.typ",
   "gallery/block-diagram.typ",
   "gallery/ml-architecture.typ",
-  // "gallery/io-flowchart.typ",
+  "gallery/io-flowchart.typ",
   "gallery/states.typ",
   "gallery/digraph.typ",
   "gallery/feynman-diagram.typ",
