@@ -30,8 +30,8 @@ Edges automatically snap to nodes (with an @node-outset[outset]) and the positio
 )
 ```)
 
-== Node styles <node-styles>
 
+== Node styles <node-styles>
 
 Available node styles:
 
@@ -47,7 +47,6 @@ Available node styles:
   - `radius` for @circle nodes
   - @node-fit[`fit` and `cell-fit`]
   - and so on
-
 
 
 Node styles can be set with named arguments, like `node(stroke: 2pt, ..)`.
@@ -71,6 +70,73 @@ Like CeTZ styles, `cetz.draw.set-style()` is scoped to the current `cetz.draw.gr
   }
 )
 ```)
+
+
+== Aligning content within nodes <align-in-node>
+
+If a node is larger than its body content, you can align the content inside the body using an #link("https://typst.app/docs/reference/layout/align/")[`align()`] element.
+
+#example(```typ
+#diagram(
+  node-stroke: 0.5pt,
+  node-corner-radius: 2pt,
+  node-shape: rect,
+  node-fill: oklch(80%, 20%, 300deg),
+  node((0,0), [A]),
+  node((1,0), [B]),
+  node((0,1), align(left)[Left], colspan: 2),
+  node(enclose: ((0,0), (0,1)), align(top)[Top],
+    fill: none, name: <group>),
+
+  // manually draw content
+  cetz.draw.content("group.north", [Around],
+    anchor: "south", padding: 5pt)
+)
+```)
+
+Note that the @node-align option aligns the node itself relative to the @node-cells[parent cell], as described in @node-alignment.
+
+
+== Enclose nodes <enclose-nodes>
+
+Enclose nodes are a special type of node that are positioned around other nodes, which is useful for diagrams with nested layouts.
+Nodes with the @node-enclose option automatically wrap around the specified nodes.
+
+#example(```typ
+#diagram(
+	spacing: (10mm, 5mm),
+	node-stroke: 0.5pt,
+	node-fill: white,
+	node-corner-radius: 2pt,
+
+	node((-2,0), radius: 2pt, fill: black),
+	edge("r,u,r", "->", $f$),
+	edge("r,d,r", "..>", $g$),
+
+	node((0,-1), $F(s)$, <f>),
+	edge("->", (1,0), corner: "-|"),
+
+	node((0,+1), $G(s)$, <g>),
+	edge("..>", (1,0), corner: "-|"),
+
+	node((1,0), $ plus.o $, stroke: none, inset: 2pt),
+	edge("->", "r"),
+
+	// enclose nodes by name
+	node(enclose: (<f>, <g>), text(teal)[Group],
+		inset: 10pt,
+		stroke: teal,
+		fill: teal.transparentize(90%),
+	),
+)
+```)
+
+Nodes can also have @sec-node-cellspan[row and column spans], which is a similar but distinct concept.
+Unlike nodes which span rows or columns, enclose nodes do not exist within a flexigrid layout, and do not affect the position of other nodes.
+See the section on @manual-diagrams[diagrams and layout] for details.
+
+
+
 
 == Node shapes <node-shapes>
 
@@ -144,72 +210,52 @@ This only matters for the layout of a surrounding @flexigrid or @diagram; the `f
 )
 ```)
 
-== Enclose nodes <enclose-nodes>
 
-Enclose nodes are a special type of node that are positioned around other nodes, which is useful for diagrams with nested layouts.
-Nodes with the @node-enclose option automatically wrap around the specified nodes.
+=== Custom node shapes
+
+You can define custom node shapes which can be reused throughout a diagram by setting a new entry of the node style, like so:
+```typc
+cetz.draw.set-style(node: (
+  <shape-name>: (
+    <arg-1>: default-value-1,
+    <arg-2>: default-value-2,
+    draw: node => ..,
+  )
+))
+```
+The new entry's key is the name of the node shape, and its value is a dictionary containing a `draw` entry and any number of default named arguments for the shape.
+
+For example, here is a simple definition of a star shape:
 
 #example(```typ
+#let use-star-shape = cetz.draw.set-style(node: (
+  star: (
+    sides: 5,
+    spike-size: 0.5,
+    draw: node => {
+      let r = calc.max(..node.size)/2
+      cetz.draw.n-star((0,0), node.style.sides,
+        angle: -90deg,
+        inner-radius: r,
+        radius: r + node.style.spike-size,
+        name: "node", // makes anchors refer to this path
+      )
+    },
+  )
+))
+
 #diagram(
-	spacing: (10mm, 5mm),
-	node-stroke: 0.5pt,
-	node-fill: white,
-	node-corner-radius: 2pt,
-
-	node((-2,0), radius: 2pt, fill: black),
-	edge("r,u,r", "->", $f$),
-	edge("r,d,r", "..>", $g$),
-
-	node((0,-1), $F(s)$, <f>),
-	edge("->", (1,0), corner: "-|"),
-
-	node((0,+1), $G(s)$, <g>),
-	edge("..>", (1,0), corner: "-|"),
-
-	node((1,0), $ plus.o $, stroke: none, inset: 2pt),
-	edge("->", "r"),
-
-	// enclose nodes by name
-	node(enclose: (<f>, <g>), text(teal)[Group],
-		inset: 10pt,
-		stroke: teal,
-		fill: teal.transparentize(90%),
-	),
+  node-fill: yellow,
+  node-stroke: 1pt,
+  use-star-shape,
+  node((0, 0), $ nothing $, shape: "star", <a>),
+  node((0, 1), [Star!], sides: 12), // shape inferred from named arguments
 )
 ```)
 
-Nodes can also have @sec-node-cellspan[row and column spans], which is a similar but distinct concept.
-Unlike nodes which span rows or columns, enclose nodes do not exist within a flexigrid layout, and do not affect the position of other nodes.
-
-== Column span and row span
-
-Nodes also support @sec-node-cellspan[spanning multiple columns or rows], but only when used inside a flexigrid layout.
-See the section on @manual-diagrams[diagrams and layout] for details.
-
-== Aligning content within nodes <align-in-node>
-
-If a node is larger than its body content, you can align the content inside the body using an #link("https://typst.app/docs/reference/layout/align/")[`align()`] element.
-
-#example(```typ
-#diagram(
-  node-stroke: 0.5pt,
-  node-corner-radius: 2pt,
-  node-shape: rect,
-  node-fill: oklch(80%, 20%, 300deg),
-  node((0,0), [A]),
-  node((1,0), [B]),
-  node((0,1), align(left)[Left], colspan: 2),
-  node(enclose: ((0,0), (0,1)), align(top)[Top],
-    fill: none, name: <group>),
-
-  // manually draw content
-  cetz.draw.content("group.north", [Around],
-    anchor: "south", padding: 5pt)
-)
-```)
-
-Note that the @node-align option aligns the node itself relative to the @node-cells[parent cell], as described in @node-alignment.
-
+Node shapes are expected to properly implement @node-extrude and @node-fit, or these options do not work properly.
+The star example above is kept short for brevity and doesn't properly implement these.
+For more examples for how to fully implement node shapes, see the default shapes in #link(TYPST_TOML.package.repository + "/blob/main/src/shapes.typ", ```plain src/shapes.typ```).
 
 == Anatomy of a node
 
