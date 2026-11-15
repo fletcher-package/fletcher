@@ -69,6 +69,8 @@
   } else if type(it) == relative {
     if ratios-of == none { error("expected length, got #0", it) }
     it.ratio * float(ratios-of) + to-abs(it.length)
+  } else {
+    error("expected length or number, found #0.", it)
   }
 
   if type(to-float) == length and type(it) == length {

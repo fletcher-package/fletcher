@@ -235,6 +235,7 @@
   labels: (),
   marks: (),
   extrude: (0,),
+  shift: 0,
   shorten: (0, 0),
   ..extra-path-effect-args,
   debug: false,
@@ -257,6 +258,7 @@
     marks,
     stroke: stroke,
     extrude: extrude,
+    shift: shift,
     debug: debug,
   )
 
@@ -268,6 +270,7 @@
     stroke: stroke,
     fill: none,
     extrude: extrude,
+    shift: shift,
     ..extra-path-effect-args,
   )
 
@@ -457,6 +460,7 @@
     element,
     stroke: edge.style.stroke,
     extrude: edge.style.extrude,
+    shift: edge.style.shift,
     shorten: edge.style.shorten,
     marks: edge.style.marks,
     decorate: edge.style.decorate,
@@ -542,6 +546,8 @@
       to-float: data.style.stroke.thickness.to-absolute(),
     ))
     .sorted()
+
+  data.style.shift = utils.to-length(data.style.shift, to-float: data.style.stroke.thickness.to-absolute())
 
   // resolve marks
   let all-mark-styles = {
@@ -941,6 +947,9 @@
   /// - `edge("==")` produces #fletcher.parsing.LINE_ALIASES.at("==")
   /// -> number | length | array
   extrude: auto,
+  /// Distance to shift the edge in the perpendicular direction.
+  /// -> length
+  shift: 0,
   /// Radius of curvature for rounded corners.
   ///
   /// For extruded edges, this defines the radius of curvature of
@@ -1305,6 +1314,7 @@
     stroke: stroke,
     dash: dash,
     extrude: extrude,
+    shift: shift,
     layer: layer,
     crossing: crossing,
     crossing-fill: crossing-fill,
@@ -1344,6 +1354,7 @@
       shorten: options.shorten,
       marks: options.marks,
       extrude: options.extrude,
+      shift: options.shift,
       mark-scale: options.mark-scale,
       corner-radius: corner-radius,
       snap-method: options.snap-method,

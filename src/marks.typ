@@ -248,6 +248,7 @@
   marks,
   stroke: auto,
   extrude: (0,),
+  shift: 0,
   debug: false,
 ) = {
   let thickness = utils.get-thickness(stroke).to-absolute() / ctx.length
@@ -295,9 +296,11 @@
     if swing <= pivot { angle += 180deg }
     if at-end { angle += 180deg }
 
+    let shift-vec = utils.polar(shift*thickness, angle + 90deg)
+    let pt = cetz.vector.add(pivot-pt, shift-vec)
     let drawn = draw-mark(
       mark,
-      origin: pivot-pt,
+      origin: pt,
       angle: angle,
       as-tip: m.is-tip,
       stroke: stroke,
@@ -308,6 +311,7 @@
     if m.is-tip { shorten-by *= -1 }
 
     shorten-by = extrude.map(e => {
+      // e += shift*thickness
       let end = if "cap-offset" in (mark) {
         (mark.cap-offset)(mark, e) + m.end
       } else {

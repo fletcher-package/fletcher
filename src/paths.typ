@@ -788,6 +788,7 @@
   shorten-start: 0,
   shorten-end: 0,
   extrude: 0,
+  shift: 0,
   join: "miter",
   corner-radius: 0,
   miter-limit: 4.0,
@@ -796,6 +797,8 @@
   assert(is-drawable(drawable))
 
   let extrude = utils.one-or-array(extrude, types: (int, float))
+
+  extrude = extrude.map(e => e + shift)
 
   if type(shorten-start) != array {
     shorten-start = (shorten-start,) * extrude.len()
