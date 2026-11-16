@@ -20,8 +20,10 @@
     kind: none,
     amplitude: 5,
     wavelength: 10,
-    smooth: auto,
-    shorten: 0,
+    // smooth/shorten: (start, end)
+    // auto means depending on presence of mark
+    smooth: (auto, auto),
+    shorten: (auto, auto),
   ),
   crossing-fill: white,
   crossing-thickness: 3,
@@ -571,22 +573,20 @@
       m
     })
 
-  let mark-0 = data.style.marks.find(m => m.pos == 0)
-  let mark-1 = data.style.marks.find(m => m.pos == 1)
-  if data.style.decorate.smooth == auto {
-    data.style.decorate.smooth = (
-      if mark-0 == none { 0 } else { 1.0 },
-      if mark-1 == none { 0 } else { 1.0 },
-    )
-  }
-  if data.style.decorate.shorten == auto {
-    panic()
-    let t = data.style.stroke.thickness
-    data.style.decorate.shorten = (
-      if mark-0 == none { 0 } else { -(0 + 2 * mark-0.tip-hang) * t },
-      if mark-1 == none { 0 } else { -(0 + 2 * mark-1.tip-hang) * t },
-    )
-  }
+  // resolve edge decoration parameters
+  let decorate = data.style.decorate
+  decorate.shorten = utils.as-pair(decorate.shorten)
+  decorate.smooth = utils.as-pair(decorate.smooth)
+  let terminal-marks = (0, 1).map(pos => data.style.marks.find(m => m.pos == pos))
+  decorate.smooth = decorate.smooth.zip(terminal-marks, exact: true).map(((s, m)) => {
+    if s != auto { return s }
+    if m == none { 0 } else { 1 }
+  })
+  decorate.shorten = decorate.shorten.zip(terminal-marks, exact: true).map(((s, m)) => {
+    if s != auto { return s }
+    if m == none { 0 } else { 1 }
+  })
+  data.style.decorate = decorate
 
   // resolve edge shape args
   let spec = EDGE_KINDS.at(data.shape.kind, default: (:))
