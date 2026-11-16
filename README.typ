@@ -309,12 +309,13 @@ To get started, import fletcher with:
     ```html
     <picture>
       <source media="(prefers-color-scheme: dark)" srcset="{URL_DARK}">
-      <img src="{URL_LIGHT}">
+      <img src="{URL_LIGHT}" alt="{NAME}">
     </picture>
     ```
       .text
       .replace("{URL_LIGHT}", url-light)
       .replace("{URL_DARK}", url-dark)
+      .replace("{NAME}", name)
 
     "\n\n"
   }
