@@ -6,7 +6,7 @@
 
 # fletcher
 
-[![Homepage](https://img.shields.io/badge/Docs-Homepage-orange)](https://fletcher-package.github.io)
+[![Documentation Homepage](https://img.shields.io/badge/Docs-Homepage-orange)](https://fletcher-package.github.io)
 [![Manual PDF](https://img.shields.io/badge/PDF-orange)](https://fletcher-package.github.io/manual.pdf)
 [![Typst Universe](https://img.shields.io/badge/Typst-Universe-239dad)](https://typst.app/universe/package/fletcher/)
 [![Ask on Discord](https://img.shields.io/badge/ask-on%20Typst%20forum-239dad
@@ -309,12 +309,13 @@ To get started, import fletcher with:
     ```html
     <picture>
       <source media="(prefers-color-scheme: dark)" srcset="{URL_DARK}">
-      <img src="{URL_LIGHT}">
+      <img src="{URL_LIGHT}" alt="{NAME}">
     </picture>
     ```
       .text
       .replace("{URL_LIGHT}", url-light)
       .replace("{URL_DARK}", url-dark)
+      .replace("{NAME}", name.replace("-", " "))
 
     "\n\n"
   }

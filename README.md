@@ -2,7 +2,7 @@
 
 # fletcher
 
-[![Homepage](https://img.shields.io/badge/Docs-Homepage-orange)](https://fletcher-package.github.io)
+[![Documentation Homepage](https://img.shields.io/badge/Docs-Homepage-orange)](https://fletcher-package.github.io)
 [![Manual PDF](https://img.shields.io/badge/PDF-orange)](https://fletcher-package.github.io/manual.pdf)
 [![Typst Universe](https://img.shields.io/badge/Typst-Universe-239dad)](https://typst.app/universe/package/fletcher/)
 [![Ask on Discord](https://img.shields.io/badge/ask-on%20Typst%20forum-239dad
@@ -31,7 +31,7 @@ $)
 ```
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/readme-examples/first-isomorphism-theorem-dark.svg">
-  <img src="docs/readme-examples/first-isomorphism-theorem-light.svg">
+  <img src="docs/readme-examples/first-isomorphism-theorem-light.svg" alt="first isomorphism theorem">
 </picture>
 
 ```typ
@@ -53,7 +53,7 @@ $)
 ```
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/readme-examples/state-machine-dark.svg">
-  <img src="docs/readme-examples/state-machine-light.svg">
+  <img src="docs/readme-examples/state-machine-light.svg" alt="state machine">
 </picture>
 
 ```typ
@@ -72,7 +72,7 @@ $)
 ```
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/readme-examples/flowchart-trap-dark.svg">
-  <img src="docs/readme-examples/flowchart-trap-light.svg">
+  <img src="docs/readme-examples/flowchart-trap-light.svg" alt="flowchart trap">
 </picture>
 
 ```typ
@@ -88,7 +88,7 @@ $)
 ```
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/readme-examples/feynman-diagram-dark.svg">
-  <img src="docs/readme-examples/feynman-diagram-light.svg">
+  <img src="docs/readme-examples/feynman-diagram-light.svg" alt="feynman diagram">
 </picture>
 
 
