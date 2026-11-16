@@ -2,7 +2,7 @@ name: Build documentation site
 
 on:
   push:
-    branches: [main, dev]
+    branches: [main]
 
 env:
   DOCS_REPO: fletcher-package/fletcher-package.github.io
