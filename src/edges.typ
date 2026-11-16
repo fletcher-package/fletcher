@@ -762,7 +762,7 @@
     }
   }
 
-  // any left over named arguments are unrecognised
+  // any left over named arguments are unrecognized
   if named.len() > 0 {
     let hint = if named-arg-suggestion != none {
       " For "
@@ -1084,7 +1084,7 @@
   ///
   /// If `center`, the label is placed directly over the edge, and the label fill defaults to white.
   ///
-  /// The special alignment values `start` and `end` place the label before or after a point, travelling along the edge. This works best when used like `(pos: 0%, side: start)` or `(pos: 100%, side: end)`.
+  /// The special alignment values `start` and `end` place the label before or after a point, traveling along the edge. This works best when used like `(pos: 0%, side: start)` or `(pos: 100%, side: end)`.
   /// ```example
   /// #diagram(edge((0,0), "->", (1,1), label: (
   ///   (body: `start`,  side: start,  pos: 0%),

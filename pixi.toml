@@ -5,15 +5,15 @@ channels = ["conda-forge"]
 platforms = ["osx-arm64", "linux-64"]
 
 [dependencies]
+codebook-lsp = ">=0.4.0,<0.5"
 nushell = ">=0.112.2,<0.113"
-typos = "*"
 typst = "==0.15.0"
 tytanic = "==0.4.1"
 
 [tasks]
 test = "scripts/test-and-sign.nu"
 install = "scripts/install.nu"
-check = "scripts/check.nu"
+check = "codebook-lsp lint **/*.typ"
 
 [tasks.readme]
 args = [{ arg = "mode", choices = ["watch", "compile"] }]

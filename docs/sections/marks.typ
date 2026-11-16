@@ -119,7 +119,7 @@ This expansion is done by @parse-mark-shorthand:
 ```)
 
 For more control, you can use the full form and pass an array of marks to the @edge-marks argument.
-This lets you pass @mark-objects[_mark objects_] instead of mark names, which are dictionaries of mark parameters which you can customise.
+This lets you pass @mark-objects[_mark objects_] instead of mark names, which are dictionaries of mark parameters which you can customize.
 For example, here is a tulip made of arrows:
 
 #example(```typ
@@ -134,7 +134,7 @@ For example, here is a tulip made of arrows:
 )
 ```)
 
-In this example, mark objects are based off previously defined marks (using the `inherit` parameter) with other parameters customised.
+In this example, mark objects are based off previously defined marks (using the `inherit` parameter) with other parameters customized.
 
 === Listing mark parameters
 
@@ -157,7 +157,7 @@ As you can see, the basic `head` mark (which `>` and `<` inherit from) has quite
 === Tweaking mark parameters
 
 To adjust a mark, create a mark object that inherits from the mark and overrides any parameters.
-For example, here is a smaller, pointerer version of the `">"` mark:
+For example, here is a smaller, pointier version of the `">"` mark:
 #let mark-code = ```typ
 #let my-mark = (inherit: ">", size: 3, sharpness: 5deg)
 ```
@@ -189,7 +189,7 @@ As a minimal example, here is a basic circle mark object:
 )
 ```)
 
-A mark object can contain arbitrary _parameters_, which can be adjusted to customise the mark.
+A mark object can contain arbitrary _parameters_, which can be adjusted to customize the mark.
 Any entry in a mark object can depend on parameters defined earlier by writing it as a function `mark => (..)`, where `mark` is a dictionary containing the preceding computed parameter values.
 
 For example, our mark object from above could also be written as:

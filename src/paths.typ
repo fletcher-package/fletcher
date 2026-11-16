@@ -528,11 +528,10 @@
 }
 
 /// [internal]
-/// Segments of a miter or bevelled corner.
-// / Segments of a miter or beveled corner.
+/// Segments of a miter or beveled corner.
 ///
 /// The bevel is specified by a radius, which defines
-/// the circle that is tangent to the bevelled face at
+/// the circle that is tangent to the beveled face at
 /// the face's midpoint.
 ///
 /// Depending on the miter limit, this returns a single segment
@@ -1025,7 +1024,7 @@
   ///
   /// If `"round"`, corners become rounded joints with a (minimum) corner radius
   /// specified by @path-effect-corner-radius.
-  /// If `"miter"`, corners become miter joints or, if they are sharp enough, bevelled
+  /// If `"miter"`, corners become miter joints or, if they are sharp enough, beveled
   /// joints, as controlled by @path-effect-miter-limit.
   ///
   /// ```example
@@ -1047,9 +1046,9 @@
   ///
   /// -> "miter" | "round"
   join: "miter",
-  /// The radius of round or bevelled corners.
+  /// The radius of round or beveled corners.
   ///
-  /// For round corners, this is the radius of curvature. For bevelled corners, this is the
+  /// For round corners, this is the radius of curvature. For beveled corners, this is the
   /// radius of the tangent circle between the bevel face and the sides of the corner.
   ///
   /// For extruded paths, the radii at each offset is adjusted so that the circles of curvature
@@ -1062,9 +1061,9 @@
   /// Numbers are interpreted in CeTZ canvas units.
   /// -> number | length | none
   corner-radius: 0,
-  /// Miter limit, beyond which miter joints become bevelled.
+  /// Miter limit, beyond which miter joints become beveled.
   ///
-  /// The higher the limit, the pointier corners can be before being bevelled.
+  /// The higher the limit, the pointier corners can be before being beveled.
   /// -> number
   miter-limit: 4.0,
   /// Whether to dynamically adjust corner radii depending on corner sharpness

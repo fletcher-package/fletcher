@@ -1,1 +1,11 @@
-words = ["flexigrid"]
+words = [
+    "Bézier",
+    "cellspan",
+    "cetz",
+    "docstrings",
+    "drawables",
+    "flexigrid",
+    "flexigrids",
+    "hom",
+    "pushout",
+]
