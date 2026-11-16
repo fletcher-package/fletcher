@@ -1,6 +1,10 @@
+// This file generates README.md
+// pixi run readme {compile|watch}
+
+#let md = ````md
+<!-- DO NOT EDIT: file generated from README.typ -->
 
 # fletcher
-
 
 [![Homepage](https://img.shields.io/badge/Docs-Homepage-orange)](https://fletcher-package.github.io)
 [![Manual PDF](https://img.shields.io/badge/PDF-orange)](https://fletcher-package.github.io/manual.pdf)
@@ -23,7 +27,6 @@ To get started, import fletcher with:
 ```
 
 {README_EXAMPLES}
-
 
 ## Change log
 
@@ -189,10 +192,134 @@ To get started, import fletcher with:
 
 ## Star History
 
-<a href="https://star-history.com/#jollywatt/typst-fletcher&Date">
+<a href="https://www.star-history.com/?repos=fletcher-package%2Ffletcher&type=date&legend=top-left">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=jollywatt/typst-fletcher&type=Date&theme=dark" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=jollywatt/typst-fletcher&type=Date" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=jollywatt/typst-fletcher&type=Date" />
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=fletcher-package/fletcher&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=fletcher-package/fletcher&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=fletcher-package/fletcher&type=date&legend=top-left" />
  </picture>
 </a>
+````
+
+#let TOML = toml("typst.toml").package
+
+#let examples = (
+  first-isomorphism-theorem: ```typ
+  #let hom = edge.with(in-math: true)
+  #diagram(/*<darkmode>*/
+  edge-stroke: white,/*</darkmode>*/$
+    G hom(f, ->) hom("d", pi, ->>) & im(f) \
+    G slash ker(f) hom("ur", tilde(f), "hook-->")
+  $)
+  ```,
+
+  state-machine: ```typ
+  #set text(10pt)
+  #diagram(
+    node-stroke: .1em/*<darkmode>*/ + white/*</darkmode>*/,
+    edge-stroke: white, // darkmode
+    edge-crossing-fill: black, // darkmode
+    node-fill: gradient.radial(blue.lighten(90%), blue, center: (30%, 20%), radius: 80%),
+    spacing: 4em,
+    node((-0.85, 0),  `open(path)`, fill: none, stroke: none),
+    edge("-|>"),
+    node((0, 0), `reading`, radius: 2em),
+    edge(`read()`, "-|>"),
+    node((1, 0), `eof`, radius: 2em),
+    edge(`close()`, "-|>"),
+    node((2, 0), `closed`, radius: 2em, extrude: (-2.5, 0)),
+    edge((0, 0), `read()`, "--|>", loop: top, size: 3em),
+    edge((0, 0), (2, 0), `close()`, "-|>", bend: -40deg),
+  )
+  ```,
+
+  flowchart-trap: ```typ
+  // https://xkcd.com/1195/
+  #set text(font: "Comic Neue", weight: 600)
+
+  #diagram(
+    node-stroke: 1pt/*<darkmode>*/ + white/*</darkmode>*/,
+    edge-stroke: 1pt/*<darkmode>*/ + white/*</darkmode>*/,
+    node((0,0), [Start], corner-radius: 2pt, extrude: (0, 3)),
+    edge("-|>"),
+    node((0,1), align(center)[
+      Hey, wait,\ this flowchart\ is a trap!
+    ], shape: "diamond"),
+    edge("d,r,u,l", "-|>", [Yes], label-pos: 0.5)
+  )
+  ```,
+
+  feynman-diagram: ```typ
+  #import fletcher: cetz
+  #cetz.canvas({
+    import cetz.draw: *
+    set-style(edge: (stroke: white)) // darkmode
+    edge((0,0), "~", (1,0), $gamma$)
+    edge((0,0), "-|>-", "ul", $e^-$, end)
+    edge((0,0), "-<|-", "dl", $e^-$, end)
+    edge((1,0), "-|>-", "dr", $e^+$, end)
+    edge((1,0), "-<|-", "ur", $e^+$, end)
+  })
+  ```,
+)
+
+#let scope = {
+  import "src/exports.typ" as fletcher
+  (
+    fletcher: fletcher,
+    diagram: fletcher.diagram,
+    node: fletcher.node,
+    edge: fletcher.edge,
+  )
+}
+
+#let gallery = ""
+#for (name, src) in examples {
+  src = src.text
+
+  let src-clean = src
+    .split("\n")
+    .filter(line => not line.ends-with("// darkmode"))
+    .join("\n")
+    .replace(regex("/\*<darkmode>\*/[\s\S]*/\*</darkmode>\*/"), "")
+    .trim()
+
+  let url-light = "docs/readme-examples/" + name + "-light.svg"
+  let url-dark = "docs/readme-examples/" + name + "-dark.svg"
+
+  let template(body) = {
+    set page(width: auto, height: auto, margin: 10pt, fill: none)
+    scale(130%, reflow: true, body)
+  }
+
+  document(url-light, template({
+    eval(src-clean, mode: "markup", scope: scope)
+  }))
+
+  document(url-dark, template({
+    set text(white)
+    eval(src, mode: "markup", scope: scope)
+  }))
+
+  gallery += {
+    "```typ\n"
+    src-clean
+    "\n```\n"
+
+    ```html
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="{URL_DARK}">
+      <img src="{URL_LIGHT}">
+    </picture>
+    ```
+      .text
+      .replace("{URL_LIGHT}", url-light)
+      .replace("{URL_DARK}", url-dark)
+
+    "\n\n"
+  }
+}
+
+#asset("README.md", {
+  md.text.replace("{VERSION}", TOML.version).replace("{README_EXAMPLES}", gallery)
+})

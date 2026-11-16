@@ -1,6 +1,6 @@
+<!-- DO NOT EDIT: file generated from README.typ -->
 
 # fletcher
-
 
 [![Homepage](https://img.shields.io/badge/Docs-Homepage-orange)](https://fletcher-package.github.io)
 [![Manual PDF](https://img.shields.io/badge/PDF-orange)](https://fletcher-package.github.io/manual.pdf)
@@ -22,74 +22,74 @@ To get started, import fletcher with:
 #import "@preview/fletcher:0.6.0" as fletcher: diagram, node, edge
 ```
 
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/readme-examples/1-first-isomorphism-theorem-dark.svg">
-  <img src="docs/readme-examples/1-first-isomorphism-theorem-light.svg">
-</picture>
-
 ```typ
-#diagram(cell-size: 15mm, $
-	G edge(f, ->) edge("d", pi, ->>) & im(f) \
-	G slash ker(f) edge("ur", tilde(f), "hook-->")
+#let hom = edge.with(in-math: true)
+#diagram($
+  G hom(f, ->) hom("d", pi, ->>) & im(f) \
+  G slash ker(f) hom("ur", tilde(f), "hook-->")
 $)
 ```
-
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/readme-examples/2-flowchart-trap-dark.svg">
-  <img src="docs/readme-examples/2-flowchart-trap-light.svg">
-</picture>
-
-```typ
-// https://xkcd.com/1195/
-#import fletcher.shapes: diamond
-#set text(font: "Comic Neue", weight: 600) // testing: omit
-
-#diagram(
-	node-stroke: 1pt,
-	node((0,0), [Start], corner-radius: 2pt, extrude: (0, 3)),
-	edge("-|>"),
-	node((0,1), align(center)[
-		Hey, wait,\ this flowchart\ is a trap!
-	], shape: diamond),
-	edge("d,r,u,l", "-|>", [Yes], label-pos: 0.1)
-)
-```
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/readme-examples/3-state-machine-dark.svg">
-  <img src="docs/readme-examples/3-state-machine-light.svg">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/readme-examples/first-isomorphism-theorem-dark.svg">
+  <img src="docs/readme-examples/first-isomorphism-theorem-light.svg">
 </picture>
 
 ```typ
 #set text(10pt)
 #diagram(
-	node-stroke: .1em,
-	node-fill: gradient.radial(blue.lighten(80%), blue, center: (30%, 20%), radius: 80%),
-	spacing: 4em,
-	edge((-1,0), "r", "-|>", `open(path)`, label-pos: 0, label-side: center),
-	node((0,0), `reading`, radius: 2em),
-	edge(`read()`, "-|>"),
-	node((1,0), `eof`, radius: 2em),
-	edge(`close()`, "-|>"),
-	node((2,0), `closed`, radius: 2em, extrude: (-2.5, 0)),
-	edge((0,0), (0,0), `read()`, "--|>", bend: 130deg),
-	edge((0,0), (2,0), `close()`, "-|>", bend: -40deg),
+  node-stroke: .1em,
+  node-fill: gradient.radial(blue.lighten(90%), blue, center: (30%, 20%), radius: 80%),
+  spacing: 4em,
+  node((-0.85, 0),  `open(path)`, fill: none, stroke: none),
+  edge("-|>"),
+  node((0, 0), `reading`, radius: 2em),
+  edge(`read()`, "-|>"),
+  node((1, 0), `eof`, radius: 2em),
+  edge(`close()`, "-|>"),
+  node((2, 0), `closed`, radius: 2em, extrude: (-2.5, 0)),
+  edge((0, 0), `read()`, "--|>", loop: top, size: 3em),
+  edge((0, 0), (2, 0), `close()`, "-|>", bend: -40deg),
 )
 ```
-
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/readme-examples/4-feynman-diagram-dark.svg">
-  <img src="docs/readme-examples/4-feynman-diagram-light.svg">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/readme-examples/state-machine-dark.svg">
+  <img src="docs/readme-examples/state-machine-light.svg">
 </picture>
 
 ```typ
-#diagram($
-	e^- edge("rd", "-<|-") & & & edge("ld", "-|>-") e^+ \
-	& edge(gamma, "wave") \
-	e^+ edge("ru", "-|>-") & & & edge("lu", "-<|-") e^- \
-$)
+// https://xkcd.com/1195/
+#set text(font: "Comic Neue", weight: 600)
+
+#diagram(
+  node-stroke: 1pt,
+  node((0,0), [Start], corner-radius: 2pt, extrude: (0, 3)),
+  edge("-|>"),
+  node((0,1), align(center)[
+    Hey, wait,\ this flowchart\ is a trap!
+  ], shape: "diamond"),
+  edge("d,r,u,l", "-|>", [Yes], label-pos: 0.5)
+)
 ```
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/readme-examples/flowchart-trap-dark.svg">
+  <img src="docs/readme-examples/flowchart-trap-light.svg">
+</picture>
+
+```typ
+#import fletcher: cetz
+#cetz.canvas({
+  import cetz.draw: *
+  edge((0,0), "~", (1,0), $gamma$)
+  edge((0,0), "-|>-", "ul", $e^-$, end)
+  edge((0,0), "-<|-", "dl", $e^-$, end)
+  edge((1,0), "-|>-", "dr", $e^+$, end)
+  edge((1,0), "-<|-", "ur", $e^+$, end)
+})
+```
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/readme-examples/feynman-diagram-dark.svg">
+  <img src="docs/readme-examples/feynman-diagram-light.svg">
+</picture>
 
 
 
@@ -257,10 +257,10 @@ $)
 
 ## Star History
 
-<a href="https://star-history.com/#jollywatt/typst-fletcher&Date">
+<a href="https://www.star-history.com/?repos=fletcher-package%2Ffletcher&type=date&legend=top-left">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=jollywatt/typst-fletcher&type=Date&theme=dark" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=jollywatt/typst-fletcher&type=Date" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=jollywatt/typst-fletcher&type=Date" />
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=fletcher-package/fletcher&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=fletcher-package/fletcher&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=fletcher-package/fletcher&type=date&legend=top-left" />
  </picture>
 </a>

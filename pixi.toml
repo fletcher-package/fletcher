@@ -11,17 +11,18 @@ typst = "==0.15.0"
 tytanic = "==0.4.1"
 
 [tasks]
-readme = "scripts/readme.nu"
-compile = "scripts/compile.nu"
 test = "scripts/test-and-sign.nu"
 install = "scripts/install.nu"
 check = "scripts/check.nu"
 
+[tasks.readme]
+args = [{ arg = "mode", choices = ["watch", "compile"] }]
+cmd = "typst {{ mode }} README.typ . --format bundle --features bundle "
+
 [tasks.manual]
-args = [{arg = "mode", choices = ["watch", "compile"]}]
+args = [{ arg = "mode", choices = ["watch", "compile"] }]
 cmd = "typst {{ mode }} --root . docs/manual.typ --features html"
 
-
 [tasks.site]
-args = [{arg = "mode", choices = ["watch", "compile"]}]
+args = [{ arg = "mode", choices = ["watch", "compile"] }]
 cmd = "typst {{ mode }} --root . docs/site.typ --features html,bundle --format bundle"

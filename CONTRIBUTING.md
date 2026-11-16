@@ -42,45 +42,44 @@ Using Tytanic (see the [official docs](https://tingerrr.github.io/tytanic/)):
 
 ## Updating the README
 
-The main `README.md` file is generated from a template `README.src.md`.
-To update the README, edit the template file and run
+The main `README.md` file is generated from `README.typ`.
+To update the README, edit `README.typ` and run:
 ```sh
-pixi run readme
+pixi run readme compile
 ```
-to generate the main file. Don't edit `README.md` directly.
+Or to watch for changes while editing:
+```sh
+pixi run readme watch
+```
 
-The template is automatically populated with two kinds of example images:
-
-1. `docs/readme-examples/`: Short examples with light/dark modes displayed alongside the source code.
-	To compile these to light and dark SVGs, use `pixi run compile examples [pattern]`.
-	They are _not_ standalone Typst documents; more like snippets with a special syntax for switching between light/dark themes (see examples).
-2. `docs/gallery/`: Complex examples displayed in a table of images linking to source files.
-	These should be standalone documents.
-	Make sure they import the correct fletcher version!
-	Compile these with `pixi compile gallery [pattern]`.
-
-The optional `[pattern]` argument is a substring to filter filenames by.
-
-
-## Building the Manual
+## Building the manual PDF
 
 To build the manual PDF (takes a while) and exit:
 
 ```sh
-pixi run compile manual
+pixi run manual compile
 ```
 
 You can also watch for changes and continuously edit with:
 
 ```sh
-pixi run manual
+pixi run manual watch
 ```
 
-## Editing Docstrings
 
-The manual uses [Tidy](https://typst.app/universe/package/tidy/) to parse docstrings and populate the manual.
+## Building the documentation site
 
-To create a clickable reference to a documented argument of a function, use `#param[fn][arg]` (which renders as `` `arg` ``) or `#the-param[fn][arg]` (which renders as ``the `arg` option of `fn` ``).
+To build the static site under `docs/site/`:
+
+```sh
+pixi run site compile
+```
+
+To run a local webserver and watch for changes:
+
+```sh
+pixi run site watch
+```
 
 ## Additional Notes
 
