@@ -839,15 +839,18 @@
   let spec = utils.one-or-array(options.label).map(as-label-spec).filter(l => l != none)
 
   // validate values
-  for s in spec {
+  spec = spec.map(s => {
     if type(s.side) not in (alignment, bool, type(auto)) {
       utils.error("label side should be an alignment, bool or auto; got #1 (#0).", type(s.side), repr(s.side))
     }
-
     if type(s.angle) not in (angle, alignment, type(auto)) {
       utils.error("label angle should be an angle, alignment or auto; got #1 (#0).", type(s.angle), repr(s.angle))
     }
-  }
+    if s.pos == auto {
+      s.pos = if s.side == start { 0% } else if s.side == end { 100% } else { 50% }
+    }
+    s
+  })
 
   return spec
 }
@@ -1067,7 +1070,7 @@
   /// This can be given as an _edge argument_ like `edge(.., $f$, label-pos: 50%)` or as a @edge-label option like `edge(.., label: (body: $f$, pos: 50%))`.
   ///
   /// -> ratio | number | length
-  label-pos: 50%,
+  label-pos: auto,
   /// Which side of the edge to place the label on.
   ///
   /// If `auto`, the label is placed roughly above straight edges, or on the outside of curved edges.

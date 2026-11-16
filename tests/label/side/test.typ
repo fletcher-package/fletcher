@@ -79,13 +79,13 @@ Default to outer side of curve
 #pagebreak()
 
 #diagram(edge((0,0), ">->", (1,0), label: (
-	(body: `start`, pos: 0%, side: start),
-	(body: `end`, pos: 100%, side: end),
+	(body: `start`, side: start),
+	(body: `end`, side: end),
 )))
 
 #diagram(edge((1,1), ">->", (0,0), label: (
-	(body: `start`, pos: 0, side: start),
-	(body: `end`, pos: 1, side: end),
+	(body: `start`, side: start),
+	(body: `end`, side: end),
 )))
 
 #pagebreak()
