@@ -19,7 +19,7 @@ See the [documentation](https://fletcher-package.github.io) or [ask the communit
 To get started, import fletcher with:
 
 ```typ
-#import "@preview/fletcher:0.6.0" as fletcher: diagram, node, edge
+#import "@preview/fletcher:0.6.1" as fletcher: diagram, node, edge
 ```
 
 ```typ
