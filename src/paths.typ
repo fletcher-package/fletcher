@@ -46,6 +46,29 @@
 
 
 /// [internal]
+/// Unit vectors along a drawable's direction of travel at its start and at its end.
+///
+/// Each direction comes from the end point and the nearest distinct point that defines the path
+/// beside it, which for a cubic segment is a control point. Skipping coincident points keeps the
+/// direction defined when a control point sits on its end point.
+///
+/// - drawable (dictionary): A CeTZ path drawable.
+/// -> array
+#let end-directions(drawable) = {
+  let defining-points((start, _, segments)) = (start, ..segments.map(((_, ..pts)) => pts).join())
+  let direction(pts) = {
+    let a = pts.first()
+    let b = pts.slice(1).find(p => vector.dist(a, p) > 1e-8)
+    if b == none { return (0., 0., 0.) }
+    vector.norm(vector.sub(b, a))
+  }
+  let start-pts = defining-points(drawable.segments.first())
+  let end-pts = defining-points(drawable.segments.last()).rev()
+  (direction(start-pts), vector.scale(direction(end-pts), -1))
+}
+
+
+/// [internal]
 /// Get the second derivative (d²x/dt²) of a cubic bezier at position `t`.
 ///
 /// - a (vector): Start point
