@@ -8,3 +8,6 @@
 #import "parsing.typ"
 #import "deps.typ": cetz
 #import "utils.typ"
+
+// expose name
+#let name = "fletcher"
