@@ -367,12 +367,90 @@
   edge
 }
 
-#let apply-edge-snapping(ctx, edge, drawable, snap-to) = {
-  let get-edge-drawable(edge) = {
-    let objs = (edge.shape.draw)(edge.shape.args, edge.vertices)
-    let drawables = cetz.process.element(ctx, objs.first()).drawables
-    return drawables.first()
+/// Draw an edge's shape through its vertices, before snapping and edge effects.
+/// [internal]
+#let get-edge-drawable(ctx, edge) = {
+  let objs = (edge.shape.draw)(edge.shape.args, edge.vertices)
+  if objs.len() != 1 { utils.error("edge.draw should return a single CeTZ object") }
+  let (drawables,) = cetz.process.element(ctx, objs.first())
+  if drawables.len() != 1 { utils.error("edge.draw should return a single drawable") }
+  drawables.first()
+}
+
+/// Move the vertices of an edge sideways, for a @edge-shift given as a pair `(start, end)`.
+///
+/// Shifts go to the side that a single shift of the same sign moves the whole edge. A polyline
+/// (a `line` edge with three or more vertices) offsets its first leg by `start`, its last leg by
+/// `end`, and the legs between by amounts stepping evenly from one to the other; each corner
+/// moves to where its two offset legs meet, so every leg stays parallel to where it was and
+/// equal shifts match a single shift. Any other edge moves only its end vertices, each
+/// perpendicular to the path's direction at that end, and its kind redraws the path through
+/// them: an arc keeps its bend angle, so equal shifts give a concentric arc.
+///
+/// The vertices move before snapping, so a shifted edge still meets the outline of the node it
+/// snaps to.
+/// [internal]
+#let apply-end-shifts(ctx, edge) = {
+  let n = edge.vertices.len()
+  let single-vertex = EDGE_KINDS.at(edge.shape.kind, default: (:)).at("n-vertices", default: none) == 1
+  if n < 2 or single-vertex or edge.shape.kind == "cetz" {
+    utils.error(
+      "`shift` can be a pair `(start, end)` only for edges with a start and an end vertex; got a #0 edge. Use a single shift instead.",
+      edge.shape.kind,
+    )
   }
+
+  // resolved shifts are multiples of the stroke thickness; convert them to canvas units
+  let thickness = edge.style.stroke.thickness.to-absolute()
+  let (start, end) = edge.style.shift.map(s => s * thickness / ctx.length)
+
+  // Work in the drawable's coordinates, where the single shift is defined.
+  let to-drawable(pt) = cetz.util.apply-transform(ctx.transform, pt)
+  let to-vertex(pt) = cetz.util.revert-transform(ctx.transform, pt)
+  // the unit vector to the side to which a positive single shift moves a straight segment
+  let side(direction) = {
+    let (dx, dy, ..) = direction
+    if dx == 0 and dy == 0 { return (0., 0., 0.) }
+    cetz.vector.norm((-dy, dx, 0.))
+  }
+  let offset(pt, normal, distance) = cetz.vector.add(pt, cetz.vector.scale(normal, distance))
+
+  if edge.shape.kind != "line" or n == 2 {
+    let (dir-start, dir-end) = paths.end-directions(get-edge-drawable(ctx, edge))
+    let (first, .., last) = edge.vertices.map(to-drawable)
+    edge.vertices.first() = to-vertex(offset(first, side(dir-start), start))
+    edge.vertices.last() = to-vertex(offset(last, side(dir-end), end))
+    return edge
+  }
+
+  let pts = edge.vertices.map(to-drawable)
+  let normals = range(n - 1).map(i => side(cetz.vector.sub(pts.at(i + 1), pts.at(i))))
+  let distances = range(n - 1).map(i => utils.lerp(start, end, i / (n - 2)))
+
+  // the point offset by `d1` along `n1` and by `d2` along `n2` from the corner at `pt`
+  let corner(pt, (n1, d1), (n2, d2)) = {
+    let det = n1.at(0) * n2.at(1) - n1.at(1) * n2.at(0)
+    if calc.abs(det) < 1e-6 {
+      // the legs are parallel or one has zero length
+      return if n1 == (0., 0., 0.) { offset(pt, n2, d2) } else { offset(pt, n1, d1) }
+    }
+    let x = (d1 * n2.at(1) - n1.at(1) * d2) / det
+    let y = (n1.at(0) * d2 - n2.at(0) * d1) / det
+    cetz.vector.add(pt, (x, y, 0.))
+  }
+
+  // each leg's offset direction and distance
+  let legs = normals.zip(distances)
+  edge.vertices = (
+    offset(pts.first(), ..legs.first()),
+    ..range(1, n - 1).map(i => corner(pts.at(i), legs.at(i - 1), legs.at(i))),
+    offset(pts.last(), ..legs.last()),
+  ).map(to-vertex)
+  edge
+}
+
+#let apply-edge-snapping(ctx, edge, drawable, snap-to) = {
+  let get-edge-drawable = get-edge-drawable.with(ctx)
 
   let old-drawable = drawable
 
@@ -414,19 +492,19 @@
 
   edge = apply-pre-snapping-adjustments(ctx, edge, snap-objects)
 
-  let objs = (edge.shape.draw)(edge.shape.args, edge.vertices)
-  if objs.len() != 1 { utils.error("edge.draw should return a single CeTZ object") }
+  // A pair shift moves the vertices, so the path effects below see no further shift.
+  if type(edge.style.shift) == array {
+    edge = apply-end-shifts(ctx, edge)
+    edge.style.shift = 0
+  }
 
-  let (drawables,) = cetz.process.element(ctx, objs.first())
+  let drawable = get-edge-drawable(ctx, edge)
 
   // CETZ 0.5.3: removed element
   let element = (
     name: edge.name,
-    drawables: drawables,
+    drawables: (drawable,),
   )
-
-  if drawables.len() != 1 { utils.error("edge.draw should return a single drawable") }
-  let drawable = drawables.first()
 
   if debug-level(edge.debug, "edge.snap") {
     // show where edge would be drawn without any snapping
@@ -550,7 +628,15 @@
     ))
     .sorted()
 
-  data.style.shift = utils.to-length(data.style.shift, to-float: data.style.stroke.thickness.to-absolute())
+  let shift-to-length = utils.to-length.with(to-float: data.style.stroke.thickness.to-absolute())
+  data.style.shift = if type(data.style.shift) == array {
+    if data.style.shift.len() != 2 {
+      utils.error("`shift` must be a single shift or a pair `(start, end)`; got #0", data.style.shift)
+    }
+    data.style.shift.map(shift-to-length)
+  } else {
+    shift-to-length(data.style.shift)
+  }
 
   // resolve marks
   let all-mark-styles = {
@@ -966,7 +1052,29 @@
   /// ```)
   ///
   /// This offsets the edge similarly to @edge-extrude, but also affects marks and labels.
-  /// -> length
+  /// Numbers are multiples of the stroke thickness.
+  ///
+  /// A pair `(start, end)` shifts the two ends of the edge independently, perpendicular to the
+  /// edge at each end. This is useful for fanning several edges into or out of one node.
+  /// On an edge with corners, the first leg shifts by `start`, the last leg by `end`, and any
+  /// legs between by amounts stepping evenly from one to the other. Equal values give the same
+  /// path as a single shift.
+  ///
+  /// #example(```typ
+  /// #diagram(
+  ///  edge-stroke: 1pt,
+  ///  node((0, 0), [Source], name: <s>),
+  ///  node((2, 0), [Sink], name: <t>),
+  ///  edge(<s>, <t>, "->", shift: (0pt, +6pt)),
+  ///  edge(<s>, <t>, "->", shift: (0pt, -6pt)),
+  ///  edge(<s>, "d,rr", <t>, "->", shift: (6pt, 0pt)),
+  /// )
+  /// ```)
+  ///
+  /// A pair moves the ends before the edge snaps to nodes, so the shifted ends still meet the
+  /// node outlines. Edges with a single vertex, such as loops, and edges wrapping CeTZ objects
+  /// accept only a single shift.
+  /// -> length | number | array
   shift: 0,
   /// Radius of curvature for rounded corners.
   ///
